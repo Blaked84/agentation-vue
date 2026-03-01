@@ -48,7 +48,7 @@ defineExpose({ expanded })
     data-agentation-vue
   >
     <template v-if="!expanded">
-      <button class="__va-toolbar-toggle" title="Agentation Vue" @click="onActivate">
+      <button type="button" class="__va-toolbar-toggle" title="Agentation Vue" @click="onActivate">
         <VaIcon name="cursor" />
         <span v-if="annotationCount > 0" class="__va-toolbar-badge">{{ annotationCount }}</span>
       </button>

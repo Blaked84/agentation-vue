@@ -13,7 +13,7 @@ defineEmits<{
 </script>
 
 <template>
-  <button class="__va-btn" :class="`__va-btn--${variant}`" :disabled="disabled" @click="$emit('click', $event)">
+  <button type="button" class="__va-btn" :class="`__va-btn--${variant}`" :disabled="disabled" @click="$emit('click', $event)">
     <slot />
   </button>
 </template>

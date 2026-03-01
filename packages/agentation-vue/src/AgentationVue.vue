@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Annotation, BoundingBox, Settings } from './types'
-import { isVue2 as _isVue2, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue-demi'
+import { isVue2 as _isVue2, computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue-demi'
 import AgentationToolbar from './components/AgentationToolbar.vue'
 import AnnotationInput from './components/AnnotationInput.vue'
 import AnnotationMarker from './components/AnnotationMarker.vue'
@@ -24,12 +24,12 @@ import { getElementName, getElementPath } from './utils/selectors'
 const props = withDefaults(defineProps<{
   outputDetail?: string
   markerColor?: string
-  copyToClipboardProp?: boolean
+  copyToClipboard?: boolean
   blockPageInteractions?: boolean
   pageUrl?: string
   theme?: 'light' | 'dark' | 'auto'
 }>(), {
-  copyToClipboardProp: true,
+  copyToClipboard: true,
 })
 
 const emit = defineEmits<{
@@ -65,6 +65,7 @@ const pendingComponentChain = ref<string | undefined>()
 const pendingTextSelection = ref<{ text: string, element: Element } | null>(null)
 const settingsOpen = ref(false)
 const copyFeedback = ref(false)
+const effectiveBlockPageInteractions = computed(() => props.blockPageInteractions ?? settings.blockPageInteractions)
 
 // Portal setup (Vue 2.7 compat)
 let portalContainer: HTMLElement | null = null
@@ -108,6 +109,10 @@ watch(() => props.markerColor, (v) => {
 watch(() => props.theme, (v) => {
   if (v)
     settings.theme = v
+}, { immediate: true })
+watch(() => props.blockPageInteractions, (v) => {
+  if (v !== undefined)
+    settings.blockPageInteractions = v
 }, { immediate: true })
 
 // Event handlers
@@ -215,11 +220,40 @@ function onOverlayWheel(_e: WheelEvent) {
   const overlay = overlayEl.value
   if (!overlay)
     return
+  const previousPointerEvents = overlay.style.pointerEvents
   overlay.style.pointerEvents = 'none'
   requestAnimationFrame(() => {
     if (overlay)
-      overlay.style.pointerEvents = ''
+      overlay.style.pointerEvents = previousPointerEvents
   })
+}
+
+function shouldUseDocumentFallbackEvents() {
+  return mode.value === 'inspect' && !effectiveBlockPageInteractions.value
+}
+
+function onDocumentMouseMove(e: MouseEvent) {
+  if (!shouldUseDocumentFallbackEvents())
+    return
+  onOverlayMouseMove(e)
+}
+
+function onDocumentMouseDown(e: MouseEvent) {
+  if (!shouldUseDocumentFallbackEvents())
+    return
+  onOverlayMouseDown(e)
+}
+
+function onDocumentMouseUp(e: MouseEvent) {
+  if (!shouldUseDocumentFallbackEvents())
+    return
+  onOverlayMouseUp(e)
+}
+
+function onDocumentWheel(e: WheelEvent) {
+  if (!shouldUseDocumentFallbackEvents())
+    return
+  onOverlayWheel(e)
 }
 
 function onInputAdd(comment: string) {
@@ -331,6 +365,16 @@ function onInputCancel() {
 async function onCopy() {
   const url = props.pageUrl || window.location.href
   const markdown = formatAnnotations(annotations.value, settings.outputDetail, url)
+
+  if (props.copyToClipboard === false) {
+    emit('copy', markdown)
+    if (settings.clearAfterCopy) {
+      const cleared = clearAnnotations()
+      emit('annotationsClear', cleared)
+    }
+    return
+  }
+
   const success = await copyToClipboard(markdown)
   if (success) {
     copyFeedback.value = true
@@ -395,10 +439,18 @@ function onKeyDown(e: KeyboardEvent) {
 }
 
 onMounted(() => {
+  document.addEventListener('mousemove', onDocumentMouseMove, true)
+  document.addEventListener('mousedown', onDocumentMouseDown, true)
+  document.addEventListener('mouseup', onDocumentMouseUp, true)
+  document.addEventListener('wheel', onDocumentWheel, { passive: true, capture: true })
   document.addEventListener('keydown', onKeyDown)
 })
 
 onBeforeUnmount(() => {
+  document.removeEventListener('mousemove', onDocumentMouseMove, true)
+  document.removeEventListener('mousedown', onDocumentMouseDown, true)
+  document.removeEventListener('mouseup', onDocumentMouseUp, true)
+  document.removeEventListener('wheel', onDocumentWheel, true)
   document.removeEventListener('keydown', onKeyDown)
 })
 </script>
@@ -412,6 +464,7 @@ onBeforeUnmount(() => {
         ref="overlayEl"
         class="__va-intercept"
         :class="{ '__va-intercept--input-open': mode === 'input-open' }"
+        :style="mode === 'inspect' && !effectiveBlockPageInteractions ? { pointerEvents: 'none' } : undefined"
         @mousemove="onOverlayMouseMove"
         @mousedown="onOverlayMouseDown"
         @mouseup="onOverlayMouseUp"

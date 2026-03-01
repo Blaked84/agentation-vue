@@ -19,7 +19,10 @@ function update(key: keyof Settings, value: any) {
 }
 
 function onSelectChange(key: keyof Settings, event: Event) {
-  update(key, (event.target as HTMLSelectElement).value)
+  const target = event.currentTarget as HTMLSelectElement | null
+  if (!target)
+    return
+  update(key, target.value)
 }
 
 const isDarkTheme = computed(() => {
@@ -42,7 +45,7 @@ function toggleTheme() {
 <template>
   <div class="__va-settings" data-agentation-vue @click.stop>
     <div class="__va-settings-top">
-      <button class="__va-theme-toggle" title="Toggle theme" @click="toggleTheme">
+      <button type="button" class="__va-theme-toggle" title="Toggle theme" @click="toggleTheme">
         <VaIcon :name="themeIcon" />
       </button>
     </div>
@@ -61,7 +64,11 @@ function toggleTheme() {
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Vue component tree</span>
-      <VaToggle :model-value="settings.showComponentTree" @update:model-value="update('showComponentTree', $event)" />
+      <VaToggle
+        :model-value="settings.showComponentTree"
+        aria-label="Vue component tree"
+        @update:model-value="update('showComponentTree', $event)"
+      />
     </div>
 
     <div class="__va-settings-divider" />
@@ -72,6 +79,7 @@ function toggleTheme() {
         <button
           v-for="color in presetColors"
           :key="color"
+          type="button"
           class="__va-color-swatch"
           :class="{ '__va-color-swatch--active': settings.markerColor === color }"
           :style="{ background: color }"
@@ -84,12 +92,20 @@ function toggleTheme() {
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Clear on copy/send</span>
-      <VaToggle :model-value="settings.clearAfterCopy" @update:model-value="update('clearAfterCopy', $event)" />
+      <VaToggle
+        :model-value="settings.clearAfterCopy"
+        aria-label="Clear on copy/send"
+        @update:model-value="update('clearAfterCopy', $event)"
+      />
     </div>
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Block page interactions</span>
-      <VaToggle :model-value="settings.blockPageInteractions" @update:model-value="update('blockPageInteractions', $event)" />
+      <VaToggle
+        :model-value="settings.blockPageInteractions"
+        aria-label="Block page interactions"
+        @update:model-value="update('blockPageInteractions', $event)"
+      />
     </div>
   </div>
 </template>

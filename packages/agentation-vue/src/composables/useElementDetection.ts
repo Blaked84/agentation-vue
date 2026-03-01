@@ -21,9 +21,10 @@ export function useElementDetection(
     if (!overlay)
       return document.elementFromPoint(e.clientX, e.clientY)
 
+    const previousPointerEvents = overlay.style.pointerEvents
     overlay.style.pointerEvents = 'none'
     const el = document.elementFromPoint(e.clientX, e.clientY)
-    overlay.style.pointerEvents = ''
+    overlay.style.pointerEvents = previousPointerEvents
     return el
   }
 

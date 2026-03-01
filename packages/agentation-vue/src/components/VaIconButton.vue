@@ -14,7 +14,7 @@ defineEmits<{
 </script>
 
 <template>
-  <button class="__va-icon-btn" :class="{ '__va-icon-btn--active': active }" :disabled="disabled" :title="title" @click="$emit('click', $event)">
+  <button type="button" class="__va-icon-btn" :class="{ '__va-icon-btn--active': active }" :disabled="disabled" :title="title" @click="$emit('click', $event)">
     <slot />
   </button>
 </template>

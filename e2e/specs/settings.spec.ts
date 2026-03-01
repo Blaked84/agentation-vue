@@ -17,13 +17,16 @@ test.describe('Settings', () => {
     await ag.settingsBtn.click()
     await expect(ag.settingsPanel).toBeVisible()
 
-    // Find the output detail toggles
-    const toggles = ag.settingsPanel.locator('.__va-toggle')
-    const firstToggle = toggles.first()
-    await expect(firstToggle).toBeVisible()
+    // Find the output detail <select>
+    const outputDetailSelect = ag.settingsPanel.locator('select').first()
+    await expect(outputDetailSelect).toBeVisible()
 
-    // Click it to change the value
-    await firstToggle.click()
+    // Read initial value and switch to the other option
+    const initialValue = await outputDetailSelect.inputValue()
+    const nextValue = initialValue === 'standard' ? 'forensic' : 'standard'
+    await outputDetailSelect.selectOption(nextValue)
+    const newValue = await outputDetailSelect.inputValue()
+    expect(newValue).toBe(nextValue)
 
     // Verify settings stored in localStorage
     const stored = await ag.page.evaluate(() => {
@@ -31,6 +34,7 @@ test.describe('Settings', () => {
       return s ? JSON.parse(s) : null
     })
     expect(stored).toBeTruthy()
+    expect(stored.outputDetail).toBe(newValue)
   })
 
   test('marker color changes when swatch is clicked', async ({ ag }) => {
