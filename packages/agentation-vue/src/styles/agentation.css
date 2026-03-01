@@ -21,7 +21,8 @@
   }
 }
 
-[data-agentation-vue][data-va-theme="dark"] {
+[data-agentation-vue][data-va-theme="dark"],
+[data-agentation-vue][data-va-theme="dark"] [data-agentation-vue] {
   --va-bg: #1A1A1A;
   --va-bg-secondary: #2A2A2A;
   --va-text: #F5F5F5;
@@ -29,7 +30,8 @@
   --va-border: #333333;
 }
 
-[data-agentation-vue][data-va-theme="light"] {
+[data-agentation-vue][data-va-theme="light"],
+[data-agentation-vue][data-va-theme="light"] [data-agentation-vue] {
   --va-bg: #FFFFFF;
   --va-bg-secondary: #F5F5F5;
   --va-text: #1A1A1A;
@@ -375,11 +377,36 @@
   min-width: 260px;
 }
 
-.__va-settings-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--va-text);
+.__va-settings-top {
+  display: flex;
+  justify-content: flex-end;
   margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--va-border);
+}
+
+.__va-theme-toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid var(--va-border);
+  background: var(--va-bg-secondary);
+  color: var(--va-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.__va-theme-toggle:hover {
+  color: var(--va-text);
+  border-color: var(--va-text-secondary);
+}
+
+.__va-theme-toggle svg {
+  width: 15px;
+  height: 15px;
 }
 
 .__va-settings-row {
@@ -394,6 +421,25 @@
   font-size: 12px;
   color: var(--va-text-secondary);
   white-space: nowrap;
+}
+
+.__va-settings-row--stack {
+  display: block;
+}
+
+.__va-settings-row--stack .__va-settings-label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.__va-settings-row:last-child {
+  margin-bottom: 0;
+}
+
+.__va-settings-divider {
+  height: 1px;
+  background: var(--va-border);
+  margin: 8px 0 12px;
 }
 
 .__va-settings select {
