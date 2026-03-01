@@ -484,9 +484,9 @@ onBeforeUnmount(() => {
         @deactivate="onDeactivate"
         @copy="onCopy"
         @clear="onClear"
-        @toggle-pause="animPause.toggle"
-        @toggle-area="onToggleArea"
-        @open-settings="settingsOpen = !settingsOpen"
+        @togglePause="animPause.toggle"
+        @toggleArea="onToggleArea"
+        @openSettings="settingsOpen = !settingsOpen"
       />
     </div>
   </component>

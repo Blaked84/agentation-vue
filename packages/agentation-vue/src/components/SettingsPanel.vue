@@ -55,17 +55,17 @@ function onSelectChange(key: keyof Settings, event: Event) {
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Block page interactions</span>
-      <VaToggle :model-value="settings.blockPageInteractions" @update:model-value="update('blockPageInteractions', $event)" />
+      <VaToggle :model-value="settings.blockPageInteractions" @update:modelValue="update('blockPageInteractions', $event)" />
     </div>
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Clear after copy</span>
-      <VaToggle :model-value="settings.clearAfterCopy" @update:model-value="update('clearAfterCopy', $event)" />
+      <VaToggle :model-value="settings.clearAfterCopy" @update:modelValue="update('clearAfterCopy', $event)" />
     </div>
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Vue component tree</span>
-      <VaToggle :model-value="settings.showComponentTree" @update:model-value="update('showComponentTree', $event)" />
+      <VaToggle :model-value="settings.showComponentTree" @update:modelValue="update('showComponentTree', $event)" />
     </div>
 
     <div class="__va-settings-row">
