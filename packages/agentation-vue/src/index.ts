@@ -12,6 +12,9 @@ export const AgentationVuePlugin = {
 }
 
 export { default as ComponentChain } from './components/ComponentChain.vue'
+export { default as VaIcon } from './components/VaIcon.vue'
+export { icons } from './icons'
+export type { IconName } from './icons'
 
 export { default as VaButton } from './components/VaButton.vue'
 export { default as VaIconButton } from './components/VaIconButton.vue'
