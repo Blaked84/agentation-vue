@@ -1,5 +1,5 @@
-import { formatAnnotations, useOutputFormatter } from '../../src/composables/useOutputFormatter'
 import type { Annotation } from '../../src/types'
+import { formatAnnotations, useOutputFormatter } from '../../src/composables/useOutputFormatter'
 
 const baseAnnotation: Annotation = {
   id: 'ann-1',

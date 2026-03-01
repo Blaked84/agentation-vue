@@ -1,4 +1,5 @@
-import { test as base, expect, type Page, type Locator } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
+import { test as base, expect } from '@playwright/test'
 
 class AgentationPage {
   readonly page: Page
@@ -85,7 +86,8 @@ class AgentationPage {
   async clickElement(selector: string) {
     const el = this.page.locator(selector).first()
     const box = await el.boundingBox()
-    if (!box) throw new Error(`Element not found: ${selector}`)
+    if (!box)
+      throw new Error(`Element not found: ${selector}`)
     await this.overlay.click({
       position: { x: box.x + box.width / 2, y: box.y + box.height / 2 },
       force: true,

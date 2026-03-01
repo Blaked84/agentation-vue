@@ -24,10 +24,6 @@ beforeAll(() => {
   })
 })
 
-afterAll(() => {
-  vi.unstubAllGlobals()
-})
-
 let useAnnotations: typeof import('../../src/composables/useAnnotations').useAnnotations
 
 beforeEach(async () => {
@@ -35,6 +31,10 @@ beforeEach(async () => {
   vi.resetModules()
   const mod = await import('../../src/composables/useAnnotations')
   useAnnotations = mod.useAnnotations
+})
+
+afterAll(() => {
+  vi.unstubAllGlobals()
 })
 
 describe('useAnnotations', () => {

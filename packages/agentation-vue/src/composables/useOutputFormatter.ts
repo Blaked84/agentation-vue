@@ -18,11 +18,14 @@ export function formatAnnotations(
     // Title
     if (ann.selectedText) {
       lines.push(`### ${num}. "${ann.selectedText}" (selected text)`)
-    } else if (ann.isMultiSelect) {
+    }
+    else if (ann.isMultiSelect) {
       lines.push(`### ${num}. Multi-selection (${ann.elements?.length || 0} elements)`)
-    } else if (ann.isAreaSelect) {
+    }
+    else if (ann.isAreaSelect) {
       lines.push(`### ${num}. Area selection`)
-    } else {
+    }
+    else {
       lines.push(`### ${num}. \`${ann.element}\` — ${ann.elementPath}`)
     }
 

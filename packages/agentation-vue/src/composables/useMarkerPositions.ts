@@ -1,17 +1,20 @@
-import { onMounted, onBeforeUnmount, type Ref } from 'vue-demi'
+import type { Ref } from 'vue-demi'
 import type { Annotation } from '../types'
+import { onBeforeUnmount, onMounted } from 'vue-demi'
 
 export function useMarkerPositions(annotations: Ref<Annotation[]>) {
   let resizeObserver: ResizeObserver | null = null
   let rafId: number | null = null
 
   function recalculatePositions() {
-    if (rafId !== null) return
+    if (rafId !== null)
+      return
     rafId = requestAnimationFrame(() => {
       rafId = null
       for (const annotation of annotations.value) {
         const el = annotation._targetRef?.deref()
-        if (!el) continue
+        if (!el)
+          continue
 
         const rect = el.getBoundingClientRect()
         const scrollTop = window.scrollY || document.documentElement.scrollTop
@@ -37,7 +40,8 @@ export function useMarkerPositions(annotations: Ref<Annotation[]>) {
     window.removeEventListener('resize', recalculatePositions)
     window.removeEventListener('scroll', recalculatePositions)
     resizeObserver?.disconnect()
-    if (rafId !== null) cancelAnimationFrame(rafId)
+    if (rafId !== null)
+      cancelAnimationFrame(rafId)
   })
 
   return { recalculatePositions }

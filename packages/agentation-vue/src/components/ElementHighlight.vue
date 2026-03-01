@@ -1,3 +1,27 @@
+<script setup lang="ts">
+import type { BoundingBox } from '../types'
+import { computed } from 'vue-demi'
+import ComponentChain from './ComponentChain.vue'
+
+const props = defineProps<{
+  rect: BoundingBox | null
+  elementName: string
+  visible: boolean
+  componentChain?: string
+}>()
+
+const highlightStyle = computed(() => {
+  if (!props.rect)
+    return {}
+  return {
+    left: `${props.rect.x}px`,
+    top: `${props.rect.y}px`,
+    width: `${props.rect.width}px`,
+    height: `${props.rect.height}px`,
+  }
+})
+</script>
+
 <template>
   <div
     v-if="visible && rect"
@@ -11,26 +35,3 @@
     <span v-else class="__va-highlight-label">{{ elementName }}</span>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed } from 'vue-demi'
-import type { BoundingBox } from '../types'
-import ComponentChain from './ComponentChain.vue'
-
-const props = defineProps<{
-  rect: BoundingBox | null
-  elementName: string
-  visible: boolean
-  componentChain?: string
-}>()
-
-const highlightStyle = computed(() => {
-  if (!props.rect) return {}
-  return {
-    left: `${props.rect.x}px`,
-    top: `${props.rect.y}px`,
-    width: `${props.rect.width}px`,
-    height: `${props.rect.height}px`,
-  }
-})
-</script>

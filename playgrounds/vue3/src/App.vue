@@ -1,13 +1,30 @@
+<script setup lang="ts">
+</script>
+
 <template>
   <div class="app-layout">
     <nav class="app-nav">
-      <h2 class="app-title">Agentation Vue</h2>
-      <router-link to="/" class="nav-link">Basic Elements</router-link>
-      <router-link to="/nested" class="nav-link">Nested Layout</router-link>
-      <router-link to="/animated" class="nav-link">Animated</router-link>
-      <router-link to="/dynamic" class="nav-link">Dynamic Content</router-link>
-      <router-link to="/iframes" class="nav-link">Iframes</router-link>
-      <router-link to="/fixed" class="nav-link">Fixed/Sticky</router-link>
+      <h2 class="app-title">
+        Agentation Vue
+      </h2>
+      <router-link to="/" class="nav-link">
+        Basic Elements
+      </router-link>
+      <router-link to="/nested" class="nav-link">
+        Nested Layout
+      </router-link>
+      <router-link to="/animated" class="nav-link">
+        Animated
+      </router-link>
+      <router-link to="/dynamic" class="nav-link">
+        Dynamic Content
+      </router-link>
+      <router-link to="/iframes" class="nav-link">
+        Iframes
+      </router-link>
+      <router-link to="/fixed" class="nav-link">
+        Fixed/Sticky
+      </router-link>
     </nav>
     <main class="app-main">
       <router-view />
@@ -15,9 +32,6 @@
     <agentation-vue />
   </div>
 </template>
-
-<script setup lang="ts">
-</script>
 
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }

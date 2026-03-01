@@ -13,11 +13,11 @@ npm install agentation-vue
 ## Setup — Vue 3
 
 ```ts
+import { AgentationVuePlugin } from 'agentation-vue'
 // main.ts
 import { createApp } from 'vue'
-import { AgentationVuePlugin } from 'agentation-vue'
-import 'agentation-vue/style.css'
 import App from './App.vue'
+import 'agentation-vue/style.css'
 
 createApp(App)
   .use(AgentationVuePlugin)
@@ -36,16 +36,16 @@ Then place the component once in your root `App.vue`:
 ## Setup — Vue 2.7
 
 ```ts
+import { AgentationVuePlugin } from 'agentation-vue'
 // main.ts
 import Vue from 'vue'
-import { AgentationVuePlugin } from 'agentation-vue'
-import 'agentation-vue/style.css'
 import App from './App.vue'
+import 'agentation-vue/style.css'
 
 Vue.use(AgentationVuePlugin)
 
 new Vue({
-  render: (h) => h(App),
+  render: h => h(App),
 }).$mount('#app')
 ```
 

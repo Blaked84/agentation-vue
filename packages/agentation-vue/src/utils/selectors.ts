@@ -1,7 +1,7 @@
 const HASH_CLASS_PATTERNS = [
   /^[a-z]+-[a-zA-Z0-9]{5,}$/,
   /^css-[a-z0-9]+$/,
-  /^_[a-zA-Z0-9]{6,}$/,
+  /^_[a-z0-9]{6,}$/i,
   /^__/,
   /^svelte-/,
   /^emotion-/,
@@ -18,7 +18,8 @@ function getMeaningfulClasses(el: Element): string[] {
 function bubbleSvg(el: Element): Element {
   if (el instanceof SVGElement && !(el instanceof SVGSVGElement)) {
     const svg = el.closest('svg')
-    if (svg) return svg
+    if (svg)
+      return svg
   }
   return el
 }
@@ -73,19 +74,21 @@ export function getElementName(el: Element): string {
   if (textTags.includes(tag)) {
     const text = (el.textContent || '').trim()
     if (text.length > 0) {
-      const truncated = text.length > 30 ? text.slice(0, 30) + '...' : text
+      const truncated = text.length > 30 ? `${text.slice(0, 30)}...` : text
       return `"${truncated}" ${tag}`
     }
   }
 
   if (tag === 'img') {
     const alt = el.getAttribute('alt')
-    if (alt) return `img[alt="${alt}"]`
+    if (alt)
+      return `img[alt="${alt}"]`
   }
 
   if (tag === 'input') {
     const placeholder = el.getAttribute('placeholder')
-    if (placeholder) return `input[placeholder="${placeholder}"]`
+    if (placeholder)
+      return `input[placeholder="${placeholder}"]`
     const type = el.getAttribute('type') || 'text'
     return `input[type="${type}"]`
   }
@@ -109,9 +112,11 @@ export function getElementPath(el: Element): string {
     if (current.id) {
       parts.unshift(`${tag}#${current.id}`)
       break
-    } else if (classes.length > 0) {
+    }
+    else if (classes.length > 0) {
       parts.unshift(`${tag}.${classes.join('.')}`)
-    } else {
+    }
+    else {
       parts.unshift(tag)
     }
     current = current.parentElement

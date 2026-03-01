@@ -1,7 +1,7 @@
+import { AgentationVuePlugin } from 'agentation-vue'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import App from './App.vue'
-import { AgentationVuePlugin } from 'agentation-vue'
 import 'agentation-vue/style.css'
 
 Vue.use(VueRouter)

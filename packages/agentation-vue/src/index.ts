@@ -11,29 +11,29 @@ export const AgentationVuePlugin = {
   },
 }
 
-export type {
-  OutputDetail,
-  InteractionMode,
-  BoundingBox,
-  ElementRef,
-  Annotation,
-  AgentationProps,
-  AgentationEmits,
-  Settings,
-} from './types'
-
-export { useInteractionMode } from './composables/useInteractionMode'
-export { useAnnotations } from './composables/useAnnotations'
-export { useElementDetection } from './composables/useElementDetection'
-export { useTextSelection } from './composables/useTextSelection'
-export { useMultiSelect } from './composables/useMultiSelect'
-export { useAreaSelect } from './composables/useAreaSelect'
-export { useAnimationPause } from './composables/useAnimationPause'
-export { useMarkerPositions } from './composables/useMarkerPositions'
-export { useOutputFormatter, formatAnnotations } from './composables/useOutputFormatter'
-export { useSettings } from './composables/useSettings'
+export { default as ComponentChain } from './components/ComponentChain.vue'
 
 export { default as VaButton } from './components/VaButton.vue'
 export { default as VaIconButton } from './components/VaIconButton.vue'
 export { default as VaToggle } from './components/VaToggle.vue'
-export { default as ComponentChain } from './components/ComponentChain.vue'
+export { useAnimationPause } from './composables/useAnimationPause'
+export { useAnnotations } from './composables/useAnnotations'
+export { useAreaSelect } from './composables/useAreaSelect'
+export { useElementDetection } from './composables/useElementDetection'
+export { useInteractionMode } from './composables/useInteractionMode'
+export { useMarkerPositions } from './composables/useMarkerPositions'
+export { useMultiSelect } from './composables/useMultiSelect'
+
+export { formatAnnotations, useOutputFormatter } from './composables/useOutputFormatter'
+export { useSettings } from './composables/useSettings'
+export { useTextSelection } from './composables/useTextSelection'
+export type {
+  AgentationEmits,
+  AgentationProps,
+  Annotation,
+  BoundingBox,
+  ElementRef,
+  InteractionMode,
+  OutputDetail,
+  Settings,
+} from './types'

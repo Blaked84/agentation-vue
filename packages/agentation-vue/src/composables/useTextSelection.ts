@@ -10,8 +10,10 @@ export interface TextSelectionResult {
 
 export function useTextSelection(mode: Ref<InteractionMode>) {
   function checkTextSelection(e: MouseEvent): TextSelectionResult | null {
-    if (mode.value !== 'inspect') return null
-    if (e.shiftKey || e.altKey) return null
+    if (mode.value !== 'inspect')
+      return null
+    if (e.shiftKey || e.altKey)
+      return null
 
     const selection = window.getSelection()
     const selectedText = selection?.toString().trim() ?? ''

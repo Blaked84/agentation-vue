@@ -1,26 +1,31 @@
 {
   "name": "agentation-vue",
+  "type": "module",
   "version": "0.1.0",
   "description": "Visual feedback tool for AI coding agents — Vue 2.7 & 3",
-  "type": "module",
+  "sideEffects": ["**/*.css"],
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/index.d.mts",
+        "types": "./dist/index.d.ts",
         "default": "./dist/index.mjs"
       },
       "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
       }
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/styles/agentation.css"
   },
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": ["dist"],
-  "sideEffects": ["**/*.css"],
+  "scripts": {
+    "build": "unbuild",
+    "dev": "unbuild --stub",
+    "typecheck": "vue-tsc --noEmit"
+  },
   "peerDependencies": {
     "vue": "^2.7.0 || ^3.3.0"
   },
@@ -28,12 +33,7 @@
     "vue-demi": "^0.14.0"
   },
   "devDependencies": {
-    "vue": "^3.5.0",
-    "unbuild": "^3.0.0"
-  },
-  "scripts": {
-    "build": "unbuild",
-    "dev": "unbuild --stub",
-    "typecheck": "vue-tsc --noEmit"
+    "unbuild": "^3.0.0",
+    "vue": "^3.5.0"
   }
 }

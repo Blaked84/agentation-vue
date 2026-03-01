@@ -1,36 +1,10 @@
-<template>
-  <div
-    class="__va-input"
-    :style="inputStyle"
-    data-agentation-vue
-    @click.stop
-    @mousedown.stop
-  >
-    <div v-if="componentChain" class="__va-input-chain">
-      <ComponentChain :chain="componentChain" variant="light" />
-    </div>
-    <span v-else class="__va-input-label">{{ elementName || 'Annotation' }}</span>
-    <input
-      ref="inputEl"
-      v-model="comment"
-      placeholder="Add a comment..."
-      @keydown.enter="onAdd"
-      @keydown.escape="$emit('cancel')"
-    />
-    <div class="__va-input-actions">
-      <VaButton variant="secondary" @click="$emit('cancel')">Cancel</VaButton>
-      <VaButton :disabled="!comment.trim()" @click="onAdd">Add</VaButton>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue-demi'
+import { computed, onMounted, ref } from 'vue-demi'
 import ComponentChain from './ComponentChain.vue'
 import VaButton from './VaButton.vue'
 
 const props = defineProps<{
-  position: { x: number; y: number }
+  position: { x: number, y: number }
   elementName?: string
   componentChain?: string
 }>()
@@ -54,7 +28,8 @@ const inputStyle = computed(() => {
 
 function onAdd() {
   const text = comment.value.trim()
-  if (!text) return
+  if (!text)
+    return
   emit('add', text)
 }
 
@@ -62,3 +37,33 @@ onMounted(() => {
   inputEl.value?.focus()
 })
 </script>
+
+<template>
+  <div
+    class="__va-input"
+    :style="inputStyle"
+    data-agentation-vue
+    @click.stop
+    @mousedown.stop
+  >
+    <div v-if="componentChain" class="__va-input-chain">
+      <ComponentChain :chain="componentChain" variant="light" />
+    </div>
+    <span v-else class="__va-input-label">{{ elementName || 'Annotation' }}</span>
+    <input
+      ref="inputEl"
+      v-model="comment"
+      placeholder="Add a comment..."
+      @keydown.enter="onAdd"
+      @keydown.escape="$emit('cancel')"
+    >
+    <div class="__va-input-actions">
+      <VaButton variant="secondary" @click="$emit('cancel')">
+        Cancel
+      </VaButton>
+      <VaButton :disabled="!comment.trim()" @click="onAdd">
+        Add
+      </VaButton>
+    </div>
+  </div>
+</template>

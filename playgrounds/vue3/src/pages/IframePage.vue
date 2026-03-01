@@ -1,7 +1,14 @@
+<script setup lang="ts">
+</script>
+
 <template>
   <div class="page">
-    <h1 class="page-title">Iframes</h1>
-    <p class="page-desc">Test iframe handling. The iframe element itself is annotatable, but internal content is not.</p>
+    <h1 class="page-title">
+      Iframes
+    </h1>
+    <p class="page-desc">
+      Test iframe handling. The iframe element itself is annotatable, but internal content is not.
+    </p>
 
     <section class="section">
       <h2>Same-origin iframe (srcdoc)</h2>
@@ -10,7 +17,7 @@
         srcdoc="<html><body style='font-family:sans-serif;padding:16px'><h3>Same-origin iframe</h3><p>This content is inside an iframe.</p><button>Button inside iframe</button></body></html>"
         width="100%"
         height="150"
-      ></iframe>
+      />
     </section>
 
     <section class="section">
@@ -21,7 +28,7 @@
         width="100%"
         height="200"
         sandbox
-      ></iframe>
+      />
     </section>
 
     <section class="section">
@@ -34,9 +41,6 @@
     </section>
   </div>
 </template>
-
-<script setup lang="ts">
-</script>
 
 <style scoped>
 .page { max-width: 700px; }

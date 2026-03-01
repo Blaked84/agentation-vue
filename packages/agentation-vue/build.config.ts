@@ -2,12 +2,10 @@ import { defineBuildConfig } from 'unbuild'
 
 export default defineBuildConfig({
   entries: [
-    { input: 'src/index.ts' },
+    { builder: 'mkdist', input: './src', outDir: './dist', format: 'esm' },
+    { builder: 'mkdist', input: './src', outDir: './dist', format: 'cjs' },
   ],
   externals: ['vue', 'vue-demi'],
   declaration: true,
   clean: true,
-  rollup: {
-    emitCJS: true,
-  },
 })

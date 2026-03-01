@@ -1,62 +1,3 @@
-<template>
-  <div class="page">
-    <h1 class="page-title">Dynamic Content</h1>
-    <p class="page-desc">Test annotations on dynamically changing content (v-for, v-if, async).</p>
-
-    <section class="section">
-      <h2>Dynamic List (v-for)</h2>
-      <div class="list-controls">
-        <button class="btn btn-primary btn-sm" @click="addItem">Add Item</button>
-        <button class="btn btn-secondary btn-sm" @click="removeLastItem" :disabled="items.length === 0">Remove Last</button>
-      </div>
-      <ul class="item-list">
-        <li v-for="item in items" :key="item.id" class="item">
-          <span class="item-text">{{ item.text }}</span>
-          <button class="btn-remove" @click="removeItem(item.id)">x</button>
-        </li>
-      </ul>
-      <p v-if="items.length === 0" class="empty">No items. Click "Add Item" to add some.</p>
-    </section>
-
-    <section class="section">
-      <h2>Conditional (v-if)</h2>
-      <button class="btn btn-primary btn-sm" @click="showPanel = !showPanel">
-        {{ showPanel ? 'Hide' : 'Show' }} Panel
-      </button>
-      <div v-if="showPanel" class="conditional-panel">
-        <h3>Conditional Panel</h3>
-        <p>This panel appears and disappears. Try annotating elements inside.</p>
-        <button class="btn btn-secondary">Panel Button</button>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>Async Content</h2>
-      <button class="btn btn-primary btn-sm" @click="loadAsync" :disabled="asyncLoading">
-        {{ asyncLoading ? 'Loading...' : 'Load Content' }}
-      </button>
-      <div v-if="asyncContent" class="async-panel">
-        <h3>Loaded Content</h3>
-        <p>{{ asyncContent }}</p>
-        <button class="btn btn-secondary">Async Button</button>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>Accordion</h2>
-      <div v-for="(item, i) in accordionItems" :key="i" class="accordion-item">
-        <button class="accordion-header" @click="toggleAccordion(i)">
-          {{ item.title }}
-          <span>{{ openAccordions.includes(i) ? '-' : '+' }}</span>
-        </button>
-        <div v-if="openAccordions.includes(i)" class="accordion-body">
-          {{ item.content }}
-        </div>
-      </div>
-    </section>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref } from 'vue'
 
@@ -102,10 +43,86 @@ const openAccordions = ref<number[]>([])
 
 function toggleAccordion(i: number) {
   const idx = openAccordions.value.indexOf(i)
-  if (idx >= 0) openAccordions.value.splice(idx, 1)
+  if (idx >= 0)
+    openAccordions.value.splice(idx, 1)
   else openAccordions.value.push(i)
 }
 </script>
+
+<template>
+  <div class="page">
+    <h1 class="page-title">
+      Dynamic Content
+    </h1>
+    <p class="page-desc">
+      Test annotations on dynamically changing content (v-for, v-if, async).
+    </p>
+
+    <section class="section">
+      <h2>Dynamic List (v-for)</h2>
+      <div class="list-controls">
+        <button class="btn btn-primary btn-sm" @click="addItem">
+          Add Item
+        </button>
+        <button class="btn btn-secondary btn-sm" :disabled="items.length === 0" @click="removeLastItem">
+          Remove Last
+        </button>
+      </div>
+      <ul class="item-list">
+        <li v-for="item in items" :key="item.id" class="item">
+          <span class="item-text">{{ item.text }}</span>
+          <button class="btn-remove" @click="removeItem(item.id)">
+            x
+          </button>
+        </li>
+      </ul>
+      <p v-if="items.length === 0" class="empty">
+        No items. Click "Add Item" to add some.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Conditional (v-if)</h2>
+      <button class="btn btn-primary btn-sm" @click="showPanel = !showPanel">
+        {{ showPanel ? 'Hide' : 'Show' }} Panel
+      </button>
+      <div v-if="showPanel" class="conditional-panel">
+        <h3>Conditional Panel</h3>
+        <p>This panel appears and disappears. Try annotating elements inside.</p>
+        <button class="btn btn-secondary">
+          Panel Button
+        </button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Async Content</h2>
+      <button class="btn btn-primary btn-sm" :disabled="asyncLoading" @click="loadAsync">
+        {{ asyncLoading ? 'Loading...' : 'Load Content' }}
+      </button>
+      <div v-if="asyncContent" class="async-panel">
+        <h3>Loaded Content</h3>
+        <p>{{ asyncContent }}</p>
+        <button class="btn btn-secondary">
+          Async Button
+        </button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Accordion</h2>
+      <div v-for="(item, i) in accordionItems" :key="i" class="accordion-item">
+        <button class="accordion-header" @click="toggleAccordion(i)">
+          {{ item.title }}
+          <span>{{ openAccordions.includes(i) ? '-' : '+' }}</span>
+        </button>
+        <div v-if="openAccordions.includes(i)" class="accordion-body">
+          {{ item.content }}
+        </div>
+      </div>
+    </section>
+  </div>
+</template>
 
 <style scoped>
 .page { max-width: 700px; }

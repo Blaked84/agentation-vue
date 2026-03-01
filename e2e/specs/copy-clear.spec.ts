@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/agentation-fixture'
+import { expect, test } from '../fixtures/agentation-fixture'
 
 test.describe('Copy & Clear', () => {
   test.beforeEach(async ({ ag }) => {

@@ -6,9 +6,9 @@
     "build": "vite build"
   },
   "dependencies": {
+    "agentation-vue": "workspace:*",
     "vue": "~2.7.16",
-    "vue-router": "^3.6.0",
-    "agentation-vue": "workspace:*"
+    "vue-router": "^3.6.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue2": "^2.3.0",

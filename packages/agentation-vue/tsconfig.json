@@ -1,11 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
     "paths": {
       "agentation-vue": ["./src/index.ts"]
-    }
+    },
+    "outDir": "dist"
   },
   "include": ["src/**/*", "__tests__/**/*"],
   "exclude": ["dist"]

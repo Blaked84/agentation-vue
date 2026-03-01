@@ -1,5 +1,6 @@
-import { ref, type Ref } from 'vue-demi'
+import type { Ref } from 'vue-demi'
 import type { BoundingBox, InteractionMode } from '../types'
+import { ref } from 'vue-demi'
 
 export function useAreaSelect(
   mode: Ref<InteractionMode>,
@@ -18,7 +19,8 @@ export function useAreaSelect(
     const shouldActivate = (mode.value === 'inspect' && e.altKey)
       || (mode.value === 'inspect' && isAreaMode.value)
 
-    if (!shouldActivate) return false
+    if (!shouldActivate)
+      return false
 
     e.preventDefault()
     document.documentElement.style.userSelect = 'none'
@@ -32,7 +34,8 @@ export function useAreaSelect(
   }
 
   function onMouseMove(e: MouseEvent) {
-    if (mode.value !== 'area-selecting') return
+    if (mode.value !== 'area-selecting')
+      return
 
     const x = Math.min(startX, e.clientX)
     const y = Math.min(startY, e.clientY)
@@ -42,7 +45,8 @@ export function useAreaSelect(
   }
 
   function onMouseUp() {
-    if (mode.value !== 'area-selecting') return
+    if (mode.value !== 'area-selecting')
+      return
     document.documentElement.style.userSelect = ''
   }
 

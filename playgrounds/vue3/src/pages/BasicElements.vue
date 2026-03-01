@@ -1,15 +1,30 @@
+<script setup lang="ts">
+</script>
+
 <template>
   <div class="page">
-    <h1 class="page-title">Basic Elements</h1>
-    <p class="page-desc">Test basic element selection, hover highlights, and CSS selector generation.</p>
+    <h1 class="page-title">
+      Basic Elements
+    </h1>
+    <p class="page-desc">
+      Test basic element selection, hover highlights, and CSS selector generation.
+    </p>
 
     <section class="section">
       <h2>Buttons</h2>
       <div class="btn-group">
-        <button class="test-submit btn btn-primary">Submit</button>
-        <button class="test-cancel btn btn-secondary">Cancel</button>
-        <button class="test-delete btn btn-danger">Delete</button>
-        <button class="btn btn-outline" disabled>Disabled</button>
+        <button class="test-submit btn btn-primary">
+          Submit
+        </button>
+        <button class="test-cancel btn btn-secondary">
+          Cancel
+        </button>
+        <button class="test-delete btn btn-danger">
+          Delete
+        </button>
+        <button class="btn btn-outline" disabled>
+          Disabled
+        </button>
       </div>
     </section>
 
@@ -25,8 +40,8 @@
     <section class="section">
       <h2>Images</h2>
       <div class="image-grid">
-        <img alt="avatar" class="avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' fill='%23ccc'%3E%3Crect width='80' height='80' rx='40'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='%23999' font-size='14'%3EAV%3C/text%3E%3C/svg%3E" />
-        <img alt="banner" class="banner-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='100' fill='%23e5e5e5'%3E%3Crect width='200' height='100' rx='8'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='%23999' font-size='14'%3EBanner%3C/text%3E%3C/svg%3E" />
+        <img alt="avatar" class="avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' fill='%23ccc'%3E%3Crect width='80' height='80' rx='40'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='%23999' font-size='14'%3EAV%3C/text%3E%3C/svg%3E">
+        <img alt="banner" class="banner-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='100' fill='%23e5e5e5'%3E%3Crect width='200' height='100' rx='8'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='%23999' font-size='14'%3EBanner%3C/text%3E%3C/svg%3E">
       </div>
     </section>
 
@@ -35,17 +50,19 @@
       <form class="form" @submit.prevent>
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
-          <input id="email" type="email" class="form-input" placeholder="you@example.com" />
+          <input id="email" type="email" class="form-input" placeholder="you@example.com">
         </div>
         <div class="form-group">
           <label for="password" class="form-label">Password</label>
-          <input id="password" type="password" class="form-input" placeholder="Enter password" />
+          <input id="password" type="password" class="form-input" placeholder="Enter password">
         </div>
         <div class="form-group">
           <label for="message" class="form-label">Message</label>
-          <textarea id="message" class="form-textarea" placeholder="Type your message..." rows="3"></textarea>
+          <textarea id="message" class="form-textarea" placeholder="Type your message..." rows="3" />
         </div>
-        <button type="submit" class="btn btn-primary">Send</button>
+        <button type="submit" class="btn btn-primary">
+          Send
+        </button>
       </form>
     </section>
 
@@ -75,24 +92,33 @@
       <h2>Cards</h2>
       <div class="card-grid">
         <div class="card">
-          <div class="card-header">Feature One</div>
-          <div class="card-body">This is a card with some content inside.</div>
+          <div class="card-header">
+            Feature One
+          </div>
+          <div class="card-body">
+            This is a card with some content inside.
+          </div>
         </div>
         <div class="card">
-          <div class="card-header">Feature Two</div>
-          <div class="card-body">Another card with different content.</div>
+          <div class="card-header">
+            Feature Two
+          </div>
+          <div class="card-body">
+            Another card with different content.
+          </div>
         </div>
         <div class="card">
-          <div class="card-header">Feature Three</div>
-          <div class="card-body">And a third card for good measure.</div>
+          <div class="card-header">
+            Feature Three
+          </div>
+          <div class="card-body">
+            And a third card for good measure.
+          </div>
         </div>
       </div>
     </section>
   </div>
 </template>
-
-<script setup lang="ts">
-</script>
 
 <style scoped>
 .page { max-width: 700px; }

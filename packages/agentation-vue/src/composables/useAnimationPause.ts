@@ -5,7 +5,8 @@ export function useAnimationPause() {
   let styleEl: HTMLStyleElement | null = null
 
   function pause() {
-    if (styleEl) return
+    if (styleEl)
+      return
 
     styleEl = document.createElement('style')
     styleEl.setAttribute('data-agentation-pause', '')
@@ -28,7 +29,7 @@ export function useAnimationPause() {
       styleEl = null
     }
 
-    document.querySelectorAll('video').forEach(v => {
+    document.querySelectorAll('video').forEach((v) => {
       v.play().catch(() => {})
     })
 
@@ -38,13 +39,15 @@ export function useAnimationPause() {
   function toggle() {
     if (isPaused.value) {
       resume()
-    } else {
+    }
+    else {
       pause()
     }
   }
 
   function cleanup() {
-    if (isPaused.value) resume()
+    if (isPaused.value)
+      resume()
   }
 
   return { isPaused, toggle, pause, resume, cleanup }

@@ -3,7 +3,8 @@ import { generateSelector, getElementName, getElementPath } from '../../src/util
 // jsdom doesn't provide CSS.escape — polyfill it
 if (typeof globalThis.CSS === 'undefined') {
   (globalThis as any).CSS = { escape: (s: string) => s.replace(/([#.:[\]()>+~=^$*!|/\\])/g, '\\$1') }
-} else if (!CSS.escape) {
+}
+else if (!CSS.escape) {
   CSS.escape = (s: string) => s.replace(/([#.:[\]()>+~=^$*!|/\\])/g, '\\$1')
 }
 

@@ -1,49 +1,5 @@
-<template>
-  <div class="page">
-    <h1 class="page-title">Animated Page</h1>
-    <p class="page-desc">Test the animation pause feature with CSS animations, transitions, and video.</p>
-
-    <section class="section">
-      <h2>CSS Keyframe Animations</h2>
-      <div class="anim-row">
-        <div class="spinner">Spin</div>
-        <div class="bouncer">Bounce</div>
-        <div class="pulser">Pulse</div>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>CSS Transitions</h2>
-      <p class="transition-hint">Hover over these elements:</p>
-      <div class="anim-row">
-        <div class="hover-scale">Scale</div>
-        <div class="hover-rotate">Rotate</div>
-        <div class="hover-color">Color</div>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>Video</h2>
-      <video class="test-video" width="320" height="180" autoplay muted loop playsinline>
-        <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAu1tZGF0AAACrQYF//+p" type="video/mp4" />
-        Your browser does not support video.
-      </video>
-      <p class="video-note">Video element (pause feature should freeze it)</p>
-    </section>
-
-    <section class="section">
-      <h2>JS Animation</h2>
-      <div class="js-anim-container">
-        <div ref="jsBox" class="js-animated-box" :style="{ transform: `translateX(${jsOffset}px)` }">
-          JS Animated
-        </div>
-      </div>
-    </section>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const jsOffset = ref(0)
 let animId: number | null = null
@@ -51,14 +7,85 @@ let direction = 1
 
 function animate() {
   jsOffset.value += direction * 1.5
-  if (jsOffset.value > 200) direction = -1
-  if (jsOffset.value < 0) direction = 1
+  if (jsOffset.value > 200)
+    direction = -1
+  if (jsOffset.value < 0)
+    direction = 1
   animId = requestAnimationFrame(animate)
 }
 
-onMounted(() => { animId = requestAnimationFrame(animate) })
-onBeforeUnmount(() => { if (animId) cancelAnimationFrame(animId) })
+onMounted(() => {
+  animId = requestAnimationFrame(animate)
+})
+onBeforeUnmount(() => {
+  if (animId)
+    cancelAnimationFrame(animId)
+})
 </script>
+
+<template>
+  <div class="page">
+    <h1 class="page-title">
+      Animated Page
+    </h1>
+    <p class="page-desc">
+      Test the animation pause feature with CSS animations, transitions, and video.
+    </p>
+
+    <section class="section">
+      <h2>CSS Keyframe Animations</h2>
+      <div class="anim-row">
+        <div class="spinner">
+          Spin
+        </div>
+        <div class="bouncer">
+          Bounce
+        </div>
+        <div class="pulser">
+          Pulse
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>CSS Transitions</h2>
+      <p class="transition-hint">
+        Hover over these elements:
+      </p>
+      <div class="anim-row">
+        <div class="hover-scale">
+          Scale
+        </div>
+        <div class="hover-rotate">
+          Rotate
+        </div>
+        <div class="hover-color">
+          Color
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Video</h2>
+      <video class="test-video" width="320" height="180" autoplay muted loop playsinline>
+        <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAu1tZGF0AAACrQYF//+p" type="video/mp4">
+        Your browser does not support video.
+      </video>
+      <p class="video-note">
+        Video element (pause feature should freeze it)
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>JS Animation</h2>
+      <div class="js-anim-container">
+        <div class="js-animated-box" :style="{ transform: `translateX(${jsOffset}px)` }">
+          JS Animated
+        </div>
+      </div>
+    </section>
+  </div>
+</template>
 
 <style scoped>
 .page { max-width: 700px; }

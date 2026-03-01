@@ -1,11 +1,11 @@
 export type OutputDetail = 'standard' | 'forensic'
 
-export type InteractionMode =
-  | 'idle'
-  | 'inspect'
-  | 'multi-selecting'
-  | 'area-selecting'
-  | 'input-open'
+export type InteractionMode
+  = | 'idle'
+    | 'inspect'
+    | 'multi-selecting'
+    | 'area-selecting'
+    | 'input-open'
 
 export interface BoundingBox {
   x: number

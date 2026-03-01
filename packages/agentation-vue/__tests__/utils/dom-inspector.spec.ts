@@ -1,8 +1,8 @@
 import {
-  isFixed,
-  getNearbyElements,
-  getComputedStylesSummary,
   getAccessibilityInfo,
+  getComputedStylesSummary,
+  getNearbyElements,
+  isFixed,
 } from '../../src/utils/dom-inspector'
 
 // ---------------------------------------------------------------------------
@@ -122,7 +122,7 @@ describe('detectVueComponents', () => {
 // ---------------------------------------------------------------------------
 describe('isFixed', () => {
   let container: HTMLElement
-  let spy: ReturnType<typeof vi.spyOn>
+  let spy: any
 
   beforeEach(() => {
     container = document.createElement('div')
@@ -140,7 +140,8 @@ describe('isFixed', () => {
 
     spy = vi.spyOn(window, 'getComputedStyle').mockImplementation((target) => {
       const styles: Record<string, string> = {}
-      if (target === el) styles.position = 'fixed'
+      if (target === el)
+        styles.position = 'fixed'
       else styles.position = 'static'
       return styles as unknown as CSSStyleDeclaration
     })
@@ -156,7 +157,8 @@ describe('isFixed', () => {
 
     spy = vi.spyOn(window, 'getComputedStyle').mockImplementation((target) => {
       const styles: Record<string, string> = {}
-      if (target === parent) styles.position = 'sticky'
+      if (target === parent)
+        styles.position = 'sticky'
       else styles.position = 'static'
       return styles as unknown as CSSStyleDeclaration
     })
@@ -250,7 +252,7 @@ describe('getNearbyElements', () => {
 // ---------------------------------------------------------------------------
 describe('getComputedStylesSummary', () => {
   let container: HTMLElement
-  let spy: ReturnType<typeof vi.spyOn>
+  let spy: any
 
   beforeEach(() => {
     container = document.createElement('div')

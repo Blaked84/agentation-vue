@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/agentation-fixture'
+import { expect, test } from '../fixtures/agentation-fixture'
 
 test.describe('Session Persistence', () => {
   // goto() auto-clears storage by default

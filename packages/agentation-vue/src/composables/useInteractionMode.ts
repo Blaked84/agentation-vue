@@ -1,5 +1,5 @@
-import { ref } from 'vue-demi'
 import type { InteractionMode } from '../types'
+import { ref } from 'vue-demi'
 
 export function useInteractionMode() {
   const mode = ref<InteractionMode>('idle')

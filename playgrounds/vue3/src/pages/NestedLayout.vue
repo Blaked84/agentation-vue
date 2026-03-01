@@ -1,7 +1,18 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const sidebarCollapsed = ref(false)
+const modalOpen = ref(false)
+</script>
+
 <template>
   <div class="page">
-    <h1 class="page-title">Nested Layout</h1>
-    <p class="page-desc">Test annotations in complex stacking contexts, overflow hidden, and modals.</p>
+    <h1 class="page-title">
+      Nested Layout
+    </h1>
+    <p class="page-desc">
+      Test annotations in complex stacking contexts, overflow hidden, and modals.
+    </p>
 
     <div class="layout-demo">
       <!-- Sidebar -->
@@ -10,9 +21,15 @@
           {{ sidebarCollapsed ? '>' : '<' }}
         </button>
         <div v-if="!sidebarCollapsed" class="sidebar-content">
-          <div class="sidebar-item">Dashboard</div>
-          <div class="sidebar-item">Analytics</div>
-          <div class="sidebar-item">Settings</div>
+          <div class="sidebar-item">
+            Dashboard
+          </div>
+          <div class="sidebar-item">
+            Analytics
+          </div>
+          <div class="sidebar-item">
+            Settings
+          </div>
         </div>
       </div>
 
@@ -22,7 +39,9 @@
         <div class="overflow-container">
           <h3>Overflow: hidden container</h3>
           <p>Content inside an overflow:hidden parent. Annotations should still work via portal.</p>
-          <button class="btn btn-primary test-overflow-btn">Button in overflow</button>
+          <button class="btn btn-primary test-overflow-btn">
+            Button in overflow
+          </button>
           <div class="overflow-long-text">
             This text extends beyond the container boundaries but is clipped.
             Try annotating elements inside this container.
@@ -32,9 +51,15 @@
         <!-- Z-index stacking -->
         <div class="stacking-demo">
           <h3>Stacking Contexts</h3>
-          <div class="stack-layer stack-layer-1">Layer 1 (z-index: 1)</div>
-          <div class="stack-layer stack-layer-2">Layer 2 (z-index: 10)</div>
-          <div class="stack-layer stack-layer-3">Layer 3 (z-index: 100)</div>
+          <div class="stack-layer stack-layer-1">
+            Layer 1 (z-index: 1)
+          </div>
+          <div class="stack-layer stack-layer-2">
+            Layer 2 (z-index: 10)
+          </div>
+          <div class="stack-layer stack-layer-3">
+            Layer 3 (z-index: 100)
+          </div>
         </div>
 
         <!-- Transform container -->
@@ -42,34 +67,40 @@
           <h3>Transform Context</h3>
           <div class="transformed-box">
             <p>This box has a CSS transform applied. Elements inside create a new stacking context.</p>
-            <button class="btn btn-secondary">Inside transform</button>
+            <button class="btn btn-secondary">
+              Inside transform
+            </button>
           </div>
         </div>
 
         <!-- Modal trigger -->
-        <button class="btn btn-primary" @click="modalOpen = true">Open Modal</button>
+        <button class="btn btn-primary" @click="modalOpen = true">
+          Open Modal
+        </button>
       </div>
     </div>
 
     <!-- Modal -->
     <div v-if="modalOpen" class="modal-backdrop" @click.self="modalOpen = false">
       <div class="modal">
-        <h3 class="modal-title">Modal Dialog</h3>
-        <p class="modal-body">This modal has a backdrop and high z-index. Annotations should work inside.</p>
+        <h3 class="modal-title">
+          Modal Dialog
+        </h3>
+        <p class="modal-body">
+          This modal has a backdrop and high z-index. Annotations should work inside.
+        </p>
         <div class="modal-actions">
-          <button class="btn btn-secondary" @click="modalOpen = false">Cancel</button>
-          <button class="btn btn-primary" @click="modalOpen = false">Confirm</button>
+          <button class="btn btn-secondary" @click="modalOpen = false">
+            Cancel
+          </button>
+          <button class="btn btn-primary" @click="modalOpen = false">
+            Confirm
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-const sidebarCollapsed = ref(false)
-const modalOpen = ref(false)
-</script>
 
 <style scoped>
 .page { max-width: 800px; }

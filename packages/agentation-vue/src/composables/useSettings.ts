@@ -1,5 +1,5 @@
-import { reactive, watch } from 'vue-demi'
 import type { Settings } from '../types'
+import { reactive, watch } from 'vue-demi'
 
 const STORAGE_KEY = 'agentation-vue-settings'
 
@@ -15,8 +15,10 @@ const defaults: Settings = {
 function loadSettings(): Settings {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) return { ...defaults, ...JSON.parse(stored) }
-  } catch {}
+    if (stored)
+      return { ...defaults, ...JSON.parse(stored) }
+  }
+  catch {}
   return { ...defaults }
 }
 
@@ -28,7 +30,8 @@ export function useSettings() {
     (val) => {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(val))
-      } catch {}
+      }
+      catch {}
     },
     { deep: true },
   )

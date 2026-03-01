@@ -1,19 +1,34 @@
+<script setup lang="ts">
+</script>
+
 <template>
   <div class="page">
-    <h1 class="page-title">Fixed & Sticky Elements</h1>
-    <p class="page-desc">Test annotations on fixed/sticky positioned elements. Scroll down to see sticky behavior.</p>
+    <h1 class="page-title">
+      Fixed & Sticky Elements
+    </h1>
+    <p class="page-desc">
+      Test annotations on fixed/sticky positioned elements. Scroll down to see sticky behavior.
+    </p>
 
     <!-- Sticky header -->
     <div class="sticky-header">
       <span>Sticky Header</span>
-      <button class="btn btn-sm">Action</button>
+      <button class="btn btn-sm">
+        Action
+      </button>
     </div>
 
     <!-- Fixed sidebar (small) -->
     <div class="fixed-sidebar">
-      <div class="fixed-sidebar-item">Home</div>
-      <div class="fixed-sidebar-item">Docs</div>
-      <div class="fixed-sidebar-item">API</div>
+      <div class="fixed-sidebar-item">
+        Home
+      </div>
+      <div class="fixed-sidebar-item">
+        Docs
+      </div>
+      <div class="fixed-sidebar-item">
+        API
+      </div>
     </div>
 
     <!-- Long scrollable content -->
@@ -22,20 +37,25 @@
         <h2>Section {{ i }}</h2>
         <p>This is content for section {{ i }}. Scroll to see the sticky header track its position.</p>
         <div class="card">
-          <div class="card-title">Card in Section {{ i }}</div>
-          <p class="card-desc">Some content inside this card that can be annotated.</p>
-          <button class="btn btn-primary btn-sm">Click me</button>
+          <div class="card-title">
+            Card in Section {{ i }}
+          </div>
+          <p class="card-desc">
+            Some content inside this card that can be annotated.
+          </p>
+          <button class="btn btn-primary btn-sm">
+            Click me
+          </button>
         </div>
       </section>
     </div>
 
     <!-- Fixed FAB -->
-    <button class="fab">+</button>
+    <button class="fab">
+      +
+    </button>
   </div>
 </template>
-
-<script setup lang="ts">
-</script>
 
 <style scoped>
 .page { max-width: 700px; padding-bottom: 100px; }

@@ -1,18 +1,3 @@
-<template>
-  <div
-    class="__va-marker"
-    :class="{
-      '__va-marker--fixed': isFixed,
-      '__va-marker--stale': isStale,
-    }"
-    :style="markerStyle"
-    data-agentation-vue
-    @click.stop="$emit('click')"
-  >
-    {{ number }}
-  </div>
-</template>
-
 <script setup lang="ts">
 import { computed } from 'vue-demi'
 
@@ -30,9 +15,24 @@ defineEmits<{
 }>()
 
 const markerStyle = computed(() => ({
-  left: `${props.x}%`,
-  top: `${props.y}px`,
+  'left': `${props.x}%`,
+  'top': `${props.y}px`,
   '--va-accent': props.color || undefined,
-  background: props.color || undefined,
+  'background': props.color || undefined,
 }))
 </script>
+
+<template>
+  <div
+    class="__va-marker"
+    :class="{
+      '__va-marker--fixed': isFixed,
+      '__va-marker--stale': isStale,
+    }"
+    :style="markerStyle"
+    data-agentation-vue
+    @click.stop="$emit('click')"
+  >
+    {{ number }}
+  </div>
+</template>

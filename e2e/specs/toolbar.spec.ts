@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/agentation-fixture'
+import { expect, test } from '../fixtures/agentation-fixture'
 
 test.describe('Toolbar', () => {
   test('is visible in collapsed state on page load', async ({ ag }) => {

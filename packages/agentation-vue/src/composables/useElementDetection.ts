@@ -1,7 +1,8 @@
-import { ref, type Ref } from 'vue-demi'
+import type { Ref } from 'vue-demi'
 import type { BoundingBox } from '../types'
-import { getElementName } from '../utils/selectors'
+import { ref } from 'vue-demi'
 import { detectVueComponents } from '../utils/dom-inspector'
+import { getElementName } from '../utils/selectors'
 
 export function useElementDetection(
   overlayRef: Ref<HTMLElement | null>,
@@ -17,7 +18,8 @@ export function useElementDetection(
 
   function getElementUnderOverlay(e: MouseEvent): Element | null {
     const overlay = overlayRef.value
-    if (!overlay) return document.elementFromPoint(e.clientX, e.clientY)
+    if (!overlay)
+      return document.elementFromPoint(e.clientX, e.clientY)
 
     overlay.style.pointerEvents = 'none'
     const el = document.elementFromPoint(e.clientX, e.clientY)
@@ -45,19 +47,22 @@ export function useElementDetection(
     hoveredName.value = getElementName(el)
     if (showComponentTree?.()) {
       hoveredComponentChain.value = detectVueComponents(el)
-    } else {
+    }
+    else {
       hoveredComponentChain.value = undefined
     }
   }
 
   function onMouseMove(e: MouseEvent) {
-    if (rafId !== null) return
+    if (rafId !== null)
+      return
 
     rafId = requestAnimationFrame(() => {
       rafId = null
       const el = getElementUnderOverlay(e)
 
-      if (el === lastElement) return
+      if (el === lastElement)
+        return
 
       if (el?.closest('[data-agentation-vue]')) {
         clearHighlight()
@@ -67,7 +72,8 @@ export function useElementDetection(
       lastElement = el
       if (el) {
         updateHighlight(el)
-      } else {
+      }
+      else {
         clearHighlight()
       }
     })

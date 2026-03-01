@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
+import { resolve } from 'node:path'
 import vue2 from '@vitejs/plugin-vue2'
-import { resolve } from 'path'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [vue2()],

@@ -1,5 +1,6 @@
-import { ref, type Ref } from 'vue-demi'
+import type { Ref } from 'vue-demi'
 import type { BoundingBox, InteractionMode } from '../types'
+import { ref } from 'vue-demi'
 
 export function useMultiSelect(
   mode: Ref<InteractionMode>,
@@ -11,7 +12,8 @@ export function useMultiSelect(
   let startY = 0
 
   function onMouseDown(e: MouseEvent) {
-    if (mode.value !== 'inspect' || !e.shiftKey) return false
+    if (mode.value !== 'inspect' || !e.shiftKey)
+      return false
 
     e.preventDefault()
     document.documentElement.style.userSelect = 'none'
@@ -25,7 +27,8 @@ export function useMultiSelect(
   }
 
   function onMouseMove(e: MouseEvent) {
-    if (mode.value !== 'multi-selecting') return
+    if (mode.value !== 'multi-selecting')
+      return
 
     const x = Math.min(startX, e.clientX)
     const y = Math.min(startY, e.clientY)
@@ -37,29 +40,33 @@ export function useMultiSelect(
   }
 
   function onMouseUp() {
-    if (mode.value !== 'multi-selecting') return
+    if (mode.value !== 'multi-selecting')
+      return
 
     document.documentElement.style.userSelect = ''
     collectIntersectedElements()
   }
 
   function collectIntersectedElements() {
-    if (!selectionRect.value) return
+    if (!selectionRect.value)
+      return
 
     const rect = selectionRect.value
     const all = document.querySelectorAll('body *:not([data-agentation-vue] *)')
     const intersected: Element[] = []
 
     for (const el of Array.from(all)) {
-      if (el.closest('[data-agentation-vue]')) continue
+      if (el.closest('[data-agentation-vue]'))
+        continue
       const elRect = el.getBoundingClientRect()
-      if (elRect.width === 0 || elRect.height === 0) continue
+      if (elRect.width === 0 || elRect.height === 0)
+        continue
 
       if (
-        elRect.left < rect.x + rect.width &&
-        elRect.right > rect.x &&
-        elRect.top < rect.y + rect.height &&
-        elRect.bottom > rect.y
+        elRect.left < rect.x + rect.width
+        && elRect.right > rect.x
+        && elRect.top < rect.y + rect.height
+        && elRect.bottom > rect.y
       ) {
         const isLeaf = el.children.length === 0
           || el.tagName.toLowerCase() === 'button'

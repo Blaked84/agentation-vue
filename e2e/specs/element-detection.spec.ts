@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/agentation-fixture'
+import { expect, test } from '../fixtures/agentation-fixture'
 
 test.describe('Element Detection', () => {
   test.beforeEach(async ({ ag }) => {
@@ -8,7 +8,8 @@ test.describe('Element Detection', () => {
   test('hovering over an element shows highlight box', async ({ ag }) => {
     const btn = ag.page.locator('.test-submit')
     const box = await btn.boundingBox()
-    if (!box) throw new Error('Button not found')
+    if (!box)
+      throw new Error('Button not found')
 
     await ag.overlay.hover({
       position: { x: box.x + box.width / 2, y: box.y + box.height / 2 },
@@ -20,7 +21,8 @@ test.describe('Element Detection', () => {
   test('highlight label shows element name', async ({ ag }) => {
     const btn = ag.page.locator('.test-submit')
     const box = await btn.boundingBox()
-    if (!box) throw new Error('Button not found')
+    if (!box)
+      throw new Error('Button not found')
 
     await ag.overlay.hover({
       position: { x: box.x + box.width / 2, y: box.y + box.height / 2 },
@@ -37,7 +39,8 @@ test.describe('Element Detection', () => {
 
     const btnBox = await btn.boundingBox()
     const imgBox = await img.boundingBox()
-    if (!btnBox || !imgBox) throw new Error('Elements not found')
+    if (!btnBox || !imgBox)
+      throw new Error('Elements not found')
 
     // Hover button
     await ag.overlay.hover({
@@ -64,7 +67,8 @@ test.describe('Element Detection', () => {
   test('no highlight on toolbar elements', async ({ ag }) => {
     // Move to the toolbar area
     const toolbarBox = await ag.toolbar.boundingBox()
-    if (!toolbarBox) throw new Error('Toolbar not found')
+    if (!toolbarBox)
+      throw new Error('Toolbar not found')
 
     // Move mouse to toolbar — the overlay shouldn't react to toolbar elements
     // since they have data-agentation-vue and the overlay itself ignores them
