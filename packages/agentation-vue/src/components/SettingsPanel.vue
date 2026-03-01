@@ -15,6 +15,10 @@ const presetColors = ['#8B5CF6', '#3B82F6', '#06B6D4', '#10B981', '#EAB308', '#F
 function update(key: keyof Settings, value: any) {
   emit('update', { [key]: value })
 }
+
+function onSelectChange(key: keyof Settings, event: Event) {
+  update(key, (event.target as HTMLSelectElement).value)
+}
 </script>
 
 <template>
@@ -25,7 +29,7 @@ function update(key: keyof Settings, value: any) {
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Output Detail</span>
-      <select :value="settings.outputDetail" @change="update('outputDetail', ($event.target as HTMLSelectElement).value)">
+      <select :value="settings.outputDetail" @change="onSelectChange('outputDetail', $event)">
         <option value="standard">
           Standard
         </option>
@@ -66,7 +70,7 @@ function update(key: keyof Settings, value: any) {
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Theme</span>
-      <select :value="settings.theme" @change="update('theme', ($event.target as HTMLSelectElement).value)">
+      <select :value="settings.theme" @change="onSelectChange('theme', $event)">
         <option value="auto">
           Auto
         </option>
