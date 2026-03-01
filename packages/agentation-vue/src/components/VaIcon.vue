@@ -1,3 +1,10 @@
+<script setup lang="ts">
+import type { IconName } from '../icons'
+import { icons } from '../icons'
+
+defineProps<{ name: IconName }>()
+</script>
+
 <template>
   <svg
     viewBox="0 0 24 24"
@@ -9,10 +16,3 @@
     v-html="icons[name]"
   />
 </template>
-
-<script setup lang="ts">
-import { icons } from '../icons'
-import type { IconName } from '../icons'
-
-defineProps<{ name: IconName }>()
-</script>

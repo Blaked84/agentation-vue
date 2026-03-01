@@ -7,11 +7,10 @@ import VaToggle from './VaToggle.vue'
 const props = defineProps<{
   settings: Settings
 }>()
-const settings = toRef(props, 'settings')
-
 const emit = defineEmits<{
   update: [settings: Partial<Settings>]
 }>()
+const settings = toRef(props, 'settings')
 
 const presetColors = ['#8B5CF6', '#3B82F6', '#06B6D4', '#10B981', '#EAB308', '#FF5C00', '#EF4444']
 
@@ -62,7 +61,7 @@ function toggleTheme() {
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Vue component tree</span>
-      <VaToggle :model-value="settings.showComponentTree" @update:modelValue="update('showComponentTree', $event)" />
+      <VaToggle :model-value="settings.showComponentTree" @update:model-value="update('showComponentTree', $event)" />
     </div>
 
     <div class="__va-settings-divider" />
@@ -85,12 +84,12 @@ function toggleTheme() {
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Clear on copy/send</span>
-      <VaToggle :model-value="settings.clearAfterCopy" @update:modelValue="update('clearAfterCopy', $event)" />
+      <VaToggle :model-value="settings.clearAfterCopy" @update:model-value="update('clearAfterCopy', $event)" />
     </div>
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Block page interactions</span>
-      <VaToggle :model-value="settings.blockPageInteractions" @update:modelValue="update('blockPageInteractions', $event)" />
+      <VaToggle :model-value="settings.blockPageInteractions" @update:model-value="update('blockPageInteractions', $event)" />
     </div>
   </div>
 </template>

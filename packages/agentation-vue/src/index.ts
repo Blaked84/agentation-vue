@@ -12,11 +12,8 @@ export const AgentationVuePlugin = {
 }
 
 export { default as ComponentChain } from './components/ComponentChain.vue'
-export { default as VaIcon } from './components/VaIcon.vue'
-export { icons } from './icons'
-export type { IconName } from './icons'
-
 export { default as VaButton } from './components/VaButton.vue'
+export { default as VaIcon } from './components/VaIcon.vue'
 export { default as VaIconButton } from './components/VaIconButton.vue'
 export { default as VaToggle } from './components/VaToggle.vue'
 export { useAnimationPause } from './composables/useAnimationPause'
@@ -26,10 +23,11 @@ export { useElementDetection } from './composables/useElementDetection'
 export { useInteractionMode } from './composables/useInteractionMode'
 export { useMarkerPositions } from './composables/useMarkerPositions'
 export { useMultiSelect } from './composables/useMultiSelect'
-
 export { formatAnnotations, useOutputFormatter } from './composables/useOutputFormatter'
 export { useSettings } from './composables/useSettings'
 export { useTextSelection } from './composables/useTextSelection'
+export { icons } from './icons'
+export type { IconName } from './icons'
 export type {
   AgentationEmits,
   AgentationProps,

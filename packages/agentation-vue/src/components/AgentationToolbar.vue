@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue-demi'
-import VaIconButton from './VaIconButton.vue'
 import VaIcon from './VaIcon.vue'
+import VaIconButton from './VaIconButton.vue'
 
 defineProps<{
   mode: string
@@ -56,19 +56,19 @@ defineExpose({ expanded })
 
     <template v-else>
       <!-- Element selector (default mode) -->
-      <VaIconButton :active="!isAreaMode" title="Element selector" @click="$emit('toggleArea', false)">
+      <VaIconButton :active="!isAreaMode" title="Element selector" @click="emit('toggleArea', false)">
         <VaIcon name="cursor" />
       </VaIconButton>
 
       <!-- Area selection -->
-      <VaIconButton :active="isAreaMode" title="Area selection" @click="$emit('toggleArea', true)">
+      <VaIconButton :active="isAreaMode" title="Area selection" @click="emit('toggleArea', true)">
         <VaIcon name="area-select" />
       </VaIconButton>
 
       <div class="__va-toolbar-sep" />
 
       <!-- Pause animations -->
-      <VaIconButton :active="isPaused" title="Pause animations" @click="$emit('togglePause')">
+      <VaIconButton :active="isPaused" title="Pause animations" @click="emit('togglePause')">
         <VaIcon v-if="!isPaused" name="pause" />
         <VaIcon v-else name="play" />
       </VaIconButton>
@@ -88,7 +88,7 @@ defineExpose({ expanded })
       <div class="__va-toolbar-sep" />
 
       <!-- Settings -->
-      <VaIconButton title="Settings" @click="$emit('openSettings')">
+      <VaIconButton title="Settings" @click="emit('openSettings')">
         <VaIcon name="settings" />
       </VaIconButton>
 
