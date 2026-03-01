@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install
+      - run: pnpm install --frozen-lockfile
       - run: pnpm lint
 
   typecheck:
@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install
+      - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
 
   unit-tests:
@@ -44,7 +44,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install
+      - run: pnpm install --frozen-lockfile
       - run: pnpm test:unit
 
   build:
@@ -56,11 +56,15 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install
+      - run: pnpm install --frozen-lockfile
       - run: pnpm build
 
-  e2e-vue3:
+  e2e:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        vue-version: [2, 3]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -68,34 +72,19 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
       - run: npx playwright install --with-deps chromium
-      - run: pnpm test:e2e:vue3
+      - run: pnpm test:e2e:vue${{ matrix.vue-version }}
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: e2e-vue3-results
-          path: |
-            test-results/
-            playwright-report/
-          retention-days: 7
-
-  e2e-vue2:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install
-      - run: npx playwright install --with-deps chromium
-      - run: pnpm test:e2e:vue2
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: e2e-vue2-results
+          name: e2e-vue${{ matrix.vue-version }}-results
           path: |
             test-results/
             playwright-report/

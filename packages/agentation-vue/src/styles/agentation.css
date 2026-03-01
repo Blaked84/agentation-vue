@@ -38,8 +38,7 @@
 }
 
 /* === Portal Reset === */
-#__va-portal,
-#__va-portal * {
+:where(#__va-portal, #__va-portal *) {
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   line-height: 1.5;
