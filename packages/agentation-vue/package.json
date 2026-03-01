@@ -1,0 +1,39 @@
+{
+  "name": "agentation-vue",
+  "version": "0.1.0",
+  "description": "Visual feedback tool for AI coding agents — Vue 2.7 & 3",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "sideEffects": ["**/*.css"],
+  "peerDependencies": {
+    "vue": "^2.7.0 || ^3.3.0"
+  },
+  "dependencies": {
+    "vue-demi": "^0.14.0"
+  },
+  "devDependencies": {
+    "vue": "^3.5.0",
+    "unbuild": "^3.0.0"
+  },
+  "scripts": {
+    "build": "unbuild",
+    "dev": "unbuild --stub",
+    "typecheck": "vue-tsc --noEmit"
+  }
+}
