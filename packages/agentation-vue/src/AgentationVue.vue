@@ -72,7 +72,9 @@ const isVue2 = _isVue2 || false
 
 const PassThrough = defineComponent({
   render() {
-    return this.$slots.default?.() || null
+    // eslint-disable-next-line vue/require-slots-as-functions -- Vue 2: $slots.default is VNode[], not a function
+    const slot = this.$slots.default
+    return (typeof slot === 'function' ? slot() : slot?.[0]) || null
   },
 })
 
