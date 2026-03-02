@@ -1,0 +1,671 @@
+/* Agentation Vue — Styles */
+/* All classes prefixed .__va-* for isolation */
+
+/* === Theme Variables === */
+[data-agentation-vue] {
+  --va-bg: #FFFFFF;
+  --va-bg-secondary: #F5F5F5;
+  --va-text: #1A1A1A;
+  --va-text-secondary: #666666;
+  --va-border: #E5E5E5;
+  --va-accent: #FF5C00;
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-agentation-vue]:not([data-va-theme="light"]) {
+    --va-bg: #1A1A1A;
+    --va-bg-secondary: #2A2A2A;
+    --va-text: #F5F5F5;
+    --va-text-secondary: #999999;
+    --va-border: #333333;
+  }
+}
+
+[data-agentation-vue][data-va-theme="dark"],
+[data-agentation-vue][data-va-theme="dark"] [data-agentation-vue] {
+  --va-bg: #1A1A1A;
+  --va-bg-secondary: #2A2A2A;
+  --va-text: #F5F5F5;
+  --va-text-secondary: #999999;
+  --va-border: #333333;
+}
+
+[data-agentation-vue][data-va-theme="light"],
+[data-agentation-vue][data-va-theme="light"] [data-agentation-vue] {
+  --va-bg: #FFFFFF;
+  --va-bg-secondary: #F5F5F5;
+  --va-text: #1A1A1A;
+  --va-text-secondary: #666666;
+  --va-border: #E5E5E5;
+}
+
+/* === Portal Reset === */
+:where(#__va-portal, #__va-portal *) {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  border: none;
+  text-decoration: none;
+  list-style: none;
+}
+
+/* === Intercept Overlay === */
+.__va-intercept {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  cursor: crosshair;
+  background: transparent;
+}
+
+.__va-intercept--input-open {
+  pointer-events: none;
+}
+
+/* === Toolbar === */
+.__va-toolbar {
+  position: fixed;
+  --va-toolbar-base-transform: none;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--va-bg);
+  border: 1px solid var(--va-border);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 150ms ease;
+  user-select: none;
+  transform: var(--va-toolbar-base-transform);
+}
+
+.__va-toolbar--place-bottom-right {
+  right: 20px;
+  bottom: 20px;
+}
+
+.__va-toolbar--place-bottom-center {
+  left: 50%;
+  bottom: 20px;
+  --va-toolbar-base-transform: translateX(-50%);
+}
+
+.__va-toolbar--place-bottom-left {
+  left: 20px;
+  bottom: 20px;
+}
+
+.__va-toolbar--place-top-right {
+  right: 20px;
+  top: 20px;
+}
+
+.__va-toolbar--place-top-center {
+  left: 50%;
+  top: 20px;
+  --va-toolbar-base-transform: translateX(-50%);
+}
+
+.__va-toolbar--place-top-left {
+  left: 20px;
+  top: 20px;
+}
+
+.__va-toolbar--collapsed {
+  padding: 0;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.__va-toolbar--collapsed:hover {
+  transform: var(--va-toolbar-base-transform) scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.__va-toolbar--dragging {
+  transition: none;
+  left: 0;
+  top: 0;
+  right: auto;
+  bottom: auto;
+  transform: none;
+}
+
+.__va-toolbar--dragging.__va-toolbar--collapsed:hover {
+  transform: none;
+}
+
+.__va-snap-zones {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2147483646;
+}
+
+.__va-snap-zone {
+  position: fixed;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  border: 1.5px dashed rgba(255, 92, 0, 0.18);
+  background: rgba(255, 92, 0, 0.035);
+  box-shadow: 0 0 0 1px rgba(255, 92, 0, 0.04);
+  transition: all 120ms ease;
+}
+
+.__va-snap-zone--active {
+  border-color: rgba(255, 92, 0, 0.4);
+  background: rgba(255, 92, 0, 0.09);
+  transform: translate(-50%, -50%) scale(1.04);
+}
+
+.__va-snap-zone--rect {
+  border-radius: 8px;
+  transform: none;
+}
+
+.__va-snap-zone--rect.__va-snap-zone--active {
+  transform: none;
+}
+
+.__va-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--va-text-secondary);
+  cursor: pointer;
+  transition: all 150ms ease;
+  border: none;
+  outline: none;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.__va-icon-btn:hover {
+  background: var(--va-bg-secondary);
+  color: var(--va-text);
+}
+
+.__va-icon-btn--active {
+  background: var(--va-accent);
+  color: white;
+}
+
+.__va-icon-btn--active:hover {
+  background: var(--va-accent);
+  opacity: 0.9;
+}
+
+.__va-icon-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.__va-icon-btn:disabled:hover {
+  background: transparent;
+}
+
+.__va-icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.__va-toolbar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  color: var(--va-accent);
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+}
+
+.__va-toolbar-toggle svg {
+  width: 24px;
+  height: 24px;
+}
+
+.__va-toolbar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--va-border);
+  flex-shrink: 0;
+}
+
+.__va-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 32px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--va-text-secondary);
+  border: none;
+  cursor: grab;
+  padding: 0;
+  outline: none;
+  flex-shrink: 0;
+  transition: all 150ms ease;
+}
+
+.__va-drag-handle:hover {
+  background: var(--va-bg-secondary);
+  color: var(--va-text);
+}
+
+.__va-drag-handle:active {
+  cursor: grabbing;
+}
+
+.__va-drag-handle-dots {
+  display: grid;
+  grid-template-columns: repeat(2, 4px);
+  grid-template-rows: repeat(3, 4px);
+  gap: 3px;
+}
+
+.__va-drag-handle-dots span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.8;
+}
+
+.__va-toolbar-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--va-accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* === Highlight Overlay === */
+.__va-highlight {
+  position: fixed;
+  z-index: 2147483645;
+  pointer-events: none;
+  border: 2px solid var(--va-accent);
+  background: rgba(255, 92, 0, 0.08);
+  border-radius: 2px;
+  transition: all 80ms ease;
+}
+
+.__va-highlight-label {
+  position: absolute;
+  top: -28px;
+  left: 0;
+  background: var(--va-accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.__va-highlight-label--chain {
+  background: #1A1A1A;
+  max-width: 500px;
+  padding: 4px 10px;
+  overflow: visible;
+}
+
+/* === Annotation Marker === */
+.__va-marker {
+  position: absolute;
+  z-index: 2147483647;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--va-accent);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: all 150ms ease;
+  user-select: none;
+}
+
+.__va-marker:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+.__va-marker--fixed {
+  position: fixed;
+}
+
+.__va-marker--stale {
+  opacity: 0.5;
+}
+
+/* === Annotation Input === */
+.__va-input {
+  position: fixed;
+  z-index: 2147483647;
+  background: var(--va-bg);
+  border: 1px solid var(--va-border);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 280px;
+  max-width: 360px;
+}
+
+.__va-input-label {
+  font-size: 12px;
+  color: var(--va-text-secondary);
+  margin-bottom: 8px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.__va-input-chain {
+  margin-bottom: 8px;
+}
+
+/* === Component Chain (shared) === */
+.__va-comp-chain {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.__va-comp {
+  white-space: nowrap;
+}
+
+.__va-comp-bracket {
+  opacity: 0.4;
+}
+
+.__va-comp-chain--dark {
+  color: white;
+}
+
+.__va-comp-chain--light {
+  color: var(--va-accent);
+}
+
+.__va-input input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--va-border);
+  border-radius: 6px;
+  font-size: 13px;
+  background: var(--va-bg);
+  color: var(--va-text);
+  outline: none;
+  transition: border-color 150ms ease;
+}
+
+.__va-input input:focus {
+  border-color: var(--va-accent);
+}
+
+.__va-input-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: flex-end;
+}
+
+.__va-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease;
+  border: none;
+  outline: none;
+}
+
+.__va-btn--secondary {
+  background: var(--va-bg-secondary);
+  color: var(--va-text-secondary);
+}
+
+.__va-btn--secondary:hover {
+  background: var(--va-border);
+}
+
+.__va-btn--primary {
+  background: var(--va-accent);
+  color: white;
+}
+
+.__va-btn--primary:hover {
+  opacity: 0.9;
+}
+
+.__va-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* === Settings Panel === */
+.__va-settings-popover {
+  position: fixed;
+  z-index: 2147483647;
+}
+
+.__va-settings {
+  position: relative;
+  background: var(--va-bg);
+  border: 1px solid var(--va-border);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 260px;
+  max-width: min(340px, calc(100vw - 16px));
+}
+
+.__va-settings-top {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--va-border);
+}
+
+.__va-theme-toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid var(--va-border);
+  background: var(--va-bg-secondary);
+  color: var(--va-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.__va-theme-toggle:hover {
+  color: var(--va-text);
+  border-color: var(--va-text-secondary);
+}
+
+.__va-theme-toggle svg {
+  width: 15px;
+  height: 15px;
+}
+
+.__va-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+
+.__va-settings-label {
+  font-size: 12px;
+  color: var(--va-text-secondary);
+  white-space: nowrap;
+}
+
+.__va-settings-row--stack {
+  display: block;
+}
+
+.__va-settings-row--stack .__va-settings-label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.__va-settings-row:last-child {
+  margin-bottom: 0;
+}
+
+.__va-settings-divider {
+  height: 1px;
+  background: var(--va-border);
+  margin: 8px 0 12px;
+}
+
+.__va-settings select {
+  padding: 4px 8px;
+  border: 1px solid var(--va-border);
+  border-radius: 4px;
+  font-size: 12px;
+  background: var(--va-bg);
+  color: var(--va-text);
+  outline: none;
+}
+
+/* Color swatches */
+.__va-color-swatches {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.__va-color-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--va-border);
+  cursor: pointer;
+  transition: all 150ms ease;
+  padding: 0;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.__va-color-swatch:hover {
+  transform: scale(1.15);
+}
+
+.__va-color-swatch--active {
+  border-color: var(--va-text);
+  transform: scale(1.15);
+}
+
+/* Toggle switch */
+.__va-toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--va-border);
+  cursor: pointer;
+  transition: background 150ms ease;
+  flex-shrink: 0;
+  border: none;
+  outline: none;
+  padding: 0;
+}
+
+.__va-toggle--active {
+  background: var(--va-accent);
+}
+
+.__va-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 150ms ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.__va-toggle--active::after {
+  transform: translateX(16px);
+}
+
+/* === Selection Rectangle === */
+.__va-selection-rect {
+  position: fixed;
+  z-index: 2147483645;
+  border: 2px dashed var(--va-accent);
+  background: rgba(255, 92, 0, 0.06);
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+/* === Copy Feedback === */
+.__va-copy-feedback {
+  position: fixed;
+  bottom: 72px;
+  right: 20px;
+  z-index: 2147483647;
+  background: var(--va-accent);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: __va-fadeIn 150ms ease;
+}
+
+@keyframes __va-fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

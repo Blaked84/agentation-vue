@@ -1,1 +1,75 @@
 # agentation-vue
+
+Visual feedback tool for AI coding agents. Drop a single component into your Vue app and let your AI agent see and annotate UI elements.
+
+Compatible with **Vue 3.3+** and **Vue 2.7**.
+
+## Installation
+
+```bash
+npm install agentation-vue
+```
+
+## Setup — Vue 3
+
+```ts
+import { AgentationVuePlugin } from 'agentation-vue'
+// main.ts
+import { createApp } from 'vue'
+import App from './App.vue'
+import 'agentation-vue/style.css'
+
+createApp(App)
+  .use(AgentationVuePlugin)
+  .mount('#app')
+```
+
+Then place the component once in your root `App.vue`:
+
+```vue
+<template>
+  <router-view />
+  <agentation-vue />
+</template>
+```
+
+## Setup — Vue 2.7
+
+```ts
+import { AgentationVuePlugin } from 'agentation-vue'
+// main.ts
+import Vue from 'vue'
+import App from './App.vue'
+import 'agentation-vue/style.css'
+
+Vue.use(AgentationVuePlugin)
+
+new Vue({
+  render: h => h(App),
+}).$mount('#app')
+```
+
+Then place the component once in your root `App.vue`:
+
+```vue
+<template>
+  <div>
+    <router-view />
+    <agentation-vue />
+  </div>
+</template>
+```
+
+> Vue 2 templates require a single root element — wrap your content in a `<div>`.
+
+## Features
+
+- **Click-to-annotate** — click any element to pin a numbered marker and leave a comment
+- **Multi-select** — `Shift+drag` to rubber-band select multiple elements at once
+- **Area select** — `Alt+drag` to annotate a screen region
+- **Text selection** — highlight text to annotate it
+- **Vue component tree** — automatically detects and reports the Vue component hierarchy for each annotated element
+- **Markdown output** — copies all annotations as structured Markdown, ready to paste into an AI chat
+- **Forensic mode** — captures bounding boxes, computed styles, CSS classes, and accessibility attributes
+- **Themes** — light, dark, or auto (follows system preference)
+- **Session persistence** — annotations survive page refreshes via `sessionStorage`

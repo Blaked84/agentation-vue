@@ -1,0 +1,7 @@
+node_modules
+dist
+.context
+*.local
+.DS_Store
+test-results
+playwright-report

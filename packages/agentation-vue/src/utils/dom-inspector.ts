@@ -1,0 +1,187 @@
+let vueDetectionAvailable: boolean | null = null
+
+interface VueInstance {
+  // Vue 3
+  parent?: VueInstance
+  type?: { name?: string, __name?: string, __file?: string }
+  // Vue 2
+  $parent?: VueInstance
+  $options?: { name?: string, _componentTag?: string, __file?: string }
+}
+
+function getComponentFromElement(el: Element): VueInstance | null {
+  const v3 = (el as any).__vueParentComponent
+  if (v3)
+    return v3 as VueInstance
+
+  const v2 = (el as any).__vue__
+  if (v2)
+    return v2 as VueInstance
+
+  // Walk up DOM to find nearest component
+  let current = el.parentElement
+  while (current && current !== document.body) {
+    const v3p = (current as any).__vueParentComponent
+    if (v3p)
+      return v3p as VueInstance
+    const v2p = (current as any).__vue__
+    if (v2p)
+      return v2p as VueInstance
+    current = current.parentElement
+  }
+  return null
+}
+
+function inferNameFromFile(filePath: string): string | null {
+  const file = filePath.split('/').pop()
+  if (!file)
+    return null
+  return file.replace(/\.vue$/, '')
+}
+
+function getInstanceName(inst: VueInstance, includeFile?: boolean): string | null {
+  // Vue 3 path
+  if (inst.type) {
+    const name = inst.type.name || inst.type.__name || inferNameFromFile(inst.type.__file || '')
+    if (!name)
+      return null
+    if (includeFile && inst.type.__file) {
+      const file = inst.type.__file.split('/').pop()
+      return `${name} (${file})`
+    }
+    return name
+  }
+  // Vue 2 path
+  if (inst.$options) {
+    const name = inst.$options.name || inst.$options._componentTag || inferNameFromFile(inst.$options.__file || '')
+    if (!name)
+      return null
+    if (includeFile && inst.$options.__file) {
+      const file = inst.$options.__file.split('/').pop()
+      return `${name} (${file})`
+    }
+    return name
+  }
+  return null
+}
+
+function walkComponentChain(inst: VueInstance, includeFile?: boolean): string[] {
+  const chain: string[] = []
+  let current: VueInstance | undefined = inst
+  let depth = 0
+
+  while (current && depth < 20) {
+    const name = getInstanceName(current, includeFile)
+    if (name && !name.startsWith('_'))
+      chain.push(name)
+    current = current.parent || current.$parent
+    depth++
+  }
+
+  return chain.reverse() // root → leaf order
+}
+
+export function detectVueComponents(el: Element, includeFile = false): string | undefined {
+  if (vueDetectionAvailable === false)
+    return undefined
+
+  const inst = getComponentFromElement(el)
+  if (inst) {
+    vueDetectionAvailable = true
+    const chain = walkComponentChain(inst, includeFile)
+    return chain.length > 0 ? chain.join(' > ') : undefined
+  }
+
+  if (vueDetectionAvailable === null) {
+    vueDetectionAvailable = false
+    return undefined
+  }
+
+  return undefined
+}
+
+export function isFixed(el: Element): boolean {
+  let current: Element | null = el
+  while (current && current !== document.body) {
+    const position = getComputedStyle(current).position
+    if (position === 'fixed' || position === 'sticky')
+      return true
+    current = current.parentElement
+  }
+  return false
+}
+
+export function getNearbyElements(el: Element, maxCount = 3): string {
+  const nearby: string[] = []
+  const parent = el.parentElement
+  if (!parent)
+    return ''
+
+  for (const sibling of Array.from(parent.children)) {
+    if (sibling === el)
+      continue
+    const tag = sibling.tagName.toLowerCase()
+    const cls = Array.from(sibling.classList)
+      .filter(c => !c.startsWith('__va-'))
+      .slice(0, 2)
+      .join('.')
+    const name = cls ? `${tag}.${cls}` : tag
+    nearby.push(`\`${name}\``)
+    if (nearby.length >= maxCount)
+      break
+  }
+
+  return nearby.join(', ')
+}
+
+export function getComputedStylesSummary(el: Element): string {
+  const style = getComputedStyle(el)
+  const props = [
+    'display',
+    'padding',
+    'margin',
+    'background-color',
+    'color',
+    'border-radius',
+    'font-size',
+    'font-weight',
+    'width',
+    'height',
+    'position',
+    'z-index',
+    'opacity',
+    'transition',
+    'transform',
+  ]
+  return props
+    .map(p => `${p}: ${style.getPropertyValue(p)}`)
+    .filter((line) => {
+      const [prop, val] = line.split(': ')
+      if (!val)
+        return false
+      const skip = ['none', 'normal', 'auto', '0px', 'rgba(0, 0, 0, 0)', 'transparent', 'static', '1', '400']
+      if (skip.includes(val))
+        return false
+      if (prop === 'display' && val === 'block')
+        return false
+      if (prop === 'display' && val === 'inline')
+        return false
+      return true
+    })
+    .join('\n')
+}
+
+export function getAccessibilityInfo(el: Element): string | undefined {
+  const parts: string[] = []
+  const role = el.getAttribute('role')
+  if (role)
+    parts.push(`role="${role}"`)
+
+  for (const attr of Array.from(el.attributes)) {
+    if (attr.name.startsWith('aria-')) {
+      parts.push(`${attr.name}="${attr.value}"`)
+    }
+  }
+
+  return parts.length > 0 ? parts.join(', ') : undefined
+}
