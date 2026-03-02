@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { BoundingBox } from '../types'
 import { computed } from 'vue-demi'
+import { boundingBoxToStyle } from '../utils/style'
 import ComponentChain from './ComponentChain.vue'
 
 const props = defineProps<{
@@ -13,12 +14,7 @@ const props = defineProps<{
 const highlightStyle = computed(() => {
   if (!props.rect)
     return {}
-  return {
-    left: `${props.rect.x}px`,
-    top: `${props.rect.y}px`,
-    width: `${props.rect.width}px`,
-    height: `${props.rect.height}px`,
-  }
+  return boundingBoxToStyle(props.rect)
 })
 </script>
 

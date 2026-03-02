@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Annotation, BoundingBox, Settings } from './types'
+import type { Annotation, OutputDetail, Settings } from './types'
 import { isVue2 as _isVue2, computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue-demi'
 import AgentationToolbar from './components/AgentationToolbar.vue'
 import AnnotationInput from './components/AnnotationInput.vue'
@@ -16,13 +16,15 @@ import { useMultiSelect } from './composables/useMultiSelect'
 import { useOutputFormatter } from './composables/useOutputFormatter'
 import { useSettings } from './composables/useSettings'
 import { useTextSelection } from './composables/useTextSelection'
+import { VA_DATA_ATTR_SELECTOR } from './constants'
 import { copyToClipboard } from './utils/clipboard'
 import { isFixed as checkIsFixed, detectVueComponents, getAccessibilityInfo, getComputedStylesSummary, getNearbyElements } from './utils/dom-inspector'
 import { createPortalContainer, destroyPortalContainer } from './utils/portal'
 import { getElementName, getElementPath } from './utils/selectors'
+import { boundingBoxToStyle } from './utils/style'
 
 const props = withDefaults(defineProps<{
-  outputDetail?: string
+  outputDetail?: OutputDetail
   markerColor?: string
   copyToClipboard?: boolean
   blockPageInteractions?: boolean
@@ -66,10 +68,11 @@ const pendingTextSelection = ref<{ text: string, element: Element } | null>(null
 const settingsOpen = ref(false)
 const copyFeedback = ref(false)
 const effectiveBlockPageInteractions = computed(() => props.blockPageInteractions ?? settings.blockPageInteractions)
+const resolvedUrl = computed(() => props.pageUrl || window.location.href)
 
 // Portal setup (Vue 2.7 compat)
 let portalContainer: HTMLElement | null = null
-const isVue2 = _isVue2 || false
+const isVue2 = _isVue2
 
 const PassThrough = defineComponent({
   render() {
@@ -100,7 +103,7 @@ onBeforeUnmount(() => {
 // Apply prop overrides to settings
 watch(() => props.outputDetail, (v) => {
   if (v)
-    settings.outputDetail = v as any
+    settings.outputDetail = v
 }, { immediate: true })
 watch(() => props.markerColor, (v) => {
   if (v)
@@ -205,7 +208,7 @@ function onOverlayMouseUp(e: MouseEvent) {
 
   // Normal click annotation
   const el = getElementUnderOverlay(e)
-  if (!el || el.closest('[data-agentation-vue]'))
+  if (!el || el.closest(VA_DATA_ATTR_SELECTOR))
     return
 
   pendingPosition.value = { x: e.clientX, y: e.clientY }
@@ -256,11 +259,23 @@ function onDocumentWheel(e: WheelEvent) {
   onOverlayWheel(e)
 }
 
+function getVueComponents(el: Element): string | undefined {
+  return settings.showComponentTree
+    ? detectVueComponents(el, settings.outputDetail === 'forensic')
+    : undefined
+}
+
+function resetPendingState() {
+  pendingPosition.value = null
+  pendingTarget.value = null
+  pendingComponentChain.value = undefined
+  pendingTextSelection.value = null
+}
+
 function onInputAdd(comment: string) {
   const scrollTop = window.scrollY || document.documentElement.scrollTop
   const detail = settings.outputDetail
-
-  const url = props.pageUrl || window.location.href
+  const url = resolvedUrl.value
 
   if (mode.value === 'input-open' && multiSelect.selectedElements.value.length > 0) {
     // Multi-select annotation
@@ -315,11 +330,10 @@ function onInputAdd(comment: string) {
       element: el.tagName.toLowerCase(),
       elementPath: getElementPath(el),
       selectedText: pendingTextSelection.value.text,
-      vueComponents: settings.showComponentTree ? detectVueComponents(el, detail === 'forensic') : undefined,
+      vueComponents: getVueComponents(el),
       _targetRef: new WeakRef(el),
     })
     emit('annotationAdd', ann)
-    pendingTextSelection.value = null
   }
   else if (pendingTarget.value) {
     // Element click annotation
@@ -336,7 +350,7 @@ function onInputAdd(comment: string) {
       elementPath: getElementPath(el),
       isFixed: fixed,
       _targetRef: new WeakRef(el),
-      vueComponents: settings.showComponentTree ? detectVueComponents(el, detail === 'forensic') : undefined,
+      vueComponents: getVueComponents(el),
       nearbyElements: getNearbyElements(el),
       boundingBox: detail === 'forensic' ? { x: rect.x, y: rect.y, width: rect.width, height: rect.height } : undefined,
       cssClasses: detail === 'forensic' ? Array.from(el.classList).join(' ') : undefined,
@@ -346,46 +360,34 @@ function onInputAdd(comment: string) {
     emit('annotationAdd', ann)
   }
 
-  pendingPosition.value = null
-  pendingTarget.value = null
-  pendingComponentChain.value = undefined
+  resetPendingState()
   transition('inspect')
 }
 
 function onInputCancel() {
-  pendingPosition.value = null
-  pendingTarget.value = null
-  pendingComponentChain.value = undefined
-  pendingTextSelection.value = null
+  resetPendingState()
   multiSelect.reset()
   areaSelect.reset()
   transition('inspect')
 }
 
 async function onCopy() {
-  const url = props.pageUrl || window.location.href
-  const markdown = formatAnnotations(annotations.value, settings.outputDetail, url)
+  const markdown = formatAnnotations(annotations.value, settings.outputDetail, resolvedUrl.value)
 
-  if (props.copyToClipboard === false) {
-    emit('copy', markdown)
-    if (settings.clearAfterCopy) {
-      const cleared = clearAnnotations()
-      emit('annotationsClear', cleared)
-    }
-    return
-  }
-
-  const success = await copyToClipboard(markdown)
-  if (success) {
+  if (props.copyToClipboard !== false) {
+    const success = await copyToClipboard(markdown)
+    if (!success)
+      return
     copyFeedback.value = true
     setTimeout(() => {
       copyFeedback.value = false
     }, 2000)
-    emit('copy', markdown)
-    if (settings.clearAfterCopy) {
-      const cleared = clearAnnotations()
-      emit('annotationsClear', cleared)
-    }
+  }
+
+  emit('copy', markdown)
+  if (settings.clearAfterCopy) {
+    const cleared = clearAnnotations()
+    emit('annotationsClear', cleared)
   }
 }
 
@@ -402,25 +404,11 @@ function onMarkerClick(ann: Annotation) {
 }
 
 function onToggleArea(value: boolean) {
-  if (value) {
-    areaSelect.isAreaMode.value = true
-  }
-  else {
-    areaSelect.isAreaMode.value = false
-  }
+  areaSelect.isAreaMode.value = value
 }
 
 function onSettingsUpdate(updates: Partial<Settings>) {
   Object.assign(settings, updates)
-}
-
-function selectionRectStyle(rect: BoundingBox) {
-  return {
-    left: `${rect.x}px`,
-    top: `${rect.y}px`,
-    width: `${rect.width}px`,
-    height: `${rect.height}px`,
-  }
 }
 
 // Escape key handler
@@ -483,12 +471,12 @@ onBeforeUnmount(() => {
       <div
         v-if="multiSelect.selectionRect.value"
         class="__va-selection-rect"
-        :style="selectionRectStyle(multiSelect.selectionRect.value)"
+        :style="boundingBoxToStyle(multiSelect.selectionRect.value)"
       />
       <div
         v-if="areaSelect.areaRect.value"
         class="__va-selection-rect"
-        :style="selectionRectStyle(areaSelect.areaRect.value)"
+        :style="boundingBoxToStyle(areaSelect.areaRect.value)"
       />
 
       <!-- Annotation markers -->

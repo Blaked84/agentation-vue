@@ -1,6 +1,15 @@
 import type { Ref } from 'vue-demi'
 import type { BoundingBox, InteractionMode } from '../types'
 import { ref } from 'vue-demi'
+import { VA_DATA_ATTR_SELECTOR } from '../constants'
+
+const LEAF_TAGS = new Set(['button', 'a', 'input', 'img'])
+
+interface CachedElement {
+  el: Element
+  rect: DOMRect
+  isLeaf: boolean
+}
 
 export function useMultiSelect(
   mode: Ref<InteractionMode>,
@@ -10,6 +19,24 @@ export function useMultiSelect(
   const selectedElements = ref<Element[]>([])
   let startX = 0
   let startY = 0
+  let cachedElements: CachedElement[] = []
+  let rafId: number | null = null
+
+  function cacheElements() {
+    cachedElements = []
+    for (const el of document.querySelectorAll('body *')) {
+      if (el.closest(VA_DATA_ATTR_SELECTOR))
+        continue
+      const rect = el.getBoundingClientRect()
+      if (rect.width === 0 || rect.height === 0)
+        continue
+      const isLeaf = el.children.length === 0
+        || LEAF_TAGS.has(el.tagName.toLowerCase())
+      if (isLeaf) {
+        cachedElements.push({ el, rect, isLeaf })
+      }
+    }
+  }
 
   function onMouseDown(e: MouseEvent) {
     if (mode.value !== 'inspect' || !e.shiftKey)
@@ -22,6 +49,7 @@ export function useMultiSelect(
     startY = e.clientY
     selectionRect.value = { x: startX, y: startY, width: 0, height: 0 }
     transitionFn('multi-selecting')
+    cacheElements()
 
     return true
   }
@@ -36,7 +64,12 @@ export function useMultiSelect(
     const height = Math.abs(e.clientY - startY)
     selectionRect.value = { x, y, width, height }
 
-    collectIntersectedElements()
+    if (rafId !== null)
+      return
+    rafId = requestAnimationFrame(() => {
+      rafId = null
+      collectIntersectedElements()
+    })
   }
 
   function onMouseUp() {
@@ -44,6 +77,10 @@ export function useMultiSelect(
       return
 
     document.documentElement.style.userSelect = ''
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId)
+      rafId = null
+    }
     collectIntersectedElements()
   }
 
@@ -52,30 +89,16 @@ export function useMultiSelect(
       return
 
     const rect = selectionRect.value
-    const all = document.querySelectorAll('body *:not([data-agentation-vue] *)')
     const intersected: Element[] = []
 
-    for (const el of Array.from(all)) {
-      if (el.closest('[data-agentation-vue]'))
-        continue
-      const elRect = el.getBoundingClientRect()
-      if (elRect.width === 0 || elRect.height === 0)
-        continue
-
+    for (const { el, rect: elRect } of cachedElements) {
       if (
         elRect.left < rect.x + rect.width
         && elRect.right > rect.x
         && elRect.top < rect.y + rect.height
         && elRect.bottom > rect.y
       ) {
-        const isLeaf = el.children.length === 0
-          || el.tagName.toLowerCase() === 'button'
-          || el.tagName.toLowerCase() === 'a'
-          || el.tagName.toLowerCase() === 'input'
-          || el.tagName.toLowerCase() === 'img'
-        if (isLeaf) {
-          intersected.push(el)
-        }
+        intersected.push(el)
       }
     }
 
@@ -85,7 +108,12 @@ export function useMultiSelect(
   function reset() {
     selectionRect.value = null
     selectedElements.value = []
+    cachedElements = []
     document.documentElement.style.userSelect = ''
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId)
+      rafId = null
+    }
   }
 
   return { selectionRect, selectedElements, onMouseDown, onMouseMove, onMouseUp, reset }

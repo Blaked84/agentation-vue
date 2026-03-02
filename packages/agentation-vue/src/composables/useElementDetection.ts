@@ -1,6 +1,7 @@
 import type { Ref } from 'vue-demi'
 import type { BoundingBox } from '../types'
 import { ref } from 'vue-demi'
+import { VA_DATA_ATTR_SELECTOR } from '../constants'
 import { detectVueComponents } from '../utils/dom-inspector'
 import { getElementName } from '../utils/selectors'
 
@@ -65,7 +66,7 @@ export function useElementDetection(
       if (el === lastElement)
         return
 
-      if (el?.closest('[data-agentation-vue]')) {
+      if (el?.closest(VA_DATA_ATTR_SELECTOR)) {
         clearHighlight()
         return
       }

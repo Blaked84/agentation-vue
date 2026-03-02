@@ -22,20 +22,19 @@ function loadSettings(): Settings {
   return { ...defaults }
 }
 
+const settings = reactive<Settings>(loadSettings())
+
+watch(
+  () => ({ ...settings }),
+  (val) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(val))
+    }
+    catch {}
+  },
+)
+
 export function useSettings() {
-  const settings = reactive<Settings>(loadSettings())
-
-  watch(
-    () => ({ ...settings }),
-    (val) => {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(val))
-      }
-      catch {}
-    },
-    { deep: true },
-  )
-
   function resetSettings() {
     Object.assign(settings, defaults)
   }

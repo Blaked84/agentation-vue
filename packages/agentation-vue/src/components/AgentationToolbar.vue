@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { InteractionMode } from '../types'
 import { ref } from 'vue-demi'
 import VaIcon from './VaIcon.vue'
 import VaIconButton from './VaIconButton.vue'
 
 defineProps<{
-  mode: string
+  mode: InteractionMode
   annotationCount: number
   isPaused: boolean
   isAreaMode: boolean
