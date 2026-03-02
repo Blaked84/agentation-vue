@@ -1,4 +1,5 @@
 export type OutputDetail = 'standard' | 'forensic'
+export type ToolbarAnchor = 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
 
 export type InteractionMode
   = | 'idle'
@@ -56,6 +57,7 @@ export interface AgentationProps {
   markerColor?: string
   copyToClipboard?: boolean
   blockPageInteractions?: boolean
+  autoHideToolbar?: boolean
   pageUrl?: string
   demoAnnotations?: Annotation[]
   theme?: 'light' | 'dark' | 'auto'
@@ -73,6 +75,8 @@ export interface Settings {
   outputDetail: OutputDetail
   markerColor: string
   blockPageInteractions: boolean
+  autoHideToolbar: boolean
+  toolbarPlacement: ToolbarAnchor
   clearAfterCopy: boolean
   showComponentTree: boolean
   theme: 'light' | 'dark' | 'auto'

@@ -70,6 +70,58 @@ test.describe('Settings', () => {
     expect(stored).toBeTruthy()
   })
 
+  test('auto-hide floating button setting persists', async ({ ag }) => {
+    await ag.settingsBtn.click()
+    const autoHideToggle = ag.settingsPanel.locator('button[aria-label="Auto-hide floating button"]')
+    await autoHideToggle.click()
+
+    const storedBeforeReload = await ag.page.evaluate(() => {
+      const s = localStorage.getItem('agentation-vue-settings')
+      return s ? JSON.parse(s) : null
+    })
+    expect(storedBeforeReload?.autoHideToolbar).toBe(true)
+
+    await ag.page.reload()
+    await ag.toolbar.waitFor({ state: 'visible' })
+
+    const viewport = ag.page.viewportSize()
+    if (!viewport)
+      throw new Error('Viewport size unavailable')
+
+    // After reload with auto-hide enabled, toolbar is hidden at bottom-right.
+    // Move to the corner to reveal it before interacting.
+    await ag.page.mouse.move(viewport.width - 4, viewport.height - 4)
+    await expect(ag.toolbar).toHaveClass(/__va-toolbar--auto-hide-revealed/)
+
+    await ag.activate()
+    await ag.settingsBtn.click()
+
+    await expect(ag.settingsPanel.locator('button[aria-label="Auto-hide floating button"]')).toHaveAttribute('aria-checked', 'true')
+  })
+
+  test('toolbar placement persists across reload', async ({ ag }) => {
+    const handleBox = await ag.dragHandle.boundingBox()
+    if (!handleBox)
+      throw new Error('Drag handle not found')
+
+    await ag.page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2)
+    await ag.page.mouse.down()
+    await ag.page.mouse.move(30, 30)
+    await ag.page.mouse.up()
+
+    await expect(ag.toolbar).toHaveClass(/__va-toolbar--place-top-left/)
+
+    const storedBeforeReload = await ag.page.evaluate(() => {
+      const s = localStorage.getItem('agentation-vue-settings')
+      return s ? JSON.parse(s) : null
+    })
+    expect(storedBeforeReload?.toolbarPlacement).toBe('top-left')
+
+    await ag.page.reload()
+    await ag.toolbar.waitFor({ state: 'visible' })
+    await expect(ag.toolbar).toHaveClass(/__va-toolbar--place-top-left/)
+  })
+
   test('settings panel is anchored and stays in viewport after toolbar move', async ({ ag }) => {
     const handleBox = await ag.dragHandle.boundingBox()
     if (!handleBox)

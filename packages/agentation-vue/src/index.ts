@@ -26,6 +26,7 @@ export { useMultiSelect } from './composables/useMultiSelect'
 export { formatAnnotations, useOutputFormatter } from './composables/useOutputFormatter'
 export { useSettings } from './composables/useSettings'
 export { useTextSelection } from './composables/useTextSelection'
+export { useToolbarAutoHide } from './composables/useToolbarAutoHide'
 export { icons } from './icons'
 export type { IconName } from './icons'
 export type {

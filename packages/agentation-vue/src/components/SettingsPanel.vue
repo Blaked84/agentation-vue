@@ -107,5 +107,14 @@ function toggleTheme() {
         @update:model-value="update('blockPageInteractions', $event)"
       />
     </div>
+
+    <div class="__va-settings-row">
+      <span class="__va-settings-label">Auto-hide floating button</span>
+      <VaToggle
+        :model-value="settings.autoHideToolbar"
+        aria-label="Auto-hide floating button"
+        @update:model-value="update('autoHideToolbar', $event)"
+      />
+    </div>
   </div>
 </template>

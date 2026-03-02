@@ -28,6 +28,7 @@ const props = withDefaults(defineProps<{
   markerColor?: string
   copyToClipboard?: boolean
   blockPageInteractions?: boolean
+  autoHideToolbar?: boolean
   pageUrl?: string
   theme?: 'light' | 'dark' | 'auto'
 }>(), {
@@ -118,8 +119,12 @@ watch(() => props.theme, (v) => {
     settings.theme = v
 }, { immediate: true })
 watch(() => props.blockPageInteractions, (v) => {
-  if (v !== undefined)
+  if (v)
     settings.blockPageInteractions = v
+}, { immediate: true })
+watch(() => props.autoHideToolbar, (v) => {
+  if (v)
+    settings.autoHideToolbar = v
 }, { immediate: true })
 
 // Event handlers
@@ -433,6 +438,10 @@ function onToggleArea(value: boolean) {
   areaSelect.isAreaMode.value = value
 }
 
+function onToolbarPlacementUpdate(value: Settings['toolbarPlacement']) {
+  settings.toolbarPlacement = value
+}
+
 function onSettingsUpdate(updates: Partial<Settings>) {
   Object.assign(settings, updates)
 }
@@ -558,12 +567,15 @@ onBeforeUnmount(() => {
         :annotation-count="annotations.length"
         :is-paused="animPause.isPaused.value"
         :is-area-mode="areaSelect.isAreaMode.value"
+        :auto-hide-enabled="settings.autoHideToolbar"
+        :placement="settings.toolbarPlacement"
         @activate="onActivate"
         @deactivate="onDeactivate"
         @copy="onCopy"
         @clear="onClear"
         @togglePause="animPause.toggle"
         @toggleArea="onToggleArea"
+        @update:placement="onToolbarPlacementUpdate"
         @openSettings="onOpenSettings"
         @drag-start="onToolbarDragStart"
         @drag-end="onToolbarDragEnd"

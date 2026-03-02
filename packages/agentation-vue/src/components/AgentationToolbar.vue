@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import type { InteractionMode } from '../types'
-import { onBeforeUnmount, ref } from 'vue-demi'
+import type { InteractionMode, ToolbarAnchor } from '../types'
+import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue-demi'
+import { useToolbarAutoHide } from '../composables/useToolbarAutoHide'
 import { useToolbarDragSnap } from '../composables/useToolbarDragSnap'
 import VaIcon from './VaIcon.vue'
 import VaIconButton from './VaIconButton.vue'
 
-defineProps<{
+const props = defineProps<{
   mode: InteractionMode
   annotationCount: number
   isPaused: boolean
   isAreaMode: boolean
+  autoHideEnabled: boolean
+  placement: ToolbarAnchor
 }>()
 
 const emit = defineEmits<{
@@ -19,6 +22,7 @@ const emit = defineEmits<{
   clear: []
   togglePause: []
   toggleArea: [value: boolean]
+  'update:placement': [value: ToolbarAnchor]
   openSettings: [anchorEl: HTMLElement | null]
   dragStart: []
   dragEnd: []
@@ -43,9 +47,37 @@ const {
   cleanup,
 } = useToolbarDragSnap({
   expanded,
+  initialPlacement: props.placement,
   onDragStart: () => emit('dragStart'),
   onDragEnd: () => emit('dragEnd'),
 })
+
+const autoHideEnabled = toRef(props, 'autoHideEnabled')
+const {
+  isAutoHideActive,
+  isAutoHideRevealed,
+  onToolbarPointerEnter,
+  onToolbarPointerLeave,
+  onToolbarPointerDown,
+  onToolbarFocusIn,
+  onToolbarFocusOut,
+} = useToolbarAutoHide({
+  enabled: autoHideEnabled,
+  expanded,
+  isDragging,
+  placement,
+  toolbarEl,
+})
+
+const toolbarClass = computed(() => [
+  `__va-toolbar--place-${placement.value}`,
+  {
+    '__va-toolbar--collapsed': !expanded.value,
+    '__va-toolbar--dragging': isDragging.value,
+    '__va-toolbar--auto-hide': isAutoHideActive.value,
+    '__va-toolbar--auto-hide-revealed': isAutoHideRevealed.value,
+  },
+])
 
 function onToggleClick() {
   if (consumeToggleClickSuppression()) {
@@ -79,6 +111,16 @@ onBeforeUnmount(() => {
   cleanup()
 })
 
+watch(
+  () => props.placement,
+  (value) => {
+    if (placement.value !== value)
+      placement.value = value
+  },
+)
+
+watch(placement, value => emit('update:placement', value))
+
 defineExpose({ expanded, placement })
 </script>
 
@@ -97,11 +139,13 @@ defineExpose({ expanded, placement })
     <div
       ref="toolbarEl"
       class="__va-toolbar"
-      :class="[
-        `__va-toolbar--place-${placement}`,
-        { '__va-toolbar--collapsed': !expanded, '__va-toolbar--dragging': isDragging },
-      ]"
+      :class="toolbarClass"
       :style="toolbarStyle"
+      @pointerenter="onToolbarPointerEnter"
+      @pointerleave="onToolbarPointerLeave"
+      @pointerdown.capture="onToolbarPointerDown"
+      @focusin="onToolbarFocusIn"
+      @focusout="onToolbarFocusOut"
     >
       <template v-if="!expanded">
         <button
