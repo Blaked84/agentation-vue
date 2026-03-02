@@ -69,4 +69,40 @@ test.describe('Settings', () => {
     const stored = await ag.page.evaluate(() => localStorage.getItem('agentation-vue-settings'))
     expect(stored).toBeTruthy()
   })
+
+  test('settings panel is anchored and stays in viewport after toolbar move', async ({ ag }) => {
+    const handleBox = await ag.dragHandle.boundingBox()
+    if (!handleBox)
+      throw new Error('Drag handle not found')
+
+    await ag.page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2)
+    await ag.page.mouse.down()
+    await ag.page.mouse.move(30, 30)
+    await ag.page.mouse.up()
+
+    await ag.settingsBtn.click()
+    await expect(ag.settingsPanel).toBeVisible()
+
+    const panelBox = await ag.settingsPanel.boundingBox()
+    const buttonBox = await ag.settingsBtn.boundingBox()
+    const viewport = ag.page.viewportSize()
+    if (!panelBox || !buttonBox || !viewport)
+      throw new Error('Missing geometry for settings positioning assertions')
+
+    expect(panelBox.x).toBeGreaterThanOrEqual(8)
+    expect(panelBox.y).toBeGreaterThanOrEqual(8)
+    expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(viewport.width - 8)
+    expect(panelBox.y + panelBox.height).toBeLessThanOrEqual(viewport.height - 8)
+
+    const horizontalGap = Math.max(
+      0,
+      Math.max(buttonBox.x - (panelBox.x + panelBox.width), panelBox.x - (buttonBox.x + buttonBox.width)),
+    )
+    const verticalGap = Math.max(
+      0,
+      Math.max(buttonBox.y - (panelBox.y + panelBox.height), panelBox.y - (buttonBox.y + buttonBox.height)),
+    )
+
+    expect(Math.min(horizontalGap, verticalGap)).toBeLessThanOrEqual(20)
+  })
 })

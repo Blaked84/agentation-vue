@@ -5,7 +5,7 @@ import AgentationToolbar from './components/AgentationToolbar.vue'
 import AnnotationInput from './components/AnnotationInput.vue'
 import AnnotationMarker from './components/AnnotationMarker.vue'
 import ElementHighlight from './components/ElementHighlight.vue'
-import SettingsPanel from './components/SettingsPanel.vue'
+import SettingsPopover from './components/SettingsPopover.vue'
 import { useAnimationPause } from './composables/useAnimationPause'
 import { useAnnotations } from './composables/useAnnotations'
 import { useAreaSelect } from './composables/useAreaSelect'
@@ -66,7 +66,11 @@ const pendingTarget = ref<Element | null>(null)
 const pendingComponentChain = ref<string | undefined>()
 const pendingTextSelection = ref<{ text: string, element: Element } | null>(null)
 const settingsOpen = ref(false)
+const settingsAnchorEl = ref<HTMLElement | null>(null)
 const copyFeedback = ref(false)
+const toolbarDragging = ref(false)
+const DRAG_END_SUPPRESSION_MS = 500
+let suppressInteractionsUntil = 0
 const effectiveBlockPageInteractions = computed(() => props.blockPageInteractions ?? settings.blockPageInteractions)
 const resolvedUrl = computed(() => props.pageUrl || window.location.href)
 
@@ -130,6 +134,8 @@ function onDeactivate() {
 }
 
 function onOverlayMouseMove(e: MouseEvent) {
+  if (areInteractionsTemporarilySuppressed())
+    return
   if (mode.value === 'inspect') {
     onMouseMove(e)
   }
@@ -142,12 +148,16 @@ function onOverlayMouseMove(e: MouseEvent) {
 }
 
 function onOverlayMouseDown(e: MouseEvent) {
+  if (areInteractionsTemporarilySuppressed())
+    return
   if (multiSelect.onMouseDown(e))
     return
   areaSelect.onMouseDown(e)
 }
 
 function onOverlayMouseUp(e: MouseEvent) {
+  if (areInteractionsTemporarilySuppressed())
+    return
   if (mode.value === 'multi-selecting') {
     multiSelect.onMouseUp()
     if (multiSelect.selectedElements.value.length > 0) {
@@ -220,6 +230,8 @@ function onOverlayMouseUp(e: MouseEvent) {
 }
 
 function onOverlayWheel(_e: WheelEvent) {
+  if (areInteractionsTemporarilySuppressed())
+    return
   const overlay = overlayEl.value
   if (!overlay)
     return
@@ -232,7 +244,21 @@ function onOverlayWheel(_e: WheelEvent) {
 }
 
 function shouldUseDocumentFallbackEvents() {
-  return mode.value === 'inspect' && !effectiveBlockPageInteractions.value
+  return mode.value === 'inspect' && !effectiveBlockPageInteractions.value && !areInteractionsTemporarilySuppressed()
+}
+
+function areInteractionsTemporarilySuppressed() {
+  return toolbarDragging.value || Date.now() < suppressInteractionsUntil
+}
+
+function onToolbarDragStart() {
+  toolbarDragging.value = true
+}
+
+function onToolbarDragEnd() {
+  toolbarDragging.value = false
+  // Ignore trailing mouseup/click compatibility events right after drag release.
+  suppressInteractionsUntil = Date.now() + DRAG_END_SUPPRESSION_MS
 }
 
 function onDocumentMouseMove(e: MouseEvent) {
@@ -411,6 +437,15 @@ function onSettingsUpdate(updates: Partial<Settings>) {
   Object.assign(settings, updates)
 }
 
+function onOpenSettings(anchorEl: HTMLElement | null) {
+  if (settingsOpen.value && settingsAnchorEl.value === anchorEl) {
+    settingsOpen.value = false
+    return
+  }
+  settingsAnchorEl.value = anchorEl
+  settingsOpen.value = true
+}
+
 // Escape key handler
 function onKeyDown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
@@ -503,10 +538,12 @@ onBeforeUnmount(() => {
       />
 
       <!-- Settings panel -->
-      <SettingsPanel
-        v-if="settingsOpen"
+      <SettingsPopover
+        :open="settingsOpen"
+        :anchor-el="settingsAnchorEl"
         :settings="settings"
         @update="onSettingsUpdate"
+        @close="settingsOpen = false"
       />
 
       <!-- Copy feedback -->
@@ -527,7 +564,9 @@ onBeforeUnmount(() => {
         @clear="onClear"
         @togglePause="animPause.toggle"
         @toggleArea="onToggleArea"
-        @openSettings="settingsOpen = !settingsOpen"
+        @openSettings="onOpenSettings"
+        @drag-start="onToolbarDragStart"
+        @drag-end="onToolbarDragEnd"
       />
     </div>
   </component>

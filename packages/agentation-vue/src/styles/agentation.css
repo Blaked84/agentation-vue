@@ -67,8 +67,7 @@
 /* === Toolbar === */
 .__va-toolbar {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  --va-toolbar-base-transform: none;
   z-index: 2147483647;
   display: flex;
   align-items: center;
@@ -80,6 +79,39 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: all 150ms ease;
   user-select: none;
+  transform: var(--va-toolbar-base-transform);
+}
+
+.__va-toolbar--place-bottom-right {
+  right: 20px;
+  bottom: 20px;
+}
+
+.__va-toolbar--place-bottom-center {
+  left: 50%;
+  bottom: 20px;
+  --va-toolbar-base-transform: translateX(-50%);
+}
+
+.__va-toolbar--place-bottom-left {
+  left: 20px;
+  bottom: 20px;
+}
+
+.__va-toolbar--place-top-right {
+  right: 20px;
+  top: 20px;
+}
+
+.__va-toolbar--place-top-center {
+  left: 50%;
+  top: 20px;
+  --va-toolbar-base-transform: translateX(-50%);
+}
+
+.__va-toolbar--place-top-left {
+  left: 20px;
+  top: 20px;
 }
 
 .__va-toolbar--collapsed {
@@ -92,8 +124,55 @@
 }
 
 .__va-toolbar--collapsed:hover {
-  transform: scale(1.1);
+  transform: var(--va-toolbar-base-transform) scale(1.1);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.__va-toolbar--dragging {
+  transition: none;
+  left: 0;
+  top: 0;
+  right: auto;
+  bottom: auto;
+  transform: none;
+}
+
+.__va-toolbar--dragging.__va-toolbar--collapsed:hover {
+  transform: none;
+}
+
+.__va-snap-zones {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2147483646;
+}
+
+.__va-snap-zone {
+  position: fixed;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  border: 1.5px dashed rgba(255, 92, 0, 0.18);
+  background: rgba(255, 92, 0, 0.035);
+  box-shadow: 0 0 0 1px rgba(255, 92, 0, 0.04);
+  transition: all 120ms ease;
+}
+
+.__va-snap-zone--active {
+  border-color: rgba(255, 92, 0, 0.4);
+  background: rgba(255, 92, 0, 0.09);
+  transform: translate(-50%, -50%) scale(1.04);
+}
+
+.__va-snap-zone--rect {
+  border-radius: 8px;
+  transform: none;
+}
+
+.__va-snap-zone--rect.__va-snap-zone--active {
+  transform: none;
 }
 
 .__va-icon-btn {
@@ -166,6 +245,47 @@
   height: 20px;
   background: var(--va-border);
   flex-shrink: 0;
+}
+
+.__va-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 32px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--va-text-secondary);
+  border: none;
+  cursor: grab;
+  padding: 0;
+  outline: none;
+  flex-shrink: 0;
+  transition: all 150ms ease;
+}
+
+.__va-drag-handle:hover {
+  background: var(--va-bg-secondary);
+  color: var(--va-text);
+}
+
+.__va-drag-handle:active {
+  cursor: grabbing;
+}
+
+.__va-drag-handle-dots {
+  display: grid;
+  grid-template-columns: repeat(2, 4px);
+  grid-template-rows: repeat(3, 4px);
+  gap: 3px;
+}
+
+.__va-drag-handle-dots span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.8;
 }
 
 .__va-toolbar-badge {
@@ -364,17 +484,20 @@
 }
 
 /* === Settings Panel === */
-.__va-settings {
+.__va-settings-popover {
   position: fixed;
-  bottom: 72px;
-  right: 20px;
   z-index: 2147483647;
+}
+
+.__va-settings {
+  position: relative;
   background: var(--va-bg);
   border: 1px solid var(--va-border);
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 260px;
+  max-width: min(340px, calc(100vw - 16px));
 }
 
 .__va-settings-top {

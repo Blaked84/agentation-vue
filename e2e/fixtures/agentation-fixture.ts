@@ -10,6 +10,7 @@ class AgentationPage {
   readonly elementSelectorBtn: Locator
   readonly areaSelectorBtn: Locator
   readonly pauseBtn: Locator
+  readonly dragHandle: Locator
   readonly copyBtn: Locator
   readonly clearBtn: Locator
   readonly settingsBtn: Locator
@@ -41,6 +42,7 @@ class AgentationPage {
     this.elementSelectorBtn = page.locator('button[title="Element selector"]')
     this.areaSelectorBtn = page.locator('button[title="Area selection"]')
     this.pauseBtn = page.locator('button[title="Pause animations"]')
+    this.dragHandle = page.locator('.__va-drag-handle')
     this.copyBtn = page.locator('button[title="Copy annotations"]')
     this.clearBtn = page.locator('button[title="Clear annotations"]')
     this.settingsBtn = page.locator('button[title="Settings"]')

@@ -44,4 +44,87 @@ test.describe('Toolbar', () => {
     await ag.page.keyboard.press('Escape')
     await expect(ag.toolbar).toHaveClass(/__va-toolbar--collapsed/)
   })
+
+  test('long press drag snaps collapsed toolbar to bottom-left', async ({ ag }) => {
+    await ag.goto('/')
+    await expect(ag.toolbar).toHaveClass(/__va-toolbar--place-bottom-right/)
+
+    const box = await ag.toggleButton.boundingBox()
+    if (!box)
+      throw new Error('Toggle button not found')
+
+    const viewport = ag.page.viewportSize()
+    if (!viewport)
+      throw new Error('Viewport size unavailable')
+
+    await ag.page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await ag.page.mouse.down()
+    await ag.page.waitForTimeout(450)
+    await ag.page.mouse.move(30, viewport.height - 30)
+    await ag.page.mouse.up()
+
+    await expect(ag.toolbar).toHaveClass(/__va-toolbar--collapsed/)
+    await expect(ag.toolbar).toHaveClass(/__va-toolbar--place-bottom-left/)
+    await expect(ag.elementSelectorBtn).toBeHidden()
+  })
+
+  test('shows drag affordances (tooltip + snap zones) for collapsed toolbar', async ({ ag }) => {
+    await ag.goto('/')
+    await expect(ag.toggleButton).toHaveAttribute('title', 'Appui long pour déplacer')
+
+    const box = await ag.toggleButton.boundingBox()
+    if (!box)
+      throw new Error('Toggle button not found')
+
+    await ag.page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await ag.page.mouse.down()
+    await ag.page.waitForTimeout(450)
+
+    const snapZones = ag.page.locator('.__va-snap-zone')
+    await expect(snapZones).toHaveCount(6)
+    await expect(ag.page.locator('.__va-snap-zone--active')).toHaveCount(1)
+
+    await ag.page.mouse.up()
+    await expect(snapZones).toHaveCount(0)
+  })
+
+  test('expanded toolbar can be dragged with grab handle', async ({ ag }) => {
+    await ag.gotoAndActivate('/')
+    await expect(ag.dragHandle).toBeVisible()
+    await expect(ag.dragHandle).toHaveAttribute('title', 'Glisser pour déplacer')
+
+    const box = await ag.dragHandle.boundingBox()
+    if (!box)
+      throw new Error('Drag handle not found')
+
+    await ag.page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await ag.page.mouse.down()
+    await expect(ag.page.locator('.__va-snap-zone--rect')).toHaveCount(6)
+    await ag.page.mouse.move(30, 30)
+    await ag.page.mouse.up()
+
+    await expect(ag.toolbar).toHaveClass(/__va-toolbar--place-top-left/)
+    await expect(ag.elementSelectorBtn).toBeVisible()
+  })
+
+  test('dragging expanded toolbar does not create annotation input or marker', async ({ ag }) => {
+    await ag.gotoAndActivate('/')
+    await expect(ag.markers()).toHaveCount(0)
+
+    const handleBox = await ag.dragHandle.boundingBox()
+    if (!handleBox)
+      throw new Error('Drag handle not found')
+
+    const targetBox = await ag.page.locator('.test-submit').first().boundingBox()
+    if (!targetBox)
+      throw new Error('Drag target not found')
+
+    await ag.page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2)
+    await ag.page.mouse.down()
+    await ag.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2)
+    await ag.page.mouse.up()
+
+    await expect(ag.annotationInput).toBeHidden()
+    await expect(ag.markers()).toHaveCount(0)
+  })
 })
