@@ -71,6 +71,7 @@ const settingsAnchorEl = ref<HTMLElement | null>(null)
 const copyFeedback = ref(false)
 const toolbarDragging = ref(false)
 const DRAG_END_SUPPRESSION_MS = 500
+const SETTINGS_CLOSE_SUPPRESSION_MS = 220
 let suppressInteractionsUntil = 0
 const effectiveBlockPageInteractions = computed(() => props.blockPageInteractions ?? settings.blockPageInteractions)
 const resolvedUrl = computed(() => props.pageUrl || window.location.href)
@@ -135,11 +136,11 @@ function onActivate() {
 function onDeactivate() {
   transition('idle')
   clearHighlight()
-  settingsOpen.value = false
+  closeSettings(false)
 }
 
 function onOverlayMouseMove(e: MouseEvent) {
-  if (areInteractionsTemporarilySuppressed())
+  if (isInteractionLocked())
     return
   if (mode.value === 'inspect') {
     onMouseMove(e)
@@ -153,7 +154,7 @@ function onOverlayMouseMove(e: MouseEvent) {
 }
 
 function onOverlayMouseDown(e: MouseEvent) {
-  if (areInteractionsTemporarilySuppressed())
+  if (isInteractionLocked())
     return
   if (multiSelect.onMouseDown(e))
     return
@@ -161,7 +162,7 @@ function onOverlayMouseDown(e: MouseEvent) {
 }
 
 function onOverlayMouseUp(e: MouseEvent) {
-  if (areInteractionsTemporarilySuppressed())
+  if (isInteractionLocked())
     return
   if (mode.value === 'multi-selecting') {
     multiSelect.onMouseUp()
@@ -235,7 +236,7 @@ function onOverlayMouseUp(e: MouseEvent) {
 }
 
 function onOverlayWheel(_e: WheelEvent) {
-  if (areInteractionsTemporarilySuppressed())
+  if (isInteractionLocked())
     return
   const overlay = overlayEl.value
   if (!overlay)
@@ -249,11 +250,23 @@ function onOverlayWheel(_e: WheelEvent) {
 }
 
 function shouldUseDocumentFallbackEvents() {
-  return mode.value === 'inspect' && !effectiveBlockPageInteractions.value && !areInteractionsTemporarilySuppressed()
+  return mode.value === 'inspect' && !effectiveBlockPageInteractions.value && !isInteractionLocked()
 }
 
-function areInteractionsTemporarilySuppressed() {
-  return toolbarDragging.value || Date.now() < suppressInteractionsUntil
+function lockInteractionsTemporarily(durationMs: number) {
+  suppressInteractionsUntil = Math.max(suppressInteractionsUntil, Date.now() + durationMs)
+}
+
+function isInteractionLocked() {
+  return settingsOpen.value || toolbarDragging.value || Date.now() < suppressInteractionsUntil
+}
+
+function closeSettings(lockInteractions = true) {
+  if (!settingsOpen.value)
+    return
+  settingsOpen.value = false
+  if (lockInteractions)
+    lockInteractionsTemporarily(SETTINGS_CLOSE_SUPPRESSION_MS)
 }
 
 function onToolbarDragStart() {
@@ -263,7 +276,7 @@ function onToolbarDragStart() {
 function onToolbarDragEnd() {
   toolbarDragging.value = false
   // Ignore trailing mouseup/click compatibility events right after drag release.
-  suppressInteractionsUntil = Date.now() + DRAG_END_SUPPRESSION_MS
+  lockInteractionsTemporarily(DRAG_END_SUPPRESSION_MS)
 }
 
 function onDocumentMouseMove(e: MouseEvent) {
@@ -448,7 +461,7 @@ function onSettingsUpdate(updates: Partial<Settings>) {
 
 function onOpenSettings(anchorEl: HTMLElement | null) {
   if (settingsOpen.value && settingsAnchorEl.value === anchorEl) {
-    settingsOpen.value = false
+    closeSettings()
     return
   }
   settingsAnchorEl.value = anchorEl
@@ -552,7 +565,7 @@ onBeforeUnmount(() => {
         :anchor-el="settingsAnchorEl"
         :settings="settings"
         @update="onSettingsUpdate"
-        @close="settingsOpen = false"
+        @close="closeSettings()"
       />
 
       <!-- Copy feedback -->

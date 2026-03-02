@@ -13,6 +13,26 @@ test.describe('Settings', () => {
     await expect(ag.settingsPanel).not.toBeVisible()
   })
 
+  test('opening settings locks page selection interactions', async ({ ag }) => {
+    await ag.settingsBtn.click()
+    await expect(ag.settingsPanel).toBeVisible()
+
+    const target = ag.page.locator('.test-submit').first()
+    const box = await target.boundingBox()
+    if (!box)
+      throw new Error('Target element not found')
+
+    await ag.page.mouse.click(box.x + box.width / 2, box.y + box.height / 2)
+    await expect(ag.settingsPanel).not.toBeVisible()
+    await expect(ag.annotationInput).not.toBeVisible()
+    await expect(ag.markers()).toHaveCount(0)
+
+    await ag.page.waitForTimeout(260)
+    await ag.clickElement('.test-submit')
+    await expect(ag.annotationInput).toBeVisible()
+    await ag.cancelBtn.click()
+  })
+
   test('output detail can be toggled', async ({ ag }) => {
     await ag.settingsBtn.click()
     await expect(ag.settingsPanel).toBeVisible()
