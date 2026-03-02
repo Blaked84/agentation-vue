@@ -18,7 +18,7 @@ import { useSettings } from './composables/useSettings'
 import { useTextSelection } from './composables/useTextSelection'
 import { VA_DATA_ATTR_SELECTOR } from './constants'
 import { copyToClipboard } from './utils/clipboard'
-import { isFixed as checkIsFixed, detectVueComponents, getAccessibilityInfo, getComputedStylesSummary, getNearbyElements } from './utils/dom-inspector'
+import { isFixed as checkIsFixed, detectVueComponents, getAccessibilityInfo, getComputedStylesSummary, getNearbyElements, getRelevantComputedStyles } from './utils/dom-inspector'
 import { createPortalContainer, destroyPortalContainer } from './utils/portal'
 import { getElementName, getElementPath } from './utils/selectors'
 import { boundingBoxToStyle } from './utils/style'
@@ -65,6 +65,7 @@ const pendingPosition = ref<{ x: number, y: number } | null>(null)
 const pendingElementName = ref('')
 const pendingTarget = ref<Element | null>(null)
 const pendingComponentChain = ref<string | undefined>()
+const pendingComputedStyles = ref<Record<string, string> | undefined>()
 const pendingTextSelection = ref<{ text: string, element: Element } | null>(null)
 const settingsOpen = ref(false)
 const settingsAnchorEl = ref<HTMLElement | null>(null)
@@ -174,6 +175,7 @@ function onOverlayMouseUp(e: MouseEvent) {
         : { x: e.clientX, y: e.clientY }
       pendingElementName.value = `${elements.length} elements selected`
       pendingComponentChain.value = undefined
+      pendingComputedStyles.value = undefined
       pendingTarget.value = null
       transition('input-open')
     }
@@ -191,6 +193,7 @@ function onOverlayMouseUp(e: MouseEvent) {
       pendingPosition.value = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }
       pendingElementName.value = 'Area selection'
       pendingComponentChain.value = undefined
+      pendingComputedStyles.value = undefined
       pendingTarget.value = null
       transition('input-open')
     }
@@ -213,6 +216,7 @@ function onOverlayMouseUp(e: MouseEvent) {
     }
     pendingElementName.value = `"${textResult.selectedText.slice(0, 30)}"`
     pendingComponentChain.value = undefined
+    pendingComputedStyles.value = getRelevantComputedStyles(textResult.anchorElement)
     pendingTarget.value = textResult.anchorElement
     pendingTextSelection.value = {
       text: textResult.selectedText,
@@ -230,6 +234,7 @@ function onOverlayMouseUp(e: MouseEvent) {
   pendingPosition.value = { x: e.clientX, y: e.clientY }
   pendingElementName.value = getElementName(el)
   pendingComponentChain.value = settings.showComponentTree ? detectVueComponents(el) : undefined
+  pendingComputedStyles.value = getRelevantComputedStyles(el)
   pendingTarget.value = el
   pendingTextSelection.value = null
   transition('input-open')
@@ -313,6 +318,7 @@ function resetPendingState() {
   pendingPosition.value = null
   pendingTarget.value = null
   pendingComponentChain.value = undefined
+  pendingComputedStyles.value = undefined
   pendingTextSelection.value = null
 }
 
@@ -555,6 +561,7 @@ onBeforeUnmount(() => {
         :position="pendingPosition"
         :element-name="pendingElementName"
         :component-chain="pendingComponentChain"
+        :computed-styles="pendingComputedStyles"
         @add="onInputAdd"
         @cancel="onInputCancel"
       />

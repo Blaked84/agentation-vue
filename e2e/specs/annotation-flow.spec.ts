@@ -69,4 +69,16 @@ test.describe('Annotation Flow', () => {
     const inputLabel = ag.page.locator('.__va-input-label, .__va-input-chain, .__va-comp-chain')
     await expect(inputLabel.first()).toBeVisible()
   })
+
+  test('annotation input shows computed styles in collapsible section', async ({ ag }) => {
+    await ag.clickElement('.avatar')
+
+    const stylesSummary = ag.page.locator('.__va-input-styles-summary')
+    await expect(stylesSummary).toBeVisible()
+    await stylesSummary.click()
+
+    const styleLines = ag.page.locator('.__va-input-style-line')
+    const lineCount = await styleLines.count()
+    expect(lineCount).toBeGreaterThan(0)
+  })
 })

@@ -2,6 +2,7 @@ import {
   getAccessibilityInfo,
   getComputedStylesSummary,
   getNearbyElements,
+  getRelevantComputedStyles,
   isFixed,
 } from '../../src/utils/dom-inspector'
 
@@ -310,6 +311,84 @@ describe('getComputedStylesSummary', () => {
     expect(result).not.toContain('opacity')
     expect(result).not.toContain('transition')
     expect(result).not.toContain('transform')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getRelevantComputedStyles
+// ---------------------------------------------------------------------------
+describe('getRelevantComputedStyles', () => {
+  let container: HTMLElement
+  let spy: any
+
+  beforeEach(() => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+  })
+
+  afterEach(() => {
+    container.remove()
+    spy?.mockRestore()
+  })
+
+  it('returns typography-focused properties for text elements', () => {
+    const el = document.createElement('p')
+    container.appendChild(el)
+
+    const styleValues: Record<string, string> = {
+      'color': 'rgb(17, 24, 39)',
+      'font-size': '16px',
+      'font-weight': '500',
+      'font-family': 'Inter',
+      'line-height': '24px',
+      'padding': '8px',
+    }
+
+    spy = vi.spyOn(window, 'getComputedStyle').mockImplementation(() => {
+      return {
+        getPropertyValue: (prop: string) => styleValues[prop] ?? '',
+      } as unknown as CSSStyleDeclaration
+    })
+
+    const result = getRelevantComputedStyles(el)
+
+    expect(result).toEqual({
+      'color': 'rgb(17, 24, 39)',
+      'font-size': '16px',
+      'font-weight': '500',
+      'font-family': 'Inter',
+      'line-height': '24px',
+    })
+    expect(result).not.toHaveProperty('padding')
+  })
+
+  it('filters out default values for media elements', () => {
+    const el = document.createElement('img')
+    container.appendChild(el)
+
+    const styleValues: Record<string, string> = {
+      'width': '44px',
+      'height': '44px',
+      'object-fit': 'cover',
+      'border-radius': '50%',
+      'background': 'transparent',
+    }
+
+    spy = vi.spyOn(window, 'getComputedStyle').mockImplementation(() => {
+      return {
+        getPropertyValue: (prop: string) => styleValues[prop] ?? '',
+      } as unknown as CSSStyleDeclaration
+    })
+
+    const result = getRelevantComputedStyles(el)
+
+    expect(result).toEqual({
+      'width': '44px',
+      'height': '44px',
+      'object-fit': 'cover',
+      'border-radius': '50%',
+    })
+    expect(result).not.toHaveProperty('background')
   })
 })
 

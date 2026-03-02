@@ -1,5 +1,64 @@
 let vueDetectionAvailable: boolean | null = null
 
+const DEFAULT_STYLE_VALUES = new Set([
+  'none',
+  'normal',
+  'auto',
+  '0px',
+  'rgba(0, 0, 0, 0)',
+  'transparent',
+  'static',
+  'visible',
+])
+
+const TEXT_ELEMENTS = new Set([
+  'p',
+  'span',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'label',
+  'li',
+  'td',
+  'th',
+  'blockquote',
+  'figcaption',
+  'caption',
+  'legend',
+  'dt',
+  'dd',
+  'pre',
+  'code',
+  'em',
+  'strong',
+  'b',
+  'i',
+  'a',
+  'time',
+  'cite',
+  'q',
+])
+
+const FORM_INPUT_ELEMENTS = new Set(['input', 'textarea', 'select'])
+const MEDIA_ELEMENTS = new Set(['img', 'video', 'canvas', 'svg'])
+const CONTAINER_ELEMENTS = new Set([
+  'div',
+  'section',
+  'article',
+  'nav',
+  'header',
+  'footer',
+  'aside',
+  'main',
+  'ul',
+  'ol',
+  'form',
+  'fieldset',
+])
+
 interface VueInstance {
   // Vue 3
   parent?: VueInstance
@@ -135,6 +194,40 @@ export function getNearbyElements(el: Element, maxCount = 3): string {
   return nearby.join(', ')
 }
 
+export function getRelevantComputedStyles(el: Element): Record<string, string> {
+  const style = getComputedStyle(el)
+  const tag = el.tagName.toLowerCase()
+  const result: Record<string, string> = {}
+
+  let properties: string[]
+  if (TEXT_ELEMENTS.has(tag)) {
+    properties = ['color', 'font-size', 'font-weight', 'font-family', 'line-height']
+  }
+  else if (tag === 'button' || (tag === 'a' && el.getAttribute('role') === 'button')) {
+    properties = ['background-color', 'color', 'padding', 'border-radius', 'font-size']
+  }
+  else if (FORM_INPUT_ELEMENTS.has(tag)) {
+    properties = ['background-color', 'color', 'padding', 'border-radius', 'font-size']
+  }
+  else if (MEDIA_ELEMENTS.has(tag)) {
+    properties = ['width', 'height', 'object-fit', 'border-radius', 'background']
+  }
+  else if (CONTAINER_ELEMENTS.has(tag)) {
+    properties = ['display', 'gap', 'padding', 'margin', 'background-color', 'border-radius']
+  }
+  else {
+    properties = ['color', 'font-size', 'margin', 'padding', 'background-color']
+  }
+
+  for (const prop of properties) {
+    const value = style.getPropertyValue(prop).trim()
+    if (value && !DEFAULT_STYLE_VALUES.has(value))
+      result[prop] = value
+  }
+
+  return result
+}
+
 export function getComputedStylesSummary(el: Element): string {
   const style = getComputedStyle(el)
   const props = [
@@ -160,8 +253,9 @@ export function getComputedStylesSummary(el: Element): string {
       const [prop, val] = line.split(': ')
       if (!val)
         return false
-      const skip = ['none', 'normal', 'auto', '0px', 'rgba(0, 0, 0, 0)', 'transparent', 'static', '1', '400']
-      if (skip.includes(val))
+      if (DEFAULT_STYLE_VALUES.has(val))
+        return false
+      if (['1', '400'].includes(val))
         return false
       if (prop === 'display' && val === 'block')
         return false

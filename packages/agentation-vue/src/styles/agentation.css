@@ -431,6 +431,68 @@
   margin-bottom: 8px;
 }
 
+.__va-input-styles {
+  margin-bottom: 10px;
+}
+
+.__va-input-styles-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--va-text-secondary);
+  cursor: pointer;
+  user-select: none;
+  min-width: 0;
+}
+
+.__va-input-styles-summary::-webkit-details-marker {
+  display: none;
+}
+
+.__va-input-styles-summary::before {
+  content: '▸';
+  font-size: 11px;
+  transition: transform 160ms ease;
+  flex-shrink: 0;
+}
+
+.__va-input-styles[open] .__va-input-styles-summary::before {
+  transform: rotate(90deg);
+}
+
+.__va-input-styles-block {
+  margin-top: 8px;
+  background: var(--va-bg-secondary);
+  border: 1px solid var(--va-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.__va-input-styles-element {
+  display: inline-block;
+  color: var(--va-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.__va-input-style-line {
+  color: var(--va-text);
+  word-break: break-word;
+}
+
+.__va-input-style-prop {
+  color: #A855F7;
+}
+
+.__va-input-style-value {
+  color: var(--va-text);
+}
+
 /* === Component Chain (shared) === */
 .__va-comp-chain {
   display: inline-flex;

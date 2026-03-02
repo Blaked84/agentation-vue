@@ -7,6 +7,7 @@ const props = defineProps<{
   position: { x: number, y: number }
   elementName?: string
   componentChain?: string
+  computedStyles?: Record<string, string>
 }>()
 
 const emit = defineEmits<{
@@ -16,6 +17,7 @@ const emit = defineEmits<{
 
 const comment = ref('')
 const inputEl = ref<HTMLInputElement | null>(null)
+const computedStyleEntries = computed(() => Object.entries(props.computedStyles || {}))
 
 const inputStyle = computed(() => {
   const x = Math.min(props.position.x, window.innerWidth - 380)
@@ -46,7 +48,27 @@ onMounted(() => {
     @click.stop
     @mousedown.stop
   >
-    <div v-if="componentChain" class="__va-input-chain">
+    <details
+      v-if="computedStyleEntries.length > 0"
+      class="__va-input-styles"
+      @click.stop
+      @mousedown.stop
+    >
+      <summary class="__va-input-styles-summary">
+        <ComponentChain v-if="componentChain" :chain="componentChain" variant="light" />
+        <span v-else class="__va-input-styles-element">{{ elementName || 'Annotation' }}</span>
+      </summary>
+      <div class="__va-input-styles-block">
+        <div
+          v-for="[prop, value] in computedStyleEntries"
+          :key="prop"
+          class="__va-input-style-line"
+        >
+          <span class="__va-input-style-prop">{{ prop }}</span>: <span class="__va-input-style-value">{{ value }}</span>;
+        </div>
+      </div>
+    </details>
+    <div v-else-if="componentChain" class="__va-input-chain">
       <ComponentChain :chain="componentChain" variant="light" />
     </div>
     <span v-else class="__va-input-label">{{ elementName || 'Annotation' }}</span>
