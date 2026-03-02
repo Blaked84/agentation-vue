@@ -34,7 +34,7 @@ describe('detectVueComponents', () => {
       },
     }
 
-    expect(detectVueComponents(el)).toBe('App > MyButton')
+    expect(detectVueComponents(el)).toBe('MyButton')
   })
 
   it('falls back to __name for Vue 3 components', () => {
@@ -100,7 +100,7 @@ describe('detectVueComponents', () => {
     expect(detectVueComponents(child)).toBe('Wrapper')
   })
 
-  it('filters out components whose names start with _', () => {
+  it('filters out components whose names start with _ and the root App', () => {
     const el = document.createElement('div')
     container.appendChild(el)
     ;(el as any).__vueParentComponent = {
@@ -113,7 +113,7 @@ describe('detectVueComponents', () => {
       },
     }
 
-    expect(detectVueComponents(el)).toBe('App > Visible')
+    expect(detectVueComponents(el)).toBe('Visible')
   })
 })
 
