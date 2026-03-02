@@ -6,6 +6,14 @@ Compatible with **Vue 3.3+** and **Vue 2.7**.
 
 ## Installation
 
+### From GitHub Release (current)
+
+```bash
+npm install https://github.com/<org>/<repo>/releases/download/v0.1.0/agentation-vue-0.1.0.tgz
+```
+
+### From npm (later)
+
 ```bash
 npm install agentation-vue
 ```
