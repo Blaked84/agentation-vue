@@ -586,10 +586,10 @@ onBeforeUnmount(() => {
         @deactivate="onDeactivate"
         @copy="onCopy"
         @clear="onClear"
-        @toggle-pause="animPause.toggle"
-        @toggle-area="onToggleArea"
+        @togglePause="animPause.toggle"
+        @toggleArea="onToggleArea"
         @update:placement="onToolbarPlacementUpdate"
-        @open-settings="onOpenSettings"
+        @openSettings="onOpenSettings"
         @drag-start="onToolbarDragStart"
         @drag-end="onToolbarDragEnd"
       />
