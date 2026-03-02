@@ -20,12 +20,12 @@ const emit = defineEmits<{
   'deactivate': []
   'copy': []
   'clear': []
-  'togglePause': []
-  'toggleArea': [value: boolean]
+  'toggle-pause': []
+  'toggle-area': [value: boolean]
   'update:placement': [value: ToolbarAnchor]
-  'openSettings': [anchorEl: HTMLElement | null]
-  'dragStart': []
-  'dragEnd': []
+  'open-settings': [anchorEl: HTMLElement | null]
+  'drag-start': []
+  'drag-end': []
 }>()
 
 const expanded = ref(false)
@@ -48,8 +48,8 @@ const {
 } = useToolbarDragSnap({
   expanded,
   initialPlacement: props.placement,
-  onDragStart: () => emit('dragStart'),
-  onDragEnd: () => emit('dragEnd'),
+  onDragStart: () => emit('drag-start'),
+  onDragEnd: () => emit('drag-end'),
 })
 
 const autoHideEnabled = toRef(props, 'autoHideEnabled')
@@ -104,7 +104,7 @@ function onClear() {
 
 function onOpenSettings(e: MouseEvent) {
   const anchorEl = e.currentTarget instanceof HTMLElement ? e.currentTarget : null
-  emit('openSettings', anchorEl)
+  emit('open-settings', anchorEl)
 }
 
 onBeforeUnmount(() => {
@@ -187,19 +187,19 @@ defineExpose({ expanded, placement })
         <div class="__va-toolbar-sep" />
 
         <!-- Element selector (default mode) -->
-        <VaIconButton :active="!isAreaMode" title="Element selector" @click="emit('toggleArea', false)">
+        <VaIconButton :active="!isAreaMode" title="Element selector" @click="emit('toggle-area', false)">
           <VaIcon name="cursor" />
         </VaIconButton>
 
         <!-- Area selection -->
-        <VaIconButton :active="isAreaMode" title="Area selection" @click="emit('toggleArea', true)">
+        <VaIconButton :active="isAreaMode" title="Area selection" @click="emit('toggle-area', true)">
           <VaIcon name="area-select" />
         </VaIconButton>
 
         <div class="__va-toolbar-sep" />
 
         <!-- Pause animations -->
-        <VaIconButton :active="isPaused" title="Pause animations" @click="emit('togglePause')">
+        <VaIconButton :active="isPaused" title="Pause animations" @click="emit('toggle-pause')">
           <VaIcon v-if="!isPaused" name="pause" />
           <VaIcon v-else name="play" />
         </VaIconButton>

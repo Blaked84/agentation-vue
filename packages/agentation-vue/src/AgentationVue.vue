@@ -36,11 +36,11 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-  annotationAdd: [annotation: Annotation]
-  annotationDelete: [annotation: Annotation]
-  annotationUpdate: [annotation: Annotation]
-  annotationsClear: [annotations: Annotation[]]
-  copy: [markdown: string]
+  'annotation-add': [annotation: Annotation]
+  'annotation-delete': [annotation: Annotation]
+  'annotation-update': [annotation: Annotation]
+  'annotations-clear': [annotations: Annotation[]]
+  'copy': [markdown: string]
 }>()
 
 // Refs
@@ -343,7 +343,7 @@ function onInputAdd(comment: string) {
       isMultiSelect: true,
       elements,
     })
-    emit('annotationAdd', ann)
+    emit('annotation-add', ann)
     multiSelect.reset()
   }
   else if (mode.value === 'input-open' && areaSelect.areaRect.value) {
@@ -360,7 +360,7 @@ function onInputAdd(comment: string) {
       area,
       nearbyElements: getNearbyElements(document.elementFromPoint(area.x + area.width / 2, area.y + area.height / 2) || document.body),
     })
-    emit('annotationAdd', ann)
+    emit('annotation-add', ann)
     areaSelect.reset()
   }
   else if (pendingTextSelection.value) {
@@ -377,7 +377,7 @@ function onInputAdd(comment: string) {
       vueComponents: getVueComponents(el),
       _targetRef: new WeakRef(el),
     })
-    emit('annotationAdd', ann)
+    emit('annotation-add', ann)
   }
   else if (pendingTarget.value) {
     // Element click annotation
@@ -401,7 +401,7 @@ function onInputAdd(comment: string) {
       computedStyles: detail === 'forensic' ? getComputedStylesSummary(el) : undefined,
       accessibility: detail === 'forensic' ? getAccessibilityInfo(el) : undefined,
     })
-    emit('annotationAdd', ann)
+    emit('annotation-add', ann)
   }
 
   resetPendingState()
@@ -431,20 +431,20 @@ async function onCopy() {
   emit('copy', markdown)
   if (settings.clearAfterCopy) {
     const cleared = clearAnnotations()
-    emit('annotationsClear', cleared)
+    emit('annotations-clear', cleared)
   }
 }
 
 function onClear() {
   const cleared = clearAnnotations()
-  emit('annotationsClear', cleared)
+  emit('annotations-clear', cleared)
 }
 
 function onMarkerClick(ann: Annotation) {
   // For now, just remove the annotation
   const removed = removeAnnotation(ann.id)
   if (removed)
-    emit('annotationDelete', removed)
+    emit('annotation-delete', removed)
 }
 
 function onToggleArea(value: boolean) {
@@ -586,10 +586,10 @@ onBeforeUnmount(() => {
         @deactivate="onDeactivate"
         @copy="onCopy"
         @clear="onClear"
-        @togglePause="animPause.toggle"
-        @toggleArea="onToggleArea"
+        @toggle-pause="animPause.toggle"
+        @toggle-area="onToggleArea"
         @update:placement="onToolbarPlacementUpdate"
-        @openSettings="onOpenSettings"
+        @open-settings="onOpenSettings"
         @drag-start="onToolbarDragStart"
         @drag-end="onToolbarDragEnd"
       />
