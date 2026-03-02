@@ -16,16 +16,16 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  activate: []
-  deactivate: []
-  copy: []
-  clear: []
-  togglePause: []
-  toggleArea: [value: boolean]
+  'activate': []
+  'deactivate': []
+  'copy': []
+  'clear': []
+  'togglePause': []
+  'toggleArea': [value: boolean]
   'update:placement': [value: ToolbarAnchor]
-  openSettings: [anchorEl: HTMLElement | null]
-  dragStart: []
-  dragEnd: []
+  'openSettings': [anchorEl: HTMLElement | null]
+  'dragStart': []
+  'dragEnd': []
 }>()
 
 const expanded = ref(false)
