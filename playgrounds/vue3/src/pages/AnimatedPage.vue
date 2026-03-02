@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
+import MocSection from '../components/moc/MocSection.vue'
 
 const jsOffset = ref(0)
 let animId: number | null = null
@@ -32,8 +33,7 @@ onBeforeUnmount(() => {
       Test the animation pause feature with CSS animations, transitions, and video.
     </p>
 
-    <section class="section">
-      <h2>CSS Keyframe Animations</h2>
+    <MocSection title="CSS Keyframe Animations">
       <div class="anim-row">
         <div class="spinner">
           Spin
@@ -45,10 +45,9 @@ onBeforeUnmount(() => {
           Pulse
         </div>
       </div>
-    </section>
+    </MocSection>
 
-    <section class="section">
-      <h2>CSS Transitions</h2>
+    <MocSection title="CSS Transitions">
       <p class="transition-hint">
         Hover over these elements:
       </p>
@@ -63,10 +62,9 @@ onBeforeUnmount(() => {
           Color
         </div>
       </div>
-    </section>
+    </MocSection>
 
-    <section class="section">
-      <h2>Video</h2>
+    <MocSection title="Video">
       <video class="test-video" width="320" height="180" autoplay muted loop playsinline>
         <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAu1tZGF0AAACrQYF//+p" type="video/mp4">
         Your browser does not support video.
@@ -74,16 +72,15 @@ onBeforeUnmount(() => {
       <p class="video-note">
         Video element (pause feature should freeze it)
       </p>
-    </section>
+    </MocSection>
 
-    <section class="section">
-      <h2>JS Animation</h2>
+    <MocSection title="JS Animation">
       <div class="js-anim-container">
         <div class="js-animated-box" :style="{ transform: `translateX(${jsOffset}px)` }">
           JS Animated
         </div>
       </div>
-    </section>
+    </MocSection>
   </div>
 </template>
 
@@ -91,8 +88,6 @@ onBeforeUnmount(() => {
 .page { max-width: 700px; }
 .page-title { font-size: 24px; margin-bottom: 8px; }
 .page-desc { color: #666; margin-bottom: 32px; }
-.section { margin-bottom: 32px; }
-.section h2 { font-size: 18px; margin-bottom: 12px; }
 .anim-row { display: flex; gap: 24px; align-items: center; }
 .spinner { width: 60px; height: 60px; border-radius: 8px; background: #3B82F6; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; animation: spin 2s linear infinite; }
 .bouncer { width: 60px; height: 60px; border-radius: 8px; background: #10B981; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; animation: bounce 1s ease-in-out infinite; }

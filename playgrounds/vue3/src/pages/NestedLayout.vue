@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import MocButton from '../components/moc/MocButton.vue'
+import MocCard from '../components/moc/MocCard.vue'
 
 const sidebarCollapsed = ref(false)
 const modalOpen = ref(false)
@@ -15,7 +17,6 @@ const modalOpen = ref(false)
     </p>
 
     <div class="layout-demo">
-      <!-- Sidebar -->
       <div class="sidebar" :class="{ 'sidebar--collapsed': sidebarCollapsed }">
         <button class="sidebar-toggle" @click="sidebarCollapsed = !sidebarCollapsed">
           {{ sidebarCollapsed ? '>' : '<' }}
@@ -33,22 +34,22 @@ const modalOpen = ref(false)
         </div>
       </div>
 
-      <!-- Main content -->
       <div class="main-content">
-        <!-- Overflow hidden container -->
         <div class="overflow-container">
-          <h3>Overflow: hidden container</h3>
-          <p>Content inside an overflow:hidden parent. Annotations should still work via portal.</p>
-          <button class="btn btn-primary test-overflow-btn">
-            Button in overflow
-          </button>
-          <div class="overflow-long-text">
-            This text extends beyond the container boundaries but is clipped.
-            Try annotating elements inside this container.
-          </div>
+          <MocCard title="Overflow: hidden container">
+            <p class="card-copy">
+              Content inside an overflow:hidden parent. Annotations should still work via portal.
+            </p>
+            <MocButton class="test-overflow-btn" variant="primary">
+              Button in overflow
+            </MocButton>
+            <div class="overflow-long-text">
+              This text extends beyond the container boundaries but is clipped.
+              Try annotating elements inside this container.
+            </div>
+          </MocCard>
         </div>
 
-        <!-- Z-index stacking -->
         <div class="stacking-demo">
           <h3>Stacking Contexts</h3>
           <div class="stack-layer stack-layer-1">
@@ -62,25 +63,23 @@ const modalOpen = ref(false)
           </div>
         </div>
 
-        <!-- Transform container -->
         <div class="transform-container">
-          <h3>Transform Context</h3>
-          <div class="transformed-box">
-            <p>This box has a CSS transform applied. Elements inside create a new stacking context.</p>
-            <button class="btn btn-secondary">
+          <MocCard title="Transform Context">
+            <p class="card-copy">
+              This box has a CSS transform applied. Elements inside create a new stacking context.
+            </p>
+            <MocButton variant="secondary">
               Inside transform
-            </button>
-          </div>
+            </MocButton>
+          </MocCard>
         </div>
 
-        <!-- Modal trigger -->
-        <button class="btn btn-primary" @click="modalOpen = true">
+        <MocButton variant="primary" @click="modalOpen = true">
           Open Modal
-        </button>
+        </MocButton>
       </div>
     </div>
 
-    <!-- Modal -->
     <div v-if="modalOpen" class="modal-backdrop" @click.self="modalOpen = false">
       <div class="modal">
         <h3 class="modal-title">
@@ -90,12 +89,12 @@ const modalOpen = ref(false)
           This modal has a backdrop and high z-index. Annotations should work inside.
         </p>
         <div class="modal-actions">
-          <button class="btn btn-secondary" @click="modalOpen = false">
+          <MocButton variant="secondary" @click="modalOpen = false">
             Cancel
-          </button>
-          <button class="btn btn-primary" @click="modalOpen = false">
+          </MocButton>
+          <MocButton variant="primary" @click="modalOpen = false">
             Confirm
-          </button>
+          </MocButton>
         </div>
       </div>
     </div>
@@ -113,9 +112,8 @@ const modalOpen = ref(false)
 .sidebar-item { padding: 8px; border-radius: 4px; font-size: 13px; cursor: pointer; }
 .sidebar-item:hover { background: #e5e7eb; }
 .main-content { flex: 1; display: flex; flex-direction: column; gap: 24px; }
-.overflow-container { overflow: hidden; max-height: 150px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; }
-.overflow-container h3 { font-size: 15px; margin-bottom: 8px; }
-.overflow-container p { font-size: 13px; color: #6b7280; margin-bottom: 8px; }
+.overflow-container { overflow: hidden; max-height: 210px; border: 1px solid #e5e7eb; border-radius: 8px; }
+.card-copy { font-size: 13px; color: #6b7280; margin-bottom: 12px; }
 .overflow-long-text { font-size: 12px; color: #9ca3af; margin-top: 12px; }
 .stacking-demo { position: relative; height: 120px; }
 .stacking-demo h3 { font-size: 15px; margin-bottom: 8px; }
@@ -123,12 +121,6 @@ const modalOpen = ref(false)
 .stack-layer-1 { top: 30px; left: 0; z-index: 1; background: #dbeafe; color: #1e40af; }
 .stack-layer-2 { top: 50px; left: 60px; z-index: 10; background: #dcfce7; color: #166534; }
 .stack-layer-3 { top: 40px; left: 120px; z-index: 100; background: #fef3c7; color: #92400e; }
-.transform-container h3 { font-size: 15px; margin-bottom: 8px; }
-.transformed-box { transform: rotate(0.5deg); border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; }
-.transformed-box p { font-size: 13px; color: #6b7280; margin-bottom: 8px; }
-.btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer; border: none; font-weight: 500; }
-.btn-primary { background: #3B82F6; color: white; }
-.btn-secondary { background: #6B7280; color: white; }
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
 .modal { background: white; border-radius: 12px; padding: 24px; width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
 .modal-title { font-size: 18px; margin-bottom: 12px; }
