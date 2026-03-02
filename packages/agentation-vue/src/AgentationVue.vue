@@ -28,6 +28,7 @@ const props = withDefaults(defineProps<{
   markerColor?: string
   copyToClipboard?: boolean
   blockPageInteractions?: boolean
+  autoHideToolbar?: boolean
   pageUrl?: string
   theme?: 'light' | 'dark' | 'auto'
 }>(), {
@@ -35,11 +36,11 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-  annotationAdd: [annotation: Annotation]
-  annotationDelete: [annotation: Annotation]
-  annotationUpdate: [annotation: Annotation]
-  annotationsClear: [annotations: Annotation[]]
-  copy: [markdown: string]
+  'annotation-add': [annotation: Annotation]
+  'annotation-delete': [annotation: Annotation]
+  'annotation-update': [annotation: Annotation]
+  'annotations-clear': [annotations: Annotation[]]
+  'copy': [markdown: string]
 }>()
 
 // Refs
@@ -70,6 +71,7 @@ const settingsAnchorEl = ref<HTMLElement | null>(null)
 const copyFeedback = ref(false)
 const toolbarDragging = ref(false)
 const DRAG_END_SUPPRESSION_MS = 500
+const SETTINGS_CLOSE_SUPPRESSION_MS = 220
 let suppressInteractionsUntil = 0
 const effectiveBlockPageInteractions = computed(() => props.blockPageInteractions ?? settings.blockPageInteractions)
 const resolvedUrl = computed(() => props.pageUrl || window.location.href)
@@ -118,8 +120,12 @@ watch(() => props.theme, (v) => {
     settings.theme = v
 }, { immediate: true })
 watch(() => props.blockPageInteractions, (v) => {
-  if (v !== undefined)
+  if (v)
     settings.blockPageInteractions = v
+}, { immediate: true })
+watch(() => props.autoHideToolbar, (v) => {
+  if (v)
+    settings.autoHideToolbar = v
 }, { immediate: true })
 
 // Event handlers
@@ -130,11 +136,11 @@ function onActivate() {
 function onDeactivate() {
   transition('idle')
   clearHighlight()
-  settingsOpen.value = false
+  closeSettings(false)
 }
 
 function onOverlayMouseMove(e: MouseEvent) {
-  if (areInteractionsTemporarilySuppressed())
+  if (isInteractionLocked())
     return
   if (mode.value === 'inspect') {
     onMouseMove(e)
@@ -148,7 +154,7 @@ function onOverlayMouseMove(e: MouseEvent) {
 }
 
 function onOverlayMouseDown(e: MouseEvent) {
-  if (areInteractionsTemporarilySuppressed())
+  if (isInteractionLocked())
     return
   if (multiSelect.onMouseDown(e))
     return
@@ -156,7 +162,7 @@ function onOverlayMouseDown(e: MouseEvent) {
 }
 
 function onOverlayMouseUp(e: MouseEvent) {
-  if (areInteractionsTemporarilySuppressed())
+  if (isInteractionLocked())
     return
   if (mode.value === 'multi-selecting') {
     multiSelect.onMouseUp()
@@ -230,7 +236,7 @@ function onOverlayMouseUp(e: MouseEvent) {
 }
 
 function onOverlayWheel(_e: WheelEvent) {
-  if (areInteractionsTemporarilySuppressed())
+  if (isInteractionLocked())
     return
   const overlay = overlayEl.value
   if (!overlay)
@@ -244,11 +250,23 @@ function onOverlayWheel(_e: WheelEvent) {
 }
 
 function shouldUseDocumentFallbackEvents() {
-  return mode.value === 'inspect' && !effectiveBlockPageInteractions.value && !areInteractionsTemporarilySuppressed()
+  return mode.value === 'inspect' && !effectiveBlockPageInteractions.value && !isInteractionLocked()
 }
 
-function areInteractionsTemporarilySuppressed() {
-  return toolbarDragging.value || Date.now() < suppressInteractionsUntil
+function lockInteractionsTemporarily(durationMs: number) {
+  suppressInteractionsUntil = Math.max(suppressInteractionsUntil, Date.now() + durationMs)
+}
+
+function isInteractionLocked() {
+  return settingsOpen.value || toolbarDragging.value || Date.now() < suppressInteractionsUntil
+}
+
+function closeSettings(lockInteractions = true) {
+  if (!settingsOpen.value)
+    return
+  settingsOpen.value = false
+  if (lockInteractions)
+    lockInteractionsTemporarily(SETTINGS_CLOSE_SUPPRESSION_MS)
 }
 
 function onToolbarDragStart() {
@@ -258,7 +276,7 @@ function onToolbarDragStart() {
 function onToolbarDragEnd() {
   toolbarDragging.value = false
   // Ignore trailing mouseup/click compatibility events right after drag release.
-  suppressInteractionsUntil = Date.now() + DRAG_END_SUPPRESSION_MS
+  lockInteractionsTemporarily(DRAG_END_SUPPRESSION_MS)
 }
 
 function onDocumentMouseMove(e: MouseEvent) {
@@ -325,7 +343,7 @@ function onInputAdd(comment: string) {
       isMultiSelect: true,
       elements,
     })
-    emit('annotationAdd', ann)
+    emit('annotation-add', ann)
     multiSelect.reset()
   }
   else if (mode.value === 'input-open' && areaSelect.areaRect.value) {
@@ -342,7 +360,7 @@ function onInputAdd(comment: string) {
       area,
       nearbyElements: getNearbyElements(document.elementFromPoint(area.x + area.width / 2, area.y + area.height / 2) || document.body),
     })
-    emit('annotationAdd', ann)
+    emit('annotation-add', ann)
     areaSelect.reset()
   }
   else if (pendingTextSelection.value) {
@@ -359,7 +377,7 @@ function onInputAdd(comment: string) {
       vueComponents: getVueComponents(el),
       _targetRef: new WeakRef(el),
     })
-    emit('annotationAdd', ann)
+    emit('annotation-add', ann)
   }
   else if (pendingTarget.value) {
     // Element click annotation
@@ -383,7 +401,7 @@ function onInputAdd(comment: string) {
       computedStyles: detail === 'forensic' ? getComputedStylesSummary(el) : undefined,
       accessibility: detail === 'forensic' ? getAccessibilityInfo(el) : undefined,
     })
-    emit('annotationAdd', ann)
+    emit('annotation-add', ann)
   }
 
   resetPendingState()
@@ -413,24 +431,28 @@ async function onCopy() {
   emit('copy', markdown)
   if (settings.clearAfterCopy) {
     const cleared = clearAnnotations()
-    emit('annotationsClear', cleared)
+    emit('annotations-clear', cleared)
   }
 }
 
 function onClear() {
   const cleared = clearAnnotations()
-  emit('annotationsClear', cleared)
+  emit('annotations-clear', cleared)
 }
 
 function onMarkerClick(ann: Annotation) {
   // For now, just remove the annotation
   const removed = removeAnnotation(ann.id)
   if (removed)
-    emit('annotationDelete', removed)
+    emit('annotation-delete', removed)
 }
 
 function onToggleArea(value: boolean) {
   areaSelect.isAreaMode.value = value
+}
+
+function onToolbarPlacementUpdate(value: Settings['toolbarPlacement']) {
+  settings.toolbarPlacement = value
 }
 
 function onSettingsUpdate(updates: Partial<Settings>) {
@@ -439,7 +461,7 @@ function onSettingsUpdate(updates: Partial<Settings>) {
 
 function onOpenSettings(anchorEl: HTMLElement | null) {
   if (settingsOpen.value && settingsAnchorEl.value === anchorEl) {
-    settingsOpen.value = false
+    closeSettings()
     return
   }
   settingsAnchorEl.value = anchorEl
@@ -543,7 +565,7 @@ onBeforeUnmount(() => {
         :anchor-el="settingsAnchorEl"
         :settings="settings"
         @update="onSettingsUpdate"
-        @close="settingsOpen = false"
+        @close="closeSettings()"
       />
 
       <!-- Copy feedback -->
@@ -558,13 +580,16 @@ onBeforeUnmount(() => {
         :annotation-count="annotations.length"
         :is-paused="animPause.isPaused.value"
         :is-area-mode="areaSelect.isAreaMode.value"
+        :auto-hide-enabled="settings.autoHideToolbar"
+        :placement="settings.toolbarPlacement"
         @activate="onActivate"
         @deactivate="onDeactivate"
         @copy="onCopy"
         @clear="onClear"
-        @togglePause="animPause.toggle"
-        @toggleArea="onToggleArea"
-        @openSettings="onOpenSettings"
+        @toggle-pause="animPause.toggle"
+        @toggle-area="onToggleArea"
+        @update:placement="onToolbarPlacementUpdate"
+        @open-settings="onOpenSettings"
         @drag-start="onToolbarDragStart"
         @drag-end="onToolbarDragEnd"
       />

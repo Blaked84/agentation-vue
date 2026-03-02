@@ -7,6 +7,8 @@ const defaults: Settings = {
   outputDetail: 'standard',
   markerColor: '#FF5C00',
   blockPageInteractions: false,
+  autoHideToolbar: false,
+  toolbarPlacement: 'bottom-right',
   clearAfterCopy: false,
   showComponentTree: true,
   theme: 'auto',

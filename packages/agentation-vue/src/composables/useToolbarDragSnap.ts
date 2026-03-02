@@ -1,9 +1,9 @@
 import type { Ref } from 'vue-demi'
-import type { BoundingBox } from '../types'
+import type { BoundingBox, ToolbarAnchor } from '../types'
 import { computed, ref } from 'vue-demi'
 import { clamp } from '../utils/math'
 
-export type ToolbarAnchor = 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
+export type { ToolbarAnchor } from '../types'
 
 interface Point {
   x: number
@@ -12,6 +12,7 @@ interface Point {
 
 interface UseToolbarDragSnapOptions {
   expanded: Ref<boolean>
+  initialPlacement?: ToolbarAnchor
   onDragStart?: () => void
   onDragEnd?: () => void
 }
@@ -20,11 +21,16 @@ const TOOLBAR_SIZE = 44
 const EDGE_OFFSET = 20
 const LONG_PRESS_MS = 350
 const HALF_TOOLBAR_SIZE = TOOLBAR_SIZE / 2
+const TOOLBAR_ANCHORS: ToolbarAnchor[] = ['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right']
+
+function isToolbarAnchor(value: unknown): value is ToolbarAnchor {
+  return typeof value === 'string' && TOOLBAR_ANCHORS.includes(value as ToolbarAnchor)
+}
 
 export function useToolbarDragSnap(options: UseToolbarDragSnapOptions) {
-  const { expanded, onDragStart, onDragEnd } = options
+  const { expanded, initialPlacement, onDragStart, onDragEnd } = options
 
-  const placement = ref<ToolbarAnchor>('bottom-right')
+  const placement = ref<ToolbarAnchor>(isToolbarAnchor(initialPlacement) ? initialPlacement : 'bottom-right')
   const isDragging = ref(false)
   const dragPosition = ref<Point | null>(null)
   const suppressNextClick = ref(false)
@@ -35,7 +41,7 @@ export function useToolbarDragSnap(options: UseToolbarDragSnapOptions) {
   const dragSource = ref<'toggle' | 'handle' | null>(null)
   let longPressTimer: ReturnType<typeof setTimeout> | null = null
 
-  const snapAnchors: ToolbarAnchor[] = ['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right']
+  const snapAnchors = TOOLBAR_ANCHORS
   const isExpandedDrag = computed(() => isDragging.value && dragSource.value === 'handle')
 
   const toolbarStyle = computed(() => {

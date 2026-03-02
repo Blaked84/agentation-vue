@@ -1,27 +1,31 @@
 <script setup lang="ts">
-import type { InteractionMode } from '../types'
-import { onBeforeUnmount, ref } from 'vue-demi'
+import type { InteractionMode, ToolbarAnchor } from '../types'
+import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue-demi'
+import { useToolbarAutoHide } from '../composables/useToolbarAutoHide'
 import { useToolbarDragSnap } from '../composables/useToolbarDragSnap'
 import VaIcon from './VaIcon.vue'
 import VaIconButton from './VaIconButton.vue'
 
-defineProps<{
+const props = defineProps<{
   mode: InteractionMode
   annotationCount: number
   isPaused: boolean
   isAreaMode: boolean
+  autoHideEnabled: boolean
+  placement: ToolbarAnchor
 }>()
 
 const emit = defineEmits<{
-  activate: []
-  deactivate: []
-  copy: []
-  clear: []
-  togglePause: []
-  toggleArea: [value: boolean]
-  openSettings: [anchorEl: HTMLElement | null]
-  dragStart: []
-  dragEnd: []
+  'activate': []
+  'deactivate': []
+  'copy': []
+  'clear': []
+  'toggle-pause': []
+  'toggle-area': [value: boolean]
+  'update:placement': [value: ToolbarAnchor]
+  'open-settings': [anchorEl: HTMLElement | null]
+  'drag-start': []
+  'drag-end': []
 }>()
 
 const expanded = ref(false)
@@ -43,9 +47,37 @@ const {
   cleanup,
 } = useToolbarDragSnap({
   expanded,
-  onDragStart: () => emit('dragStart'),
-  onDragEnd: () => emit('dragEnd'),
+  initialPlacement: props.placement,
+  onDragStart: () => emit('drag-start'),
+  onDragEnd: () => emit('drag-end'),
 })
+
+const autoHideEnabled = toRef(props, 'autoHideEnabled')
+const {
+  isAutoHideActive,
+  isAutoHideRevealed,
+  onToolbarPointerEnter,
+  onToolbarPointerLeave,
+  onToolbarPointerDown,
+  onToolbarFocusIn,
+  onToolbarFocusOut,
+} = useToolbarAutoHide({
+  enabled: autoHideEnabled,
+  expanded,
+  isDragging,
+  placement,
+  toolbarEl,
+})
+
+const toolbarClass = computed(() => [
+  `__va-toolbar--place-${placement.value}`,
+  {
+    '__va-toolbar--collapsed': !expanded.value,
+    '__va-toolbar--dragging': isDragging.value,
+    '__va-toolbar--auto-hide': isAutoHideActive.value,
+    '__va-toolbar--auto-hide-revealed': isAutoHideRevealed.value,
+  },
+])
 
 function onToggleClick() {
   if (consumeToggleClickSuppression()) {
@@ -72,12 +104,22 @@ function onClear() {
 
 function onOpenSettings(e: MouseEvent) {
   const anchorEl = e.currentTarget instanceof HTMLElement ? e.currentTarget : null
-  emit('openSettings', anchorEl)
+  emit('open-settings', anchorEl)
 }
 
 onBeforeUnmount(() => {
   cleanup()
 })
+
+watch(
+  () => props.placement,
+  (value) => {
+    if (placement.value !== value)
+      placement.value = value
+  },
+)
+
+watch(placement, value => emit('update:placement', value))
 
 defineExpose({ expanded, placement })
 </script>
@@ -97,11 +139,13 @@ defineExpose({ expanded, placement })
     <div
       ref="toolbarEl"
       class="__va-toolbar"
-      :class="[
-        `__va-toolbar--place-${placement}`,
-        { '__va-toolbar--collapsed': !expanded, '__va-toolbar--dragging': isDragging },
-      ]"
+      :class="toolbarClass"
       :style="toolbarStyle"
+      @pointerenter="onToolbarPointerEnter"
+      @pointerleave="onToolbarPointerLeave"
+      @pointerdown.capture="onToolbarPointerDown"
+      @focusin="onToolbarFocusIn"
+      @focusout="onToolbarFocusOut"
     >
       <template v-if="!expanded">
         <button
@@ -143,19 +187,19 @@ defineExpose({ expanded, placement })
         <div class="__va-toolbar-sep" />
 
         <!-- Element selector (default mode) -->
-        <VaIconButton :active="!isAreaMode" title="Element selector" @click="emit('toggleArea', false)">
+        <VaIconButton :active="!isAreaMode" title="Element selector" @click="emit('toggle-area', false)">
           <VaIcon name="cursor" />
         </VaIconButton>
 
         <!-- Area selection -->
-        <VaIconButton :active="isAreaMode" title="Area selection" @click="emit('toggleArea', true)">
+        <VaIconButton :active="isAreaMode" title="Area selection" @click="emit('toggle-area', true)">
           <VaIcon name="area-select" />
         </VaIconButton>
 
         <div class="__va-toolbar-sep" />
 
         <!-- Pause animations -->
-        <VaIconButton :active="isPaused" title="Pause animations" @click="emit('togglePause')">
+        <VaIconButton :active="isPaused" title="Pause animations" @click="emit('toggle-pause')">
           <VaIcon v-if="!isPaused" name="pause" />
           <VaIcon v-else name="play" />
         </VaIconButton>

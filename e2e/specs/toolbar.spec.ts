@@ -25,6 +25,28 @@ test.describe('Toolbar', () => {
     await expect(ag.toggleButton).toBeVisible()
   })
 
+  test('collapsed toolbar auto-hide reveals near the edge and remains clickable', async ({ ag }) => {
+    await ag.gotoAndActivate('/')
+    await ag.settingsBtn.click()
+    await ag.page.locator('button[aria-label="Auto-hide floating button"]').click()
+    await ag.minimizeBtn.click()
+
+    const viewport = ag.page.viewportSize()
+    if (!viewport)
+      throw new Error('Viewport size unavailable')
+
+    await expect(ag.toolbar).toHaveClass(/__va-toolbar--auto-hide/)
+
+    await ag.page.mouse.move(viewport.width / 2, viewport.height / 2)
+    await expect(ag.toolbar).not.toHaveClass(/__va-toolbar--auto-hide-revealed/)
+
+    await ag.page.mouse.move(viewport.width - 4, viewport.height - 4)
+    await expect(ag.toolbar).toHaveClass(/__va-toolbar--auto-hide-revealed/)
+
+    await ag.toggleButton.click()
+    await expect(ag.elementSelectorBtn).toBeVisible()
+  })
+
   test('copy and clear buttons are disabled with no annotations', async ({ ag }) => {
     await ag.gotoAndActivate('/')
     await expect(ag.copyBtn).toBeDisabled()
