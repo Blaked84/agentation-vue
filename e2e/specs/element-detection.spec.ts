@@ -33,6 +33,32 @@ test.describe('Element Detection', () => {
     expect(text).toBeTruthy()
   })
 
+  test('component chain includes leaf component and excludes root app for button targets', async ({ ag }) => {
+    await ag.clickElement('.test-submit')
+    const chain = ag.page.locator('.__va-input .__va-comp-chain').first()
+    await expect(chain).toContainText('MocButton')
+    await expect(chain).not.toContainText('App')
+    await ag.cancelBtn.click()
+  })
+
+  test('hovered component chain excludes root app and keeps nested components', async ({ ag }) => {
+    const btn = ag.page.locator('.test-submit')
+    const box = await btn.boundingBox()
+    if (!box)
+      throw new Error('Button not found')
+
+    await ag.overlay.hover({
+      position: { x: box.x + box.width / 2, y: box.y + box.height / 2 },
+      force: true,
+    })
+
+    const chain = ag.page.locator('.__va-highlight .__va-comp-chain').first()
+    await expect(chain).toBeVisible()
+    await expect(chain).toContainText('MocSection')
+    await expect(chain).toContainText('MocButton')
+    await expect(chain).not.toContainText('App')
+  })
+
   test('highlight repositions when moving to a different element', async ({ ag }) => {
     const btn = ag.page.locator('.test-submit')
     const img = ag.page.locator('img.avatar')

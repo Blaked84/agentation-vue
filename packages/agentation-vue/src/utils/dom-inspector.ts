@@ -10,23 +10,23 @@ interface VueInstance {
 }
 
 function getComponentFromElement(el: Element): VueInstance | null {
-  const v3 = (el as any).__vueParentComponent
-  if (v3)
-    return v3 as VueInstance
-
   const v2 = (el as any).__vue__
   if (v2)
     return v2 as VueInstance
 
+  const v3 = (el as any).__vueParentComponent
+  if (v3)
+    return v3 as VueInstance
+
   // Walk up DOM to find nearest component
   let current = el.parentElement
   while (current && current !== document.body) {
-    const v3p = (current as any).__vueParentComponent
-    if (v3p)
-      return v3p as VueInstance
     const v2p = (current as any).__vue__
     if (v2p)
       return v2p as VueInstance
+    const v3p = (current as any).__vueParentComponent
+    if (v3p)
+      return v3p as VueInstance
     current = current.parentElement
   }
   return null
@@ -40,6 +40,18 @@ function inferNameFromFile(filePath: string): string | null {
 }
 
 function getInstanceName(inst: VueInstance, includeFile?: boolean): string | null {
+  // Vue 2 path (prefer this when available: Vue 2.7 instances can also expose a partial `type`)
+  if (inst.$options) {
+    const name = inst.$options.name || inst.$options._componentTag || inferNameFromFile(inst.$options.__file || '')
+    if (name) {
+      if (includeFile && inst.$options.__file) {
+        const file = inst.$options.__file.split('/').pop()
+        return `${name} (${file})`
+      }
+      return name
+    }
+  }
+
   // Vue 3 path
   if (inst.type) {
     const name = inst.type.name || inst.type.__name || inferNameFromFile(inst.type.__file || '')
@@ -47,17 +59,6 @@ function getInstanceName(inst: VueInstance, includeFile?: boolean): string | nul
       return null
     if (includeFile && inst.type.__file) {
       const file = inst.type.__file.split('/').pop()
-      return `${name} (${file})`
-    }
-    return name
-  }
-  // Vue 2 path
-  if (inst.$options) {
-    const name = inst.$options.name || inst.$options._componentTag || inferNameFromFile(inst.$options.__file || '')
-    if (!name)
-      return null
-    if (includeFile && inst.$options.__file) {
-      const file = inst.$options.__file.split('/').pop()
       return `${name} (${file})`
     }
     return name
@@ -72,9 +73,9 @@ function walkComponentChain(inst: VueInstance, includeFile?: boolean): string[] 
 
   while (current && depth < 20) {
     const name = getInstanceName(current, includeFile)
-    if (name && !name.startsWith('_'))
+    if (name && !name.startsWith('_') && !/^App(?:\s*\(|$)/.test(name))
       chain.push(name)
-    current = current.parent || current.$parent
+    current = current.$parent || current.parent
     depth++
   }
 
