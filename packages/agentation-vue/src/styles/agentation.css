@@ -90,7 +90,6 @@
   display: block;
   min-height: 42px;
   max-width: 42px;
-  overflow: hidden;
   --va-toolbar-resize-delay: 0ms;
   background: var(--va-bg);
   border: 1px solid var(--va-border);
@@ -243,6 +242,7 @@
 
 .__va-toolbar-stage--menu {
   --va-toolbar-menu-enter-x: 8px;
+  overflow: hidden;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
