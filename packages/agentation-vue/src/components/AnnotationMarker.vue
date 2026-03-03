@@ -9,6 +9,7 @@ const props = defineProps<{
   isFixed?: boolean
   isStale?: boolean
   isPending?: boolean
+  isSelection?: boolean
 }>()
 
 defineEmits<{
@@ -28,6 +29,7 @@ const markerStyle = computed(() => ({
       '__va-marker--fixed': isFixed,
       '__va-marker--stale': isStale,
       '__va-marker--pending': isPending,
+      '__va-marker--selection': isSelection,
     }"
     :style="markerStyle"
     data-agentation-vue

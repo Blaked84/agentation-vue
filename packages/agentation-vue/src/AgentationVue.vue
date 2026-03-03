@@ -18,7 +18,7 @@ import { useSettings } from './composables/useSettings'
 import { useTextSelection } from './composables/useTextSelection'
 import { VA_DATA_ATTR_SELECTOR } from './constants'
 import { copyToClipboard } from './utils/clipboard'
-import { isFixed as checkIsFixed, detectVueComponents, getAccessibilityInfo, getComputedStylesSummary, getNearbyElements, getRelevantComputedStyles } from './utils/dom-inspector'
+import { isFixed as checkIsFixed, detectVueComponents, getAccessibilityInfo, getComputedStylesSummary, getNearbyElements, getNearbyText, getRelevantComputedStyles } from './utils/dom-inspector'
 import { createPortalContainer, destroyPortalContainer } from './utils/portal'
 import { getElementName, getElementPath } from './utils/selectors'
 import { boundingBoxToStyle } from './utils/style'
@@ -97,7 +97,7 @@ const pendingElementName = ref('')
 const pendingTarget = ref<Element | null>(null)
 const pendingComponentChain = ref<string | undefined>()
 const pendingComputedStyles = ref<Record<string, string> | undefined>()
-const pendingTextSelection = ref<{ text: string, element: Element } | null>(null)
+const pendingTextSelection = ref<{ text: string, element: Element, rect: { x: number, y: number, width: number, height: number } } | null>(null)
 const editingAnnotation = ref<Annotation | null>(null)
 const settingsOpen = ref(false)
 const settingsAnchorEl = ref<HTMLElement | null>(null)
@@ -130,6 +130,11 @@ const pendingMarkerY = computed(() => {
     return 0
   return pendingPosition.value.y + (window.scrollY || document.documentElement.scrollTop)
 })
+const pendingIsSelection = computed(() => (
+  mode.value === 'input-open'
+  && !editingAnnotation.value
+  && (multiSelect.selectedElements.value.length > 0 || !!areaSelect.areaRect.value)
+))
 
 // Portal setup (Vue 2.7 compat)
 let portalContainer: HTMLElement | null = null
@@ -272,12 +277,18 @@ function onOverlayMouseUp(e: MouseEvent) {
       y: textResult.rect.bottom,
     }
     pendingElementName.value = `"${textResult.selectedText.slice(0, 30)}"`
-    pendingComponentChain.value = undefined
+    pendingComponentChain.value = getVueComponents(textResult.anchorElement)
     pendingComputedStyles.value = getRelevantComputedStyles(textResult.anchorElement)
     pendingTarget.value = textResult.anchorElement
     pendingTextSelection.value = {
       text: textResult.selectedText,
       element: textResult.anchorElement,
+      rect: {
+        x: textResult.rect.x,
+        y: textResult.rect.y,
+        width: textResult.rect.width,
+        height: textResult.rect.height,
+      },
     }
     transition('input-open')
     return
@@ -309,6 +320,18 @@ function onOverlayWheel(_e: WheelEvent) {
     if (overlay)
       overlay.style.pointerEvents = previousPointerEvents
   })
+}
+
+function getElementAtPointThroughOverlay(x: number, y: number): Element | null {
+  const overlay = overlayEl.value
+  if (!overlay)
+    return document.elementFromPoint(x, y)
+
+  const previousPointerEvents = overlay.style.pointerEvents
+  overlay.style.pointerEvents = 'none'
+  const el = document.elementFromPoint(x, y)
+  overlay.style.pointerEvents = previousPointerEvents
+  return el
 }
 
 function shouldUseDocumentFallbackEvents() {
@@ -405,7 +428,8 @@ function onInputAdd(comment: string) {
 
   if (mode.value === 'input-open' && multiSelect.selectedElements.value.length > 0) {
     // Multi-select annotation
-    const elements = multiSelect.selectedElements.value.map(el => ({
+    const selected = multiSelect.selectedElements.value
+    const elements = selected.map(el => ({
       element: el.tagName.toLowerCase(),
       elementPath: getElementPath(el),
       cssClasses: Array.from(el.classList).join(' '),
@@ -414,6 +438,24 @@ function onInputAdd(comment: string) {
         return { x: r.x, y: r.y, width: r.width, height: r.height }
       })(),
     }))
+    const firstElement = selected[0]!
+    const selectionBox = elements.reduce(
+      (acc, el) => {
+        const box = el.boundingBox!
+        acc.left = Math.min(acc.left, box.x)
+        acc.top = Math.min(acc.top, box.y)
+        acc.right = Math.max(acc.right, box.x + box.width)
+        acc.bottom = Math.max(acc.bottom, box.y + box.height)
+        return acc
+      },
+      { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity },
+    )
+    const boundingBox = {
+      x: selectionBox.left,
+      y: selectionBox.top,
+      width: selectionBox.right - selectionBox.left,
+      height: selectionBox.bottom - selectionBox.top,
+    }
 
     const ann = addAnnotation({
       x: pendingPosition.value!.x / window.innerWidth * 100,
@@ -421,9 +463,17 @@ function onInputAdd(comment: string) {
       comment,
       url,
       element: 'multi',
-      elementPath: '',
+      elementPath: `region at (${Math.round(boundingBox.x)}, ${Math.round(boundingBox.y)})`,
       isMultiSelect: true,
       elements,
+      boundingBox,
+      vueComponents: getVueComponents(firstElement),
+      nearbyElements: getNearbyElements(firstElement),
+      nearbyText: getNearbyText(firstElement),
+      cssClasses: detail === 'forensic' ? Array.from(firstElement.classList).join(' ') : undefined,
+      fullPath: detail === 'forensic' ? getElementPath(firstElement) : undefined,
+      computedStyles: detail === 'forensic' ? getComputedStylesSummary(firstElement) : undefined,
+      accessibility: detail === 'forensic' ? getAccessibilityInfo(firstElement) : undefined,
     })
     emit('annotation-add', ann)
     multiSelect.reset()
@@ -431,23 +481,33 @@ function onInputAdd(comment: string) {
   else if (mode.value === 'input-open' && areaSelect.areaRect.value) {
     // Area annotation
     const area = { ...areaSelect.areaRect.value! }
+    const centerX = area.x + area.width / 2
+    const centerY = area.y + area.height / 2
+    const centerElement = getElementAtPointThroughOverlay(centerX, centerY) || document.body
     const ann = addAnnotation({
-      x: area.x / window.innerWidth * 100,
-      y: area.y + scrollTop,
+      x: centerX / window.innerWidth * 100,
+      y: centerY + scrollTop,
       comment,
       url,
       element: 'area',
-      elementPath: '',
+      elementPath: `region at (${Math.round(area.x)}, ${Math.round(area.y)})`,
       isAreaSelect: true,
       area,
-      nearbyElements: getNearbyElements(document.elementFromPoint(area.x + area.width / 2, area.y + area.height / 2) || document.body),
+      boundingBox: area,
+      vueComponents: getVueComponents(centerElement),
+      nearbyElements: getNearbyElements(centerElement),
+      nearbyText: getNearbyText(centerElement),
+      cssClasses: detail === 'forensic' ? Array.from(centerElement.classList).join(' ') : undefined,
+      fullPath: detail === 'forensic' ? getElementPath(centerElement) : undefined,
+      computedStyles: detail === 'forensic' ? getComputedStylesSummary(centerElement) : undefined,
+      accessibility: detail === 'forensic' ? getAccessibilityInfo(centerElement) : undefined,
     })
     emit('annotation-add', ann)
     areaSelect.reset()
   }
   else if (pendingTextSelection.value) {
     // Text selection annotation
-    const el = pendingTextSelection.value.element
+    const { element: el, rect, text } = pendingTextSelection.value
     const ann = addAnnotation({
       x: pendingPosition.value!.x / window.innerWidth * 100,
       y: pendingPosition.value!.y + scrollTop,
@@ -455,8 +515,15 @@ function onInputAdd(comment: string) {
       url,
       element: el.tagName.toLowerCase(),
       elementPath: getElementPath(el),
-      selectedText: pendingTextSelection.value.text,
+      selectedText: text,
+      boundingBox: rect,
       vueComponents: getVueComponents(el),
+      nearbyElements: getNearbyElements(el),
+      nearbyText: getNearbyText(el),
+      cssClasses: detail === 'forensic' ? Array.from(el.classList).join(' ') : undefined,
+      fullPath: detail === 'forensic' ? getElementPath(el) : undefined,
+      computedStyles: detail === 'forensic' ? getComputedStylesSummary(el) : undefined,
+      accessibility: detail === 'forensic' ? getAccessibilityInfo(el) : undefined,
       _targetRef: new WeakRef(el),
     })
     emit('annotation-add', ann)
@@ -478,8 +545,10 @@ function onInputAdd(comment: string) {
       _targetRef: new WeakRef(el),
       vueComponents: getVueComponents(el),
       nearbyElements: getNearbyElements(el),
-      boundingBox: detail === 'forensic' ? { x: rect.x, y: rect.y, width: rect.width, height: rect.height } : undefined,
+      nearbyText: getNearbyText(el),
+      boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
       cssClasses: detail === 'forensic' ? Array.from(el.classList).join(' ') : undefined,
+      fullPath: detail === 'forensic' ? getElementPath(el) : undefined,
       computedStyles: detail === 'forensic' ? getComputedStylesSummary(el) : undefined,
       accessibility: detail === 'forensic' ? getAccessibilityInfo(el) : undefined,
     })
@@ -670,6 +739,7 @@ onBeforeUnmount(() => {
         :y="ann.y"
         :is-fixed="ann.isFixed"
         :is-stale="!ann._targetRef?.deref() && !!ann._targetRef"
+        :is-selection="!!(ann.isAreaSelect || ann.isMultiSelect)"
         @click="onMarkerClick(ann)"
       />
 
@@ -680,6 +750,7 @@ onBeforeUnmount(() => {
         :x="pendingMarkerX"
         :y="pendingMarkerY"
         :is-pending="true"
+        :is-selection="pendingIsSelection"
       />
 
       <!-- Annotation input -->

@@ -190,6 +190,7 @@ export function useToolbarDragSnap(options: UseToolbarDragSnapOptions) {
     clearLongPressTimer()
     dragRotation.value = (2 + Math.random() * 3) * (Math.random() < 0.5 ? -1 : 1)
     if (options.immediate) {
+      dragRotation.value = (Math.random() * 4 + 1) * (Math.random() < 0.5 ? -1 : 1)
       isDragging.value = true
       onDragStart?.()
       updateDragPosition(e.clientX, e.clientY)
@@ -200,6 +201,7 @@ export function useToolbarDragSnap(options: UseToolbarDragSnapOptions) {
       if (activePointerId.value !== e.pointerId || expanded.value) {
         return
       }
+      dragRotation.value = (Math.random() * 4 + 1) * (Math.random() < 0.5 ? -1 : 1)
       isDragging.value = true
       onDragStart?.()
       updateDragPosition(e.clientX, e.clientY)

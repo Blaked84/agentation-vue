@@ -23,6 +23,7 @@
   "files": ["dist"],
   "scripts": {
     "build": "unbuild",
+    "prepack": "pnpm run build",
     "dev": "unbuild --stub",
     "typecheck": "vue-tsc --noEmit"
   },

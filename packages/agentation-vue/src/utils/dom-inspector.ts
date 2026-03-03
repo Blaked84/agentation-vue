@@ -194,6 +194,19 @@ export function getNearbyElements(el: Element, maxCount = 3): string {
   return nearby.join(', ')
 }
 
+export function getNearbyText(el: Element, maxLen = 140): string | undefined {
+  const ownText = (el.textContent || '').replace(/\s+/g, ' ').trim()
+  if (ownText.length >= 2) {
+    return ownText.length > maxLen ? `${ownText.slice(0, maxLen)}...` : ownText
+  }
+
+  const parentText = (el.parentElement?.textContent || '').replace(/\s+/g, ' ').trim()
+  if (parentText.length >= 2) {
+    return parentText.length > maxLen ? `${parentText.slice(0, maxLen)}...` : parentText
+  }
+
+  return undefined
+}
 export function getRelevantComputedStyles(el: Element): Record<string, string> {
   const style = getComputedStyle(el)
   const tag = el.tagName.toLowerCase()
