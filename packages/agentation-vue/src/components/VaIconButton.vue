@@ -12,6 +12,10 @@ const props = withDefaults(defineProps<{
   disabled: false,
 })
 
+defineEmits<{
+  click: [event: MouseEvent]
+}>()
+
 const vVaTooltip = vaTooltipDirective
 const tooltipValue = computed(() => {
   if (!props.title)
@@ -22,10 +26,6 @@ const tooltipValue = computed(() => {
     disabled: props.disabled,
   }
 })
-
-defineEmits<{
-  click: [event: MouseEvent]
-}>()
 </script>
 
 <template>
@@ -34,6 +34,7 @@ defineEmits<{
     type="button"
     class="__va-icon-btn"
     :class="{ '__va-icon-btn--active': active }"
+    :aria-label="title"
     :disabled="disabled"
     @click="$emit('click', $event)"
   >

@@ -152,6 +152,7 @@ defineExpose({ expanded, placement })
         <button
           type="button"
           class="__va-toolbar-toggle"
+          aria-label="Appui long pour déplacer"
           @click="onToggleClick"
           @pointerdown="onTogglePointerDown"
           @pointermove="onPointerMove"

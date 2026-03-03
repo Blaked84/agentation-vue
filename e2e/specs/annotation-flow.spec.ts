@@ -48,11 +48,14 @@ test.describe('Annotation Flow', () => {
     await expect(markers.nth(2)).toHaveText('3')
   })
 
-  test('clicking a marker removes it', async ({ ag }) => {
+  test('clicking a marker opens edit, delete removes it', async ({ ag }) => {
     await ag.annotateElement('.test-submit', 'Will delete')
     await expect(ag.markers()).toHaveCount(1)
 
     await ag.markers().first().click()
+    await ag.annotationInput.waitFor({ state: 'visible' })
+    await ag.page.locator('.__va-input-delete-btn').click()
+    await ag.annotationInput.waitFor({ state: 'hidden', timeout: 3000 })
     await expect(ag.markers()).toHaveCount(0)
   })
 
