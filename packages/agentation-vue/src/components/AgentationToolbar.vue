@@ -225,7 +225,7 @@ defineExpose({ expanded, placement })
 
         <!-- Minimize -->
         <VaIconButton title="Minimize" @click="onDeactivate">
-          <VaIcon name="minimize" />
+          <VaIcon name="close" />
         </VaIconButton>
       </template>
     </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue-demi'
+import VaIcon from './VaIcon.vue'
 
 const props = defineProps<{
   number: number
@@ -7,7 +8,8 @@ const props = defineProps<{
   y: number
   isFixed?: boolean
   isStale?: boolean
-  color?: string
+  isPending?: boolean
+  isSelection?: boolean
 }>()
 
 defineEmits<{
@@ -15,10 +17,8 @@ defineEmits<{
 }>()
 
 const markerStyle = computed(() => ({
-  'left': `${props.x}%`,
-  'top': `${props.y}px`,
-  '--va-accent': props.color || undefined,
-  'background': props.color || undefined,
+  left: `${props.x}%`,
+  top: `${props.y}px`,
 }))
 </script>
 
@@ -28,11 +28,19 @@ const markerStyle = computed(() => ({
     :class="{
       '__va-marker--fixed': isFixed,
       '__va-marker--stale': isStale,
+      '__va-marker--pending': isPending,
+      '__va-marker--selection': isSelection,
     }"
     :style="markerStyle"
     data-agentation-vue
     @click.stop="$emit('click')"
   >
-    {{ number }}
+    <template v-if="isPending">
+      <VaIcon name="plus" class="__va-marker-plus" />
+    </template>
+    <template v-else>
+      <span class="__va-marker-number">{{ number }}</span>
+      <VaIcon name="pencil" class="__va-marker-pencil" />
+    </template>
   </div>
 </template>

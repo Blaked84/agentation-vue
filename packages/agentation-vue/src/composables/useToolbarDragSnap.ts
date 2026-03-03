@@ -39,6 +39,7 @@ export function useToolbarDragSnap(options: UseToolbarDragSnapOptions) {
   const dragOffset = ref({ x: HALF_TOOLBAR_SIZE, y: HALF_TOOLBAR_SIZE })
   const dragSize = ref({ width: TOOLBAR_SIZE, height: TOOLBAR_SIZE })
   const dragSource = ref<'toggle' | 'handle' | null>(null)
+  const dragRotation = ref(0)
   let longPressTimer: ReturnType<typeof setTimeout> | null = null
 
   const snapAnchors = TOOLBAR_ANCHORS
@@ -51,6 +52,7 @@ export function useToolbarDragSnap(options: UseToolbarDragSnapOptions) {
     return {
       left: `${dragPosition.value.x}px`,
       top: `${dragPosition.value.y}px`,
+      transform: `rotate(${dragRotation.value}deg)`,
     }
   })
 
@@ -187,6 +189,7 @@ export function useToolbarDragSnap(options: UseToolbarDragSnapOptions) {
 
     clearLongPressTimer()
     if (options.immediate) {
+      dragRotation.value = (Math.random() * 4 + 1) * (Math.random() < 0.5 ? -1 : 1)
       isDragging.value = true
       onDragStart?.()
       updateDragPosition(e.clientX, e.clientY)
@@ -197,6 +200,7 @@ export function useToolbarDragSnap(options: UseToolbarDragSnapOptions) {
       if (activePointerId.value !== e.pointerId || expanded.value) {
         return
       }
+      dragRotation.value = (Math.random() * 4 + 1) * (Math.random() < 0.5 ? -1 : 1)
       isDragging.value = true
       onDragStart?.()
       updateDragPosition(e.clientX, e.clientY)
