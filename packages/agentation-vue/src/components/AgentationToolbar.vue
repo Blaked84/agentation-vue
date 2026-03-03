@@ -73,6 +73,7 @@ const toolbarClass = computed(() => [
   `__va-toolbar--place-${placement.value}`,
   {
     '__va-toolbar--collapsed': !expanded.value,
+    '__va-toolbar--expanded': expanded.value,
     '__va-toolbar--dragging': isDragging.value,
     '__va-toolbar--auto-hide': isAutoHideActive.value,
     '__va-toolbar--auto-hide-revealed': isAutoHideRevealed.value,
@@ -147,11 +148,11 @@ defineExpose({ expanded, placement })
       @focusin="onToolbarFocusIn"
       @focusout="onToolbarFocusOut"
     >
-      <template v-if="!expanded">
+      <div class="__va-toolbar-stage __va-toolbar-stage--toggle" :aria-hidden="expanded">
         <button
           type="button"
           class="__va-toolbar-toggle"
-          title="Appui long pour déplacer"
+          aria-label="Appui long pour déplacer"
           @click="onToggleClick"
           @pointerdown="onTogglePointerDown"
           @pointermove="onPointerMove"
@@ -161,13 +162,12 @@ defineExpose({ expanded, placement })
           <VaIcon name="cursor" />
           <span v-if="annotationCount > 0" class="__va-toolbar-badge">{{ annotationCount }}</span>
         </button>
-      </template>
+      </div>
 
-      <template v-else>
+      <div class="__va-toolbar-stage __va-toolbar-stage--menu" :aria-hidden="!expanded">
         <button
           type="button"
           class="__va-drag-handle"
-          title="Glisser pour déplacer"
           aria-label="Glisser pour déplacer"
           @pointerdown="onHandlePointerDown"
           @pointermove="onPointerMove"
@@ -187,19 +187,19 @@ defineExpose({ expanded, placement })
         <div class="__va-toolbar-sep" />
 
         <!-- Element selector (default mode) -->
-        <VaIconButton :active="!isAreaMode" title="Element selector" @click="emit('toggle-area', false)">
+        <VaIconButton :active="!isAreaMode" title="Element selector" shortcut="V" @click="emit('toggle-area', false)">
           <VaIcon name="cursor" />
         </VaIconButton>
 
         <!-- Area selection -->
-        <VaIconButton :active="isAreaMode" title="Area selection" @click="emit('toggle-area', true)">
+        <VaIconButton :active="isAreaMode" title="Area selection" shortcut="A" @click="emit('toggle-area', true)">
           <VaIcon name="area-select" />
         </VaIconButton>
 
         <div class="__va-toolbar-sep" />
 
         <!-- Pause animations -->
-        <VaIconButton :active="isPaused" title="Pause animations" @click="emit('toggle-pause')">
+        <VaIconButton :active="isPaused" title="Pause animations" shortcut="P" @click="emit('toggle-pause')">
           <VaIcon v-if="!isPaused" name="pause" />
           <VaIcon v-else name="play" />
         </VaIconButton>
@@ -207,27 +207,27 @@ defineExpose({ expanded, placement })
         <div class="__va-toolbar-sep" />
 
         <!-- Copy -->
-        <VaIconButton :disabled="annotationCount === 0" title="Copy annotations" @click="$emit('copy')">
+        <VaIconButton :disabled="annotationCount === 0" title="Copy annotations" shortcut="C" @click="$emit('copy')">
           <VaIcon name="copy" />
         </VaIconButton>
 
         <!-- Clear -->
-        <VaIconButton :disabled="annotationCount === 0" title="Clear annotations" @click="onClear">
+        <VaIconButton :disabled="annotationCount === 0" title="Clear annotations" shortcut="Backspace" @click="onClear">
           <VaIcon name="trash" />
         </VaIconButton>
 
         <div class="__va-toolbar-sep" />
 
         <!-- Settings -->
-        <VaIconButton title="Settings" @click="onOpenSettings">
+        <VaIconButton title="Settings" shortcut="," @click="onOpenSettings">
           <VaIcon name="settings" />
         </VaIconButton>
 
         <!-- Minimize -->
-        <VaIconButton title="Minimize" @click="onDeactivate">
-          <VaIcon name="minimize" />
+        <VaIconButton title="Minimize" shortcut="Esc" @click="onDeactivate">
+          <VaIcon name="close" />
         </VaIconButton>
-      </template>
+      </div>
     </div>
   </div>
 </template>

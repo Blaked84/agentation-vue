@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Settings } from '../types'
 import { computed, toRef } from 'vue-demi'
+import { vaTooltipDirective } from '../directives/vaTooltip'
 import VaIcon from './VaIcon.vue'
 import VaToggle from './VaToggle.vue'
 
@@ -36,6 +37,7 @@ const isDarkTheme = computed(() => {
 })
 
 const themeIcon = computed(() => (isDarkTheme.value ? 'sun' : 'moon'))
+const vVaTooltip = vaTooltipDirective
 
 function toggleTheme() {
   update('theme', isDarkTheme.value ? 'light' : 'dark')
@@ -45,7 +47,7 @@ function toggleTheme() {
 <template>
   <div class="__va-settings" data-agentation-vue @click.stop>
     <div class="__va-settings-top">
-      <button type="button" class="__va-theme-toggle" title="Toggle theme" @click="toggleTheme">
+      <button v-va-tooltip="'Toggle theme'" type="button" class="__va-theme-toggle" @click="toggleTheme">
         <VaIcon :name="themeIcon" />
       </button>
     </div>

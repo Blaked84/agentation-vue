@@ -48,11 +48,14 @@ test.describe('Annotation Flow', () => {
     await expect(markers.nth(2)).toHaveText('3')
   })
 
-  test('clicking a marker removes it', async ({ ag }) => {
+  test('clicking a marker opens edit, delete removes it', async ({ ag }) => {
     await ag.annotateElement('.test-submit', 'Will delete')
     await expect(ag.markers()).toHaveCount(1)
 
     await ag.markers().first().click()
+    await ag.annotationInput.waitFor({ state: 'visible' })
+    await ag.page.locator('.__va-input-delete-btn').click()
+    await ag.annotationInput.waitFor({ state: 'hidden', timeout: 3000 })
     await expect(ag.markers()).toHaveCount(0)
   })
 
@@ -68,5 +71,17 @@ test.describe('Annotation Flow', () => {
     // Should show either a component chain or an element label
     const inputLabel = ag.page.locator('.__va-input-label, .__va-input-chain, .__va-comp-chain')
     await expect(inputLabel.first()).toBeVisible()
+  })
+
+  test('annotation input shows computed styles in collapsible section', async ({ ag }) => {
+    await ag.clickElement('.avatar')
+
+    const stylesSummary = ag.page.locator('.__va-input-styles-summary')
+    await expect(stylesSummary).toBeVisible()
+    await stylesSummary.click()
+
+    const styleLines = ag.page.locator('.__va-input-style-line')
+    const lineCount = await styleLines.count()
+    expect(lineCount).toBeGreaterThan(0)
   })
 })
