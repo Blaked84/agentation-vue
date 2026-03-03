@@ -46,6 +46,8 @@ describe('formatAnnotations', () => {
     const ann: Annotation = {
       ...baseAnnotation,
       isMultiSelect: true,
+      elementPath: 'region at (100, 200)',
+      boundingBox: { x: 100, y: 200, width: 240, height: 80 },
       elements: [
         { element: 'button', elementPath: 'body > button.primary' },
         { element: 'a', elementPath: 'body > a.link' },
@@ -59,7 +61,9 @@ describe('formatAnnotations', () => {
     expect(output).toContain('  - `button` — body > button.primary')
     expect(output).toContain('  - `a` — body > a.link')
     expect(output).toContain('  - `input` — body > input.field')
-    expect(output).not.toContain('- **Path:**')
+    expect(output).toContain('- **Selection path:** region at (100, 200)')
+    expect(output).toContain('- **Selection box:** x: 100, y: 200, width: 240, height: 80')
+    expect(output).not.toContain('- **Path:** body > main > div.container > button.cta')
   })
 
   it('formats an area-select annotation with rounded dimensions', () => {
@@ -67,12 +71,16 @@ describe('formatAnnotations', () => {
       ...baseAnnotation,
       isAreaSelect: true,
       area: { x: 10.7, y: 20.3, width: 300.9, height: 150.1 },
+      elementPath: 'region at (11, 20)',
+      boundingBox: { x: 10.7, y: 20.3, width: 300.9, height: 150.1 },
     }
     const output = formatAnnotations([ann], 'standard', 'https://example.com')
 
     expect(output).toContain('### 1. Area selection')
     expect(output).toContain('- **Area:** x: 11, y: 20, width: 301, height: 150')
-    expect(output).not.toContain('- **Path:**')
+    expect(output).toContain('- **Selection path:** region at (11, 20)')
+    expect(output).toContain('- **Selection box:** x: 11, y: 20, width: 301, height: 150')
+    expect(output).not.toContain('- **Path:** body > main > div.container > button.cta')
   })
 
   it('excludes forensic fields when detail is standard', () => {
@@ -101,6 +109,12 @@ describe('formatAnnotations', () => {
     }
     const output = formatAnnotations([ann], 'forensic', 'https://example.com')
 
+    expect(output).toContain('### Environment')
+    expect(output).toContain('- **Viewport:**')
+    expect(output).toContain('- **URL:** https://example.com')
+    expect(output).toContain('- **User Agent:**')
+    expect(output).toContain('- **Timestamp:**')
+    expect(output).toContain('- **Device Pixel Ratio:**')
     expect(output).toContain('- **CSS classes:** cta primary large')
     expect(output).toContain('- **Bounding box:** x: 100, y: 201, width: 300, height: 51')
     expect(output).toContain('- **Computed styles:**')

@@ -625,6 +625,12 @@
   animation: __va-pulse 1.5s ease-in-out infinite;
 }
 
+.__va-marker--selection {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+}
+
 @keyframes __va-pulse {
   0%,
   100% {

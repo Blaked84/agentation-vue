@@ -11,6 +11,26 @@ export function formatAnnotations(
   lines.push(`## Feedback — ${shortUrl}`)
   lines.push('')
 
+  if (detail === 'forensic') {
+    const viewport = typeof window !== 'undefined'
+      ? `${window.innerWidth}x${window.innerHeight}`
+      : 'unknown'
+    const userAgent = typeof navigator !== 'undefined'
+      ? navigator.userAgent
+      : 'unknown'
+    const dpr = typeof window !== 'undefined'
+      ? String(window.devicePixelRatio)
+      : 'unknown'
+
+    lines.push('### Environment')
+    lines.push(`- **Viewport:** ${viewport}`)
+    lines.push(`- **URL:** ${pageUrl}`)
+    lines.push(`- **User Agent:** ${userAgent}`)
+    lines.push(`- **Timestamp:** ${new Date().toISOString()}`)
+    lines.push(`- **Device Pixel Ratio:** ${dpr}`)
+    lines.push('')
+  }
+
   for (let i = 0; i < annotations.length; i++) {
     const ann = annotations[i]
     const num = i + 1
@@ -46,6 +66,15 @@ export function formatAnnotations(
       lines.push(`- **Area:** x: ${Math.round(ann.area.x)}, y: ${Math.round(ann.area.y)}, width: ${Math.round(ann.area.width)}, height: ${Math.round(ann.area.height)}`)
     }
 
+    if ((ann.isAreaSelect || ann.isMultiSelect) && ann.elementPath) {
+      lines.push(`- **Selection path:** ${ann.elementPath}`)
+    }
+
+    if ((ann.isAreaSelect || ann.isMultiSelect) && ann.boundingBox) {
+      const b = ann.boundingBox
+      lines.push(`- **Selection box:** x: ${Math.round(b.x)}, y: ${Math.round(b.y)}, width: ${Math.round(b.width)}, height: ${Math.round(b.height)}`)
+    }
+
     // Component tree — always shown
     if (ann.vueComponents) {
       lines.push(`- **Components:** ${ann.vueComponents}`)
@@ -61,9 +90,15 @@ export function formatAnnotations(
     if (ann.nearbyElements) {
       lines.push(`- **Nearby:** ${ann.nearbyElements}`)
     }
+    if (ann.nearbyText && !ann.selectedText) {
+      lines.push(`- **Context:** ${ann.nearbyText}`)
+    }
 
     // Forensic-only fields
     if (detail === 'forensic') {
+      if (ann.fullPath) {
+        lines.push(`- **Full path:** ${ann.fullPath}`)
+      }
       if (ann.cssClasses) {
         lines.push(`- **CSS classes:** ${ann.cssClasses}`)
       }
