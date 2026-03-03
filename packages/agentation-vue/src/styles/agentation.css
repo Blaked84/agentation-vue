@@ -74,7 +74,7 @@
   position: fixed;
   --va-toolbar-base-transform: translate(0, 0);
   --va-toolbar-auto-hide-transform: translate(0, 0);
-  --va-toolbar-size: 44px;
+  --va-toolbar-size: 42px;
   --va-toolbar-edge-offset: 20px;
   --va-toolbar-auto-hide-peek: 8px;
   --va-toolbar-auto-hide-corner-peek: 16px;
@@ -87,19 +87,22 @@
       var(--va-toolbar-auto-hide-corner-peek)
   );
   z-index: 2147483647;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  display: block;
+  min-height: 42px;
+  max-width: 42px;
+  --va-toolbar-resize-delay: 0ms;
   background: var(--va-bg);
   border: 1px solid var(--va-border);
-  border-radius: 8px;
-  padding: 4px;
+  border-radius: 999px;
+  padding: 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 150ms cubic-bezier(0.25, 0.1, 0.25, 1),
+  transition: border-radius 120ms cubic-bezier(0.32, 0.72, 0, 1),
+    padding 120ms cubic-bezier(0.32, 0.72, 0, 1),
+    max-width 240ms cubic-bezier(0.22, 1, 0.36, 1)
+      var(--va-toolbar-resize-delay),
+    transform 150ms cubic-bezier(0.25, 0.1, 0.25, 1),
     opacity 150ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    box-shadow 150ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    border-radius 150ms cubic-bezier(0.25, 0.1, 0.25, 1),
-    padding 150ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    box-shadow 150ms cubic-bezier(0.25, 0.1, 0.25, 1);
   user-select: none;
   transform: var(--va-toolbar-base-transform)
     var(--va-toolbar-auto-hide-transform);
@@ -190,17 +193,19 @@
 }
 
 .__va-toolbar--collapsed {
-  padding: 0;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  justify-content: center;
+  max-width: 42px;
+  min-height: 42px;
   cursor: pointer;
 }
 
+.__va-toolbar--expanded {
+  --va-toolbar-resize-delay: 110ms;
+  max-width: 520px;
+  padding: 4px;
+  border-radius: 10px;
+}
+
 .__va-toolbar--collapsed:not(.__va-toolbar--auto-hide):hover {
-  transform: var(--va-toolbar-base-transform)
-    var(--va-toolbar-auto-hide-transform) scale(1.1);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
@@ -217,6 +222,68 @@
   transform: none;
 }
 
+.__va-toolbar-stage {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.__va-toolbar-stage--toggle {
+  position: absolute;
+  inset: 0;
+  justify-content: center;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1);
+  transition: opacity 110ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0s;
+}
+
+.__va-toolbar-stage--menu {
+  --va-toolbar-menu-enter-x: 8px;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(var(--va-toolbar-menu-enter-x));
+  filter: blur(4px);
+  transition: opacity 140ms ease 0ms,
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1) 0ms,
+    visibility 0s linear 140ms,
+    filter 80ms ease 0ms;
+}
+
+.__va-toolbar--expanded .__va-toolbar-stage--toggle {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transform: scale(0.94);
+  transition: opacity 90ms ease, transform 120ms ease, visibility 0s linear 90ms;
+}
+
+.__va-toolbar--expanded .__va-toolbar-stage--menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(0);
+  filter: blur(0px);
+  transition: opacity 150ms ease 150ms,
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1) 120ms,
+    visibility 0s linear 0s,
+    filter 150ms ease 200ms;
+}
+
+.__va-toolbar--place-top-right .__va-toolbar-stage--menu,
+.__va-toolbar--place-bottom-right .__va-toolbar-stage--menu {
+  --va-toolbar-menu-enter-x: -8px;
+}
+
+.__va-toolbar--place-top-center .__va-toolbar-stage--menu,
+.__va-toolbar--place-bottom-center .__va-toolbar-stage--menu {
+  --va-toolbar-menu-enter-x: 0px;
+}
+
 .__va-snap-zones {
   position: fixed;
   inset: 0;
@@ -226,20 +293,19 @@
 
 .__va-snap-zone {
   position: fixed;
-  width: 56px;
-  height: 56px;
+  width: 42px;
+  height: 42px;
   border-radius: 999px;
   transform: translate(-50%, -50%);
-  border: 1.5px dashed rgba(var(--va-accent-rgb),0.18);
-  background: rgba(var(--va-accent-rgb),0.035);
-  box-shadow: 0 0 0 1px rgba(var(--va-accent-rgb),0.04);
+  border: 1.5px dashed rgba(var(--va-accent-rgb), 0.18);
+  background: rgba(var(--va-accent-rgb), 0.035);
+  box-shadow: 0 0 0 1px rgba(var(--va-accent-rgb), 0.04);
   transition: all 120ms ease;
 }
 
 .__va-snap-zone--active {
-  border-color: rgba(var(--va-accent-rgb),0.4);
-  background: rgba(var(--va-accent-rgb),0.09);
-  transform: translate(-50%, -50%) scale(1.04);
+  border-color: rgba(var(--va-accent-rgb), 0.4);
+  background: rgba(var(--va-accent-rgb), 0.09);
 }
 
 .__va-snap-zone--rect {
@@ -261,7 +327,7 @@
   background: transparent;
   color: var(--va-text-secondary);
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: background 150ms ease, color 150ms ease;
   border: none;
   outline: none;
   padding: 0;
@@ -300,8 +366,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  line-height: 0;
   border: none;
   background: transparent;
   color: var(--va-accent);
@@ -311,8 +379,9 @@
 }
 
 .__va-toolbar-toggle svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
 }
 
 .__va-toolbar-sep {
@@ -380,13 +449,97 @@
   padding: 0 4px;
 }
 
+.__va-tooltip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: min(360px, calc(100vw - 16px));
+  padding: 6px 9px;
+  border-radius: 10px;
+  background: #131518;
+  color: #dce1e7;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32), 0 2px 6px rgba(0, 0, 0, 0.28);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 11px;
+  line-height: 1.15;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px) scale(0.98);
+  transform-origin: center bottom;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.__va-tooltip[data-placement="bottom"] {
+  transform: translateY(-4px) scale(0.98);
+  transform-origin: center top;
+}
+
+.__va-tooltip.__va-tooltip--visible {
+  opacity: 1;
+}
+
+.__va-tooltip.__va-tooltip--visible[data-placement="top"],
+.__va-tooltip.__va-tooltip--visible[data-placement="bottom"] {
+  transform: translateY(0) scale(1);
+}
+
+.__va-tooltip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.__va-tooltip-shortcut {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #b5bec8;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  padding: 2px 6px;
+  min-height: 18px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.__va-tooltip-arrow {
+  position: absolute;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: #131518;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: none;
+  border-top: none;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.__va-tooltip[data-placement="top"] .__va-tooltip-arrow {
+  bottom: -5px;
+}
+
+.__va-tooltip[data-placement="bottom"] .__va-tooltip-arrow {
+  top: -5px;
+  transform: translateX(-50%) rotate(225deg);
+}
+
 /* === Highlight Overlay === */
 .__va-highlight {
   position: fixed;
   z-index: 2147483645;
   pointer-events: none;
   border: 2px solid var(--va-accent);
-  background: rgba(var(--va-accent-rgb),0.08);
+  background: rgba(var(--va-accent-rgb), 0.08);
   border-radius: 4px;
   transition: all 80ms ease;
 }
@@ -484,7 +637,7 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   }
   50% {
-    box-shadow: 0 2px 12px rgba(var(--va-accent-rgb),0.5);
+    box-shadow: 0 2px 12px rgba(var(--va-accent-rgb), 0.5);
   }
 }
 
@@ -854,7 +1007,7 @@
   position: fixed;
   z-index: 2147483645;
   border: 2px dashed var(--va-accent);
-  background: rgba(var(--va-accent-rgb),0.06);
+  background: rgba(var(--va-accent-rgb), 0.06);
   pointer-events: none;
   border-radius: 2px;
 }

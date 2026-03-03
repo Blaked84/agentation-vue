@@ -28,7 +28,7 @@ interface UseToolbarAutoHideOptions {
 }
 
 const EDGE_OFFSET = 20
-const DEFAULT_TOOLBAR_SIZE = 44
+const DEFAULT_TOOLBAR_SIZE = 42
 const ACTIVATION_EDGE_DEPTH = 16
 const ACTIVATION_INLINE_PAD = 30
 const ACTIVATION_CORNER_SIZE = 32

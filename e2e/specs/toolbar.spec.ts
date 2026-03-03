@@ -92,7 +92,7 @@ test.describe('Toolbar', () => {
 
   test('shows drag affordances (tooltip + snap zones) for collapsed toolbar', async ({ ag }) => {
     await ag.goto('/')
-    await expect(ag.toggleButton).toHaveAttribute('title', 'Appui long pour déplacer')
+    await expect(ag.toggleButton).toHaveAttribute('aria-label', 'Appui long pour déplacer')
 
     const box = await ag.toggleButton.boundingBox()
     if (!box)
@@ -113,13 +113,9 @@ test.describe('Toolbar', () => {
   test('expanded toolbar can be dragged with grab handle', async ({ ag }) => {
     await ag.gotoAndActivate('/')
     await expect(ag.dragHandle).toBeVisible()
-    await expect(ag.dragHandle).toHaveAttribute('title', 'Glisser pour déplacer')
+    await expect(ag.dragHandle).toHaveAttribute('aria-label', 'Glisser pour déplacer')
 
-    const box = await ag.dragHandle.boundingBox()
-    if (!box)
-      throw new Error('Drag handle not found')
-
-    await ag.page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await ag.dragHandle.hover()
     await ag.page.mouse.down()
     await expect(ag.page.locator('.__va-snap-zone--rect')).toHaveCount(6)
     await ag.page.mouse.move(30, 30)
@@ -133,16 +129,14 @@ test.describe('Toolbar', () => {
     await ag.gotoAndActivate('/')
     await expect(ag.markers()).toHaveCount(0)
 
-    const handleBox = await ag.dragHandle.boundingBox()
-    if (!handleBox)
-      throw new Error('Drag handle not found')
-
     const targetBox = await ag.page.locator('.test-submit').first().boundingBox()
     if (!targetBox)
       throw new Error('Drag target not found')
 
-    await ag.page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2)
+    await ag.dragHandle.hover()
     await ag.page.mouse.down()
+    // Confirm drag activated before moving to target
+    await expect(ag.page.locator('.__va-snap-zone--rect')).toHaveCount(6)
     await ag.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2)
     await ag.page.mouse.up()
 

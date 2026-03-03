@@ -207,7 +207,6 @@ export function getNearbyText(el: Element, maxLen = 140): string | undefined {
 
   return undefined
 }
-
 export function getRelevantComputedStyles(el: Element): Record<string, string> {
   const style = getComputedStyle(el)
   const tag = el.tagName.toLowerCase()
