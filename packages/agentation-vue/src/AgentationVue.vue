@@ -486,7 +486,7 @@ function onMarkerClick(ann: Annotation) {
   pendingElementName.value = getElementName(ann._targetRef?.deref() || document.createElement(ann.element))
   pendingComponentChain.value = ann.vueComponents
   pendingComputedStyles.value = ann.computedStyles
-    ? Object.fromEntries(ann.computedStyles.split('\n').filter(Boolean).map(line => {
+    ? Object.fromEntries(ann.computedStyles.split('\n').filter(Boolean).map((line) => {
         const idx = line.indexOf(':')
         return idx > -1 ? [line.slice(0, idx).trim(), line.slice(idx + 1).trim()] : [line, '']
       }))

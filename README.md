@@ -81,7 +81,9 @@ Then place the component once in your root `App.vue`:
 The plugin registers a global directive `v-va-tooltip` (Vue 2.7 and Vue 3).
 
 ```vue
-<button v-va-tooltip="'Copy annotations'">Copy</button>
+<button v-va-tooltip="'Copy annotations'">
+  Copy
+</button>
 
 <button v-va-tooltip="{ text: 'Copy annotations', shortcut: 'C' }">
   Copy

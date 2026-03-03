@@ -30,9 +30,9 @@ export { formatAnnotations, useOutputFormatter } from './composables/useOutputFo
 export { useSettings } from './composables/useSettings'
 export { useTextSelection } from './composables/useTextSelection'
 export { useToolbarAutoHide } from './composables/useToolbarAutoHide'
+export type { VaTooltipOptions, VaTooltipPlacement, VaTooltipValue } from './directives/vaTooltip'
 export { icons } from './icons'
 export type { IconName } from './icons'
-export type { VaTooltipOptions, VaTooltipPlacement, VaTooltipValue } from './directives/vaTooltip'
 export type {
   AgentationEmits,
   AgentationProps,
