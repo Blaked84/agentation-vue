@@ -127,7 +127,13 @@ class AgentationPage {
   async getStoredAnnotations(): Promise<any[]> {
     return this.page.evaluate(() => {
       const stored = sessionStorage.getItem('agentation-vue-annotations')
-      return stored ? JSON.parse(stored) : []
+      if (!stored)
+        return []
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed))
+        return parsed
+      const scoped = parsed[window.location.href]
+      return Array.isArray(scoped) ? scoped : []
     })
   }
 }

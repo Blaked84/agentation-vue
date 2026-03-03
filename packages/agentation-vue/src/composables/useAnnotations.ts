@@ -2,27 +2,86 @@ import type { Annotation } from '../types'
 import { ref } from 'vue-demi'
 
 const STORAGE_KEY = 'agentation-vue-annotations'
+type AnnotationStore = Record<string, Annotation[]>
 
 function serializeAnnotations(annotations: Annotation[]): string {
   return JSON.stringify(annotations.map(({ _targetRef, ...rest }) => rest))
 }
 
-function loadAnnotations(): Annotation[] {
+function getCurrentUrl(): string {
+  return typeof window !== 'undefined' ? window.location.href : ''
+}
+
+function parseStore(raw: string | null, currentUrl: string): AnnotationStore {
+  if (!raw)
+    return {}
+
+  try {
+    const parsed: unknown = JSON.parse(raw)
+
+    // Backward compatibility with previous array-only storage shape.
+    if (Array.isArray(parsed))
+      return { [currentUrl]: parsed as Annotation[] }
+
+    if (!parsed || typeof parsed !== 'object')
+      return {}
+
+    return Object.fromEntries(
+      Object.entries(parsed as Record<string, unknown>)
+        .filter(([, value]) => Array.isArray(value)),
+    ) as AnnotationStore
+  }
+  catch {}
+  return {}
+}
+
+function loadAnnotations(url: string): Annotation[] {
   try {
     const stored = sessionStorage.getItem(STORAGE_KEY)
-    if (stored)
-      return JSON.parse(stored)
+    const store = parseStore(stored, url)
+    const annotations = store[url]
+    return Array.isArray(annotations) ? annotations : []
   }
   catch {}
   return []
 }
 
-const annotations = ref<Annotation[]>(loadAnnotations())
-let counter = annotations.value.length
+function getCounterSeed(annotations: Annotation[]): number {
+  return annotations.reduce((max, annotation) => {
+    const parsed = Number.parseInt(annotation.id, 10)
+    return Number.isFinite(parsed) ? Math.max(max, parsed) : max
+  }, 0)
+}
+
+const annotations = ref<Annotation[]>([])
+let scopedUrl = getCurrentUrl()
+let counter = 0
+
+function setScopeUrl(url: string) {
+  scopedUrl = url || getCurrentUrl()
+  annotations.value = loadAnnotations(scopedUrl)
+  counter = getCounterSeed(annotations.value)
+}
 
 function save() {
   try {
-    sessionStorage.setItem(STORAGE_KEY, serializeAnnotations(annotations.value))
+    const stored = sessionStorage.getItem(STORAGE_KEY)
+    const store = parseStore(stored, scopedUrl)
+
+    if (annotations.value.length > 0)
+      store[scopedUrl] = annotations.value
+    else
+      delete store[scopedUrl]
+
+    const serialized = JSON.stringify(
+      Object.fromEntries(
+        Object.entries(store).map(([url, scopedAnnotations]) => [
+          url,
+          JSON.parse(serializeAnnotations(scopedAnnotations)),
+        ]),
+      ),
+    )
+    sessionStorage.setItem(STORAGE_KEY, serialized)
   }
   catch {}
 }
@@ -31,6 +90,7 @@ function addAnnotation(annotation: Omit<Annotation, 'id' | 'timestamp'>): Annota
   counter++
   const full: Annotation = {
     ...annotation,
+    url: annotation.url || scopedUrl,
     id: String(counter),
     timestamp: Date.now(),
   }
@@ -65,6 +125,9 @@ function clearAnnotations(): Annotation[] {
   return cleared
 }
 
-export function useAnnotations() {
-  return { annotations, addAnnotation, removeAnnotation, updateAnnotation, clearAnnotations }
+setScopeUrl(scopedUrl)
+
+export function useAnnotations(initialUrl: string = getCurrentUrl()) {
+  setScopeUrl(initialUrl)
+  return { annotations, addAnnotation, removeAnnotation, updateAnnotation, clearAnnotations, setScopeUrl }
 }

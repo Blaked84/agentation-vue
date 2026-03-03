@@ -69,9 +69,10 @@ describe('useAnnotations', () => {
     expect(raw).toBeDefined()
 
     const parsed = JSON.parse(raw!)
-    expect(Array.isArray(parsed)).toBe(true)
-    expect(parsed).toHaveLength(1)
-    expect(parsed[0].comment).toBe('Test')
+    const scoped = parsed[window.location.href]
+    expect(Array.isArray(scoped)).toBe(true)
+    expect(scoped).toHaveLength(1)
+    expect(scoped[0].comment).toBe('Test')
   })
 
   it('serialization strips _targetRef from stored JSON', () => {
@@ -84,7 +85,8 @@ describe('useAnnotations', () => {
     expect(raw).toBeDefined()
 
     const parsed = JSON.parse(raw!)
-    expect(parsed[0]).not.toHaveProperty('_targetRef')
+    const scoped = parsed[window.location.href]
+    expect(scoped[0]).not.toHaveProperty('_targetRef')
   })
 
   it('removeAnnotation removes by id and updates the list', () => {
@@ -172,7 +174,9 @@ describe('useAnnotations', () => {
       { id: '1', x: 10, y: 20, comment: 'Loaded', element: 'div', elementPath: 'body > div', timestamp: 1000 },
       { id: '2', x: 30, y: 40, comment: 'Also loaded', element: 'span', elementPath: 'body > span', timestamp: 2000 },
     ]
-    storage.set(STORAGE_KEY, JSON.stringify(preExisting))
+    storage.set(STORAGE_KEY, JSON.stringify({
+      [window.location.href]: preExisting,
+    }))
 
     vi.resetModules()
     const mod = await import('../../src/composables/useAnnotations')
@@ -184,5 +188,22 @@ describe('useAnnotations', () => {
 
     const next = addAnnotation(makeAnnotation({ comment: 'New' }))
     expect(next.id).toBe('3')
+  })
+
+  it('scopes annotations by URL', () => {
+    const { addAnnotation, annotations, setScopeUrl } = useAnnotations('https://example.com/a')
+    addAnnotation(makeAnnotation({ comment: 'Page A' }))
+    expect(annotations.value).toHaveLength(1)
+
+    setScopeUrl('https://example.com/b')
+    expect(annotations.value).toEqual([])
+
+    addAnnotation(makeAnnotation({ comment: 'Page B' }))
+    expect(annotations.value).toHaveLength(1)
+    expect(annotations.value[0].comment).toBe('Page B')
+
+    setScopeUrl('https://example.com/a')
+    expect(annotations.value).toHaveLength(1)
+    expect(annotations.value[0].comment).toBe('Page A')
   })
 })

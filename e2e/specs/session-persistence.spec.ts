@@ -3,7 +3,7 @@ import { expect, test } from '../fixtures/agentation-fixture'
 test.describe('Session Persistence', () => {
   // goto() auto-clears storage by default
 
-  test('annotations persist after navigating to a different page', async ({ ag }) => {
+  test('annotations are scoped by page URL when navigating', async ({ ag }) => {
     await ag.gotoAndActivate('/')
     await ag.annotateElement('.test-submit', 'Persistent note')
     await expect(ag.markers()).toHaveCount(1)
@@ -13,7 +13,13 @@ test.describe('Session Persistence', () => {
     await ag.page.click('.nav-link[href="/nested"]')
     await ag.page.waitForURL('**/nested')
 
-    // Markers should still be present
+    // Different URL -> different annotation scope
+    await expect(ag.markers()).toHaveCount(0)
+
+    await ag.page.click('.nav-link[href="/"]')
+    await ag.page.waitForURL('**/')
+
+    // Returning to the original URL restores its scoped annotations
     await expect(ag.markers()).toHaveCount(1)
   })
 
