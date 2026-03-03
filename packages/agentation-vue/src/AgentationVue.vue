@@ -43,15 +43,46 @@ const emit = defineEmits<{
   'copy': [markdown: string]
 }>()
 
+const HISTORY_CHANGE_EVENT = 'va:history-change'
+
+interface VaWindow extends Window {
+  __vaHistoryPatched?: boolean
+}
+
+function getCurrentUrl() {
+  return typeof window !== 'undefined' ? window.location.href : ''
+}
+
+function patchHistoryEvents() {
+  const win = window as VaWindow
+  if (win.__vaHistoryPatched)
+    return
+  win.__vaHistoryPatched = true
+
+  const originalPushState = win.history.pushState.bind(win.history)
+  const originalReplaceState = win.history.replaceState.bind(win.history)
+
+  win.history.pushState = function (...args: Parameters<History['pushState']>) {
+    originalPushState(...args)
+    win.dispatchEvent(new Event(HISTORY_CHANGE_EVENT))
+  }
+
+  win.history.replaceState = function (...args: Parameters<History['replaceState']>) {
+    originalReplaceState(...args)
+    win.dispatchEvent(new Event(HISTORY_CHANGE_EVENT))
+  }
+}
+
 // Refs
 const rootEl = ref<HTMLElement | null>(null)
 const overlayEl = ref<HTMLElement | null>(null)
 const toolbarRef = ref<any>(null)
+const currentUrl = ref(props.pageUrl || getCurrentUrl())
 
 // Core composables
 const { settings } = useSettings()
 const { mode, transition } = useInteractionMode()
-const { annotations, addAnnotation, removeAnnotation, updateAnnotation, clearAnnotations } = useAnnotations()
+const { annotations, addAnnotation, removeAnnotation, updateAnnotation, clearAnnotations, setScopeUrl } = useAnnotations(currentUrl.value)
 const { hoveredRect, hoveredName, hoveredComponentChain, onMouseMove, clearHighlight, getElementUnderOverlay, cleanup: cleanupDetection } = useElementDetection(overlayEl, () => settings.showComponentTree)
 const textSelection = useTextSelection(mode)
 const multiSelect = useMultiSelect(mode, transition)
@@ -88,7 +119,7 @@ const rootStyle = computed(() => {
     '--va-accent-rgb': `${r}, ${g}, ${b}`,
   } as Record<string, string>
 })
-const resolvedUrl = computed(() => props.pageUrl || window.location.href)
+const resolvedUrl = computed(() => currentUrl.value)
 const pendingMarkerX = computed(() => {
   if (!pendingPosition.value)
     return 0
@@ -155,6 +186,9 @@ watch(() => props.blockPageInteractions, (v) => {
 watch(() => props.autoHideToolbar, (v) => {
   if (v)
     settings.autoHideToolbar = v
+}, { immediate: true })
+watch(() => props.pageUrl, (url) => {
+  syncUrlScope(url || getCurrentUrl())
 }, { immediate: true })
 
 // Event handlers
@@ -318,6 +352,19 @@ function closeSettings(lockInteractions = true) {
   settingsOpen.value = false
   if (lockInteractions)
     lockInteractionsTemporarily(SETTINGS_CLOSE_SUPPRESSION_MS)
+}
+
+function syncUrlScope(nextUrl: string) {
+  if (!nextUrl || currentUrl.value === nextUrl)
+    return
+  currentUrl.value = nextUrl
+  setScopeUrl(nextUrl)
+}
+
+function syncUrlScopeFromWindow() {
+  if (props.pageUrl)
+    return
+  syncUrlScope(getCurrentUrl())
 }
 
 function onToolbarDragStart() {
@@ -624,6 +671,10 @@ function onKeyDown(e: KeyboardEvent) {
 }
 
 onMounted(() => {
+  patchHistoryEvents()
+  window.addEventListener(HISTORY_CHANGE_EVENT, syncUrlScopeFromWindow)
+  window.addEventListener('popstate', syncUrlScopeFromWindow)
+  window.addEventListener('hashchange', syncUrlScopeFromWindow)
   document.addEventListener('mousemove', onDocumentMouseMove, true)
   document.addEventListener('mousedown', onDocumentMouseDown, true)
   document.addEventListener('mouseup', onDocumentMouseUp, true)
@@ -632,6 +683,9 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  window.removeEventListener(HISTORY_CHANGE_EVENT, syncUrlScopeFromWindow)
+  window.removeEventListener('popstate', syncUrlScopeFromWindow)
+  window.removeEventListener('hashchange', syncUrlScopeFromWindow)
   document.removeEventListener('mousemove', onDocumentMouseMove, true)
   document.removeEventListener('mousedown', onDocumentMouseDown, true)
   document.removeEventListener('mouseup', onDocumentMouseUp, true)

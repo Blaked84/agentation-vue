@@ -81,7 +81,7 @@ Then place the component once in your root `App.vue`:
 - **Forensic mode** — captures bounding boxes, computed styles, CSS classes, and accessibility attributes
 - **Themes** — light, dark, or auto (follows system preference)
 - **Auto-hide launcher** — optionally tucks the collapsed floating button near screen edges and reveals it on approach
-- **Session persistence** — annotations survive page refreshes via `sessionStorage`
+- **Session persistence** — annotations survive refreshes and are scoped per page URL via `sessionStorage`
 - **Custom tooltip directive** — `v-va-tooltip` with optional keyboard shortcut badge
 
 ## Custom Tooltips
