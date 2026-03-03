@@ -3,19 +3,24 @@
 
 /* === Theme Variables === */
 [data-agentation-vue] {
-  --va-bg: #FFFFFF;
-  --va-bg-secondary: #F5F5F5;
-  --va-text: #1A1A1A;
+  --va-bg: #ffffff;
+  --va-bg-secondary: #f5f5f5;
+  --va-text: #1a1a1a;
   --va-text-secondary: #666666;
-  --va-border: #E5E5E5;
-  --va-accent: #FF5C00;
+  --va-border: #e5e5e5;
+}
+
+/* Accent color defaults — only on root, so inline style override propagates to children */
+[data-agentation-vue]:not([data-agentation-vue] [data-agentation-vue]) {
+  --va-accent: #ff5c00;
+  --va-accent-rgb: 255, 92, 0;
 }
 
 @media (prefers-color-scheme: dark) {
   [data-agentation-vue]:not([data-va-theme="light"]) {
-    --va-bg: #1A1A1A;
-    --va-bg-secondary: #2A2A2A;
-    --va-text: #F5F5F5;
+    --va-bg: #1a1a1a;
+    --va-bg-secondary: #2a2a2a;
+    --va-text: #f5f5f5;
     --va-text-secondary: #999999;
     --va-border: #333333;
   }
@@ -23,26 +28,26 @@
 
 [data-agentation-vue][data-va-theme="dark"],
 [data-agentation-vue][data-va-theme="dark"] [data-agentation-vue] {
-  --va-bg: #1A1A1A;
-  --va-bg-secondary: #2A2A2A;
-  --va-text: #F5F5F5;
+  --va-bg: #1a1a1a;
+  --va-bg-secondary: #2a2a2a;
+  --va-text: #f5f5f5;
   --va-text-secondary: #999999;
   --va-border: #333333;
 }
 
 [data-agentation-vue][data-va-theme="light"],
 [data-agentation-vue][data-va-theme="light"] [data-agentation-vue] {
-  --va-bg: #FFFFFF;
-  --va-bg-secondary: #F5F5F5;
-  --va-text: #1A1A1A;
+  --va-bg: #ffffff;
+  --va-bg-secondary: #f5f5f5;
+  --va-text: #1a1a1a;
   --va-text-secondary: #666666;
-  --va-border: #E5E5E5;
+  --va-border: #e5e5e5;
 }
 
 /* === Portal Reset === */
 :where(#__va-portal, #__va-portal *) {
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.5;
   margin: 0;
   padding: 0;
@@ -69,24 +74,39 @@
   position: fixed;
   --va-toolbar-base-transform: translate(0, 0);
   --va-toolbar-auto-hide-transform: translate(0, 0);
-  --va-toolbar-size: 44px;
+  --va-toolbar-size: 42px;
   --va-toolbar-edge-offset: 20px;
   --va-toolbar-auto-hide-peek: 8px;
   --va-toolbar-auto-hide-corner-peek: 16px;
-  --va-toolbar-auto-hide-shift: calc(var(--va-toolbar-edge-offset) + var(--va-toolbar-size) - var(--va-toolbar-auto-hide-peek));
-  --va-toolbar-auto-hide-corner-shift: calc(var(--va-toolbar-edge-offset) + var(--va-toolbar-size) - var(--va-toolbar-auto-hide-corner-peek));
+  --va-toolbar-auto-hide-shift: calc(
+    var(--va-toolbar-edge-offset) + var(--va-toolbar-size) -
+      var(--va-toolbar-auto-hide-peek)
+  );
+  --va-toolbar-auto-hide-corner-shift: calc(
+    var(--va-toolbar-edge-offset) + var(--va-toolbar-size) -
+      var(--va-toolbar-auto-hide-corner-peek)
+  );
   z-index: 2147483647;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  display: block;
+  min-height: 42px;
+  max-width: 42px;
+  overflow: hidden;
+  --va-toolbar-resize-delay: 0ms;
   background: var(--va-bg);
   border: 1px solid var(--va-border);
-  border-radius: 8px;
-  padding: 4px;
+  border-radius: 999px;
+  padding: 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 150ms ease;
+  transition: border-radius 120ms cubic-bezier(0.32, 0.72, 0, 1),
+    padding 120ms cubic-bezier(0.32, 0.72, 0, 1),
+    max-width 240ms cubic-bezier(0.22, 1, 0.36, 1)
+      var(--va-toolbar-resize-delay),
+    transform 150ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    opacity 150ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    box-shadow 150ms cubic-bezier(0.25, 0.1, 0.25, 1);
   user-select: none;
-  transform: var(--va-toolbar-base-transform) var(--va-toolbar-auto-hide-transform);
+  transform: var(--va-toolbar-base-transform)
+    var(--va-toolbar-auto-hide-transform);
 }
 
 .__va-toolbar--place-bottom-right {
@@ -121,41 +141,72 @@
   top: 20px;
 }
 
-.__va-toolbar--auto-hide.__va-toolbar--collapsed:not(.__va-toolbar--auto-hide-revealed).__va-toolbar--place-top-left {
-  --va-toolbar-auto-hide-transform: translate(calc(-1 * var(--va-toolbar-auto-hide-corner-shift)), calc(-1 * var(--va-toolbar-auto-hide-corner-shift)));
+.__va-toolbar--auto-hide.__va-toolbar--collapsed:not(
+    .__va-toolbar--auto-hide-revealed
+  ).__va-toolbar--place-top-left {
+  --va-toolbar-auto-hide-transform: translate(
+    calc(-1 * var(--va-toolbar-auto-hide-corner-shift)),
+    calc(-1 * var(--va-toolbar-auto-hide-corner-shift))
+  );
 }
 
-.__va-toolbar--auto-hide.__va-toolbar--collapsed:not(.__va-toolbar--auto-hide-revealed).__va-toolbar--place-top-center {
-  --va-toolbar-auto-hide-transform: translateY(calc(-1 * var(--va-toolbar-auto-hide-shift)));
+.__va-toolbar--auto-hide.__va-toolbar--collapsed:not(
+    .__va-toolbar--auto-hide-revealed
+  ).__va-toolbar--place-top-center {
+  --va-toolbar-auto-hide-transform: translateY(
+    calc(-1 * var(--va-toolbar-auto-hide-shift))
+  );
 }
 
-.__va-toolbar--auto-hide.__va-toolbar--collapsed:not(.__va-toolbar--auto-hide-revealed).__va-toolbar--place-top-right {
-  --va-toolbar-auto-hide-transform: translate(var(--va-toolbar-auto-hide-corner-shift), calc(-1 * var(--va-toolbar-auto-hide-corner-shift)));
+.__va-toolbar--auto-hide.__va-toolbar--collapsed:not(
+    .__va-toolbar--auto-hide-revealed
+  ).__va-toolbar--place-top-right {
+  --va-toolbar-auto-hide-transform: translate(
+    var(--va-toolbar-auto-hide-corner-shift),
+    calc(-1 * var(--va-toolbar-auto-hide-corner-shift))
+  );
 }
 
-.__va-toolbar--auto-hide.__va-toolbar--collapsed:not(.__va-toolbar--auto-hide-revealed).__va-toolbar--place-bottom-left {
-  --va-toolbar-auto-hide-transform: translate(calc(-1 * var(--va-toolbar-auto-hide-corner-shift)), var(--va-toolbar-auto-hide-corner-shift));
+.__va-toolbar--auto-hide.__va-toolbar--collapsed:not(
+    .__va-toolbar--auto-hide-revealed
+  ).__va-toolbar--place-bottom-left {
+  --va-toolbar-auto-hide-transform: translate(
+    calc(-1 * var(--va-toolbar-auto-hide-corner-shift)),
+    var(--va-toolbar-auto-hide-corner-shift)
+  );
 }
 
-.__va-toolbar--auto-hide.__va-toolbar--collapsed:not(.__va-toolbar--auto-hide-revealed).__va-toolbar--place-bottom-center {
-  --va-toolbar-auto-hide-transform: translateY(var(--va-toolbar-auto-hide-shift));
+.__va-toolbar--auto-hide.__va-toolbar--collapsed:not(
+    .__va-toolbar--auto-hide-revealed
+  ).__va-toolbar--place-bottom-center {
+  --va-toolbar-auto-hide-transform: translateY(
+    var(--va-toolbar-auto-hide-shift)
+  );
 }
 
-.__va-toolbar--auto-hide.__va-toolbar--collapsed:not(.__va-toolbar--auto-hide-revealed).__va-toolbar--place-bottom-right {
-  --va-toolbar-auto-hide-transform: translate(var(--va-toolbar-auto-hide-corner-shift), var(--va-toolbar-auto-hide-corner-shift));
+.__va-toolbar--auto-hide.__va-toolbar--collapsed:not(
+    .__va-toolbar--auto-hide-revealed
+  ).__va-toolbar--place-bottom-right {
+  --va-toolbar-auto-hide-transform: translate(
+    var(--va-toolbar-auto-hide-corner-shift),
+    var(--va-toolbar-auto-hide-corner-shift)
+  );
 }
 
 .__va-toolbar--collapsed {
-  padding: 0;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  justify-content: center;
+  max-width: 42px;
+  min-height: 42px;
   cursor: pointer;
 }
 
+.__va-toolbar--expanded {
+  --va-toolbar-resize-delay: 110ms;
+  max-width: 520px;
+  padding: 4px;
+  border-radius: 10px;
+}
+
 .__va-toolbar--collapsed:not(.__va-toolbar--auto-hide):hover {
-  transform: var(--va-toolbar-base-transform) var(--va-toolbar-auto-hide-transform) scale(1.1);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
@@ -172,6 +223,63 @@
   transform: none;
 }
 
+.__va-toolbar-stage {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.__va-toolbar-stage--toggle {
+  position: absolute;
+  inset: 0;
+  justify-content: center;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1);
+  transition: opacity 110ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0s;
+}
+
+.__va-toolbar-stage--menu {
+  --va-toolbar-menu-enter-x: 8px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(var(--va-toolbar-menu-enter-x));
+  transition: opacity 140ms ease 0ms,
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1) 0ms,
+    visibility 0s linear 140ms;
+}
+
+.__va-toolbar--expanded .__va-toolbar-stage--toggle {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transform: scale(0.94);
+  transition: opacity 90ms ease, transform 120ms ease, visibility 0s linear 90ms;
+}
+
+.__va-toolbar--expanded .__va-toolbar-stage--menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(0);
+  transition: opacity 150ms ease 150ms,
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1) 120ms,
+    visibility 0s linear 0s;
+}
+
+.__va-toolbar--place-top-right .__va-toolbar-stage--menu,
+.__va-toolbar--place-bottom-right .__va-toolbar-stage--menu {
+  --va-toolbar-menu-enter-x: -8px;
+}
+
+.__va-toolbar--place-top-center .__va-toolbar-stage--menu,
+.__va-toolbar--place-bottom-center .__va-toolbar-stage--menu {
+  --va-toolbar-menu-enter-x: 0px;
+}
+
 .__va-snap-zones {
   position: fixed;
   inset: 0;
@@ -181,20 +289,19 @@
 
 .__va-snap-zone {
   position: fixed;
-  width: 56px;
-  height: 56px;
+  width: 42px;
+  height: 42px;
   border-radius: 999px;
   transform: translate(-50%, -50%);
-  border: 1.5px dashed rgba(255, 92, 0, 0.18);
-  background: rgba(255, 92, 0, 0.035);
-  box-shadow: 0 0 0 1px rgba(255, 92, 0, 0.04);
+  border: 1.5px dashed rgba(var(--va-accent-rgb), 0.18);
+  background: rgba(var(--va-accent-rgb), 0.035);
+  box-shadow: 0 0 0 1px rgba(var(--va-accent-rgb), 0.04);
   transition: all 120ms ease;
 }
 
 .__va-snap-zone--active {
-  border-color: rgba(255, 92, 0, 0.4);
-  background: rgba(255, 92, 0, 0.09);
-  transform: translate(-50%, -50%) scale(1.04);
+  border-color: rgba(var(--va-accent-rgb), 0.4);
+  background: rgba(var(--va-accent-rgb), 0.09);
 }
 
 .__va-snap-zone--rect {
@@ -216,7 +323,7 @@
   background: transparent;
   color: var(--va-text-secondary);
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: background 150ms ease, color 150ms ease;
   border: none;
   outline: none;
   padding: 0;
@@ -229,13 +336,12 @@
 }
 
 .__va-icon-btn--active {
-  background: var(--va-accent);
-  color: white;
+  background: rgba(var(--va-accent-rgb), 0.15);
+  color: var(--va-accent);
 }
 
 .__va-icon-btn--active:hover {
-  background: var(--va-accent);
-  opacity: 0.9;
+  background: rgba(var(--va-accent-rgb), 0.25);
 }
 
 .__va-icon-btn:disabled {
@@ -256,8 +362,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  line-height: 0;
   border: none;
   background: transparent;
   color: var(--va-accent);
@@ -267,8 +375,9 @@
 }
 
 .__va-toolbar-toggle svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
 }
 
 .__va-toolbar-sep {
@@ -336,14 +445,98 @@
   padding: 0 4px;
 }
 
+.__va-tooltip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: min(360px, calc(100vw - 16px));
+  padding: 6px 9px;
+  border-radius: 10px;
+  background: #131518;
+  color: #dce1e7;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32), 0 2px 6px rgba(0, 0, 0, 0.28);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 11px;
+  line-height: 1.15;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px) scale(0.98);
+  transform-origin: center bottom;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.__va-tooltip[data-placement="bottom"] {
+  transform: translateY(-4px) scale(0.98);
+  transform-origin: center top;
+}
+
+.__va-tooltip.__va-tooltip--visible {
+  opacity: 1;
+}
+
+.__va-tooltip.__va-tooltip--visible[data-placement="top"],
+.__va-tooltip.__va-tooltip--visible[data-placement="bottom"] {
+  transform: translateY(0) scale(1);
+}
+
+.__va-tooltip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.__va-tooltip-shortcut {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #b5bec8;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  padding: 2px 6px;
+  min-height: 18px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.__va-tooltip-arrow {
+  position: absolute;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: #131518;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: none;
+  border-top: none;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.__va-tooltip[data-placement="top"] .__va-tooltip-arrow {
+  bottom: -5px;
+}
+
+.__va-tooltip[data-placement="bottom"] .__va-tooltip-arrow {
+  top: -5px;
+  transform: translateX(-50%) rotate(225deg);
+}
+
 /* === Highlight Overlay === */
 .__va-highlight {
   position: fixed;
   z-index: 2147483645;
   pointer-events: none;
   border: 2px solid var(--va-accent);
-  background: rgba(255, 92, 0, 0.08);
-  border-radius: 2px;
+  background: rgba(var(--va-accent-rgb), 0.08);
+  border-radius: 4px;
   transition: all 80ms ease;
 }
 
@@ -364,7 +557,7 @@
 }
 
 .__va-highlight-label--chain {
-  background: #1A1A1A;
+  background: #1a1a1a;
   max-width: 500px;
   padding: 4px 10px;
   overflow: visible;
@@ -402,6 +595,40 @@
 
 .__va-marker--stale {
   opacity: 0.5;
+}
+
+.__va-marker-plus {
+  width: 14px;
+  height: 14px;
+  stroke-width: 3;
+}
+
+.__va-marker-pencil {
+  width: 12px;
+  height: 12px;
+  display: none;
+}
+
+.__va-marker:not(.__va-marker--pending):hover .__va-marker-number {
+  display: none;
+}
+
+.__va-marker:not(.__va-marker--pending):hover .__va-marker-pencil {
+  display: block;
+}
+
+.__va-marker--pending {
+  animation: __va-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes __va-pulse {
+  0%,
+  100% {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 12px rgba(var(--va-accent-rgb), 0.5);
+  }
 }
 
 /* === Annotation Input === */
@@ -451,7 +678,7 @@
 }
 
 .__va-input-styles-summary::before {
-  content: '▸';
+  content: "▸";
   font-size: 11px;
   transition: transform 160ms ease;
   flex-shrink: 0;
@@ -467,7 +694,7 @@
   border: 1px solid var(--va-border);
   border-radius: 6px;
   padding: 8px 10px;
-  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
   font-size: 11px;
   line-height: 1.55;
 }
@@ -486,7 +713,7 @@
 }
 
 .__va-input-style-prop {
-  color: #A855F7;
+  color: #a855f7;
 }
 
 .__va-input-style-value {
@@ -498,7 +725,7 @@
   display: inline-flex;
   gap: 6px;
   align-items: center;
-  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
   font-size: 11px;
   white-space: nowrap;
 }
@@ -537,9 +764,42 @@
 
 .__va-input-actions {
   display: flex;
+  align-items: center;
   gap: 8px;
   margin-top: 8px;
-  justify-content: flex-end;
+  justify-content: space-between;
+}
+
+.__va-input-actions-right {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.__va-input-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--va-text-secondary);
+  cursor: pointer;
+  transition: all 150ms ease;
+  border: none;
+  outline: none;
+  padding: 0;
+}
+
+.__va-input-delete-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.__va-input-delete-btn:hover {
+  background: var(--va-bg-secondary);
+  color: #ef4444;
 }
 
 .__va-btn {
@@ -716,7 +976,7 @@
 }
 
 .__va-toggle::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 2px;
   left: 2px;
@@ -737,7 +997,7 @@
   position: fixed;
   z-index: 2147483645;
   border: 2px dashed var(--va-accent);
-  background: rgba(255, 92, 0, 0.06);
+  background: rgba(var(--va-accent-rgb), 0.06);
   pointer-events: none;
   border-radius: 2px;
 }
@@ -759,6 +1019,12 @@
 }
 
 @keyframes __va-fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

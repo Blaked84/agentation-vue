@@ -51,7 +51,7 @@ const toolbarRef = ref<any>(null)
 // Core composables
 const { settings } = useSettings()
 const { mode, transition } = useInteractionMode()
-const { annotations, addAnnotation, removeAnnotation, clearAnnotations } = useAnnotations()
+const { annotations, addAnnotation, removeAnnotation, updateAnnotation, clearAnnotations } = useAnnotations()
 const { hoveredRect, hoveredName, hoveredComponentChain, onMouseMove, clearHighlight, getElementUnderOverlay, cleanup: cleanupDetection } = useElementDetection(overlayEl, () => settings.showComponentTree)
 const textSelection = useTextSelection(mode)
 const multiSelect = useMultiSelect(mode, transition)
@@ -67,6 +67,7 @@ const pendingTarget = ref<Element | null>(null)
 const pendingComponentChain = ref<string | undefined>()
 const pendingComputedStyles = ref<Record<string, string> | undefined>()
 const pendingTextSelection = ref<{ text: string, element: Element } | null>(null)
+const editingAnnotation = ref<Annotation | null>(null)
 const settingsOpen = ref(false)
 const settingsAnchorEl = ref<HTMLElement | null>(null)
 const copyFeedback = ref(false)
@@ -75,7 +76,29 @@ const DRAG_END_SUPPRESSION_MS = 500
 const SETTINGS_CLOSE_SUPPRESSION_MS = 220
 let suppressInteractionsUntil = 0
 const effectiveBlockPageInteractions = computed(() => props.blockPageInteractions ?? settings.blockPageInteractions)
+const rootStyle = computed(() => {
+  const hex = settings.markerColor
+  if (!hex)
+    return undefined
+  const r = Number.parseInt(hex.slice(1, 3), 16)
+  const g = Number.parseInt(hex.slice(3, 5), 16)
+  const b = Number.parseInt(hex.slice(5, 7), 16)
+  return {
+    '--va-accent': hex,
+    '--va-accent-rgb': `${r}, ${g}, ${b}`,
+  } as Record<string, string>
+})
 const resolvedUrl = computed(() => props.pageUrl || window.location.href)
+const pendingMarkerX = computed(() => {
+  if (!pendingPosition.value)
+    return 0
+  return (pendingPosition.value.x / window.innerWidth) * 100
+})
+const pendingMarkerY = computed(() => {
+  if (!pendingPosition.value)
+    return 0
+  return pendingPosition.value.y + (window.scrollY || document.documentElement.scrollTop)
+})
 
 // Portal setup (Vue 2.7 compat)
 let portalContainer: HTMLElement | null = null
@@ -320,9 +343,15 @@ function resetPendingState() {
   pendingComponentChain.value = undefined
   pendingComputedStyles.value = undefined
   pendingTextSelection.value = null
+  editingAnnotation.value = null
 }
 
 function onInputAdd(comment: string) {
+  if (editingAnnotation.value) {
+    onInputSave(comment)
+    return
+  }
+
   const scrollTop = window.scrollY || document.documentElement.scrollTop
   const detail = settings.outputDetail
   const url = resolvedUrl.value
@@ -392,8 +421,8 @@ function onInputAdd(comment: string) {
     const fixed = checkIsFixed(el)
 
     const ann = addAnnotation({
-      x: ((rect.left + rect.width / 2) / window.innerWidth) * 100,
-      y: fixed ? rect.top + rect.height / 2 : rect.top + rect.height / 2 + scrollTop,
+      x: pendingPosition.value!.x / window.innerWidth * 100,
+      y: fixed ? pendingPosition.value!.y : pendingPosition.value!.y + scrollTop,
       comment,
       url,
       element: el.tagName.toLowerCase(),
@@ -447,10 +476,46 @@ function onClear() {
 }
 
 function onMarkerClick(ann: Annotation) {
-  // For now, just remove the annotation
-  const removed = removeAnnotation(ann.id)
+  // Open the annotation popup for editing
+  const scrollTop = window.scrollY || document.documentElement.scrollTop
+  const markerX = (ann.x / 100) * window.innerWidth
+  const markerY = ann.isFixed ? ann.y : ann.y - scrollTop
+
+  editingAnnotation.value = ann
+  pendingPosition.value = { x: markerX, y: markerY }
+  pendingElementName.value = getElementName(ann._targetRef?.deref() || document.createElement(ann.element))
+  pendingComponentChain.value = ann.vueComponents
+  pendingComputedStyles.value = ann.computedStyles
+    ? Object.fromEntries(ann.computedStyles.split('\n').filter(Boolean).map(line => {
+        const idx = line.indexOf(':')
+        return idx > -1 ? [line.slice(0, idx).trim(), line.slice(idx + 1).trim()] : [line, '']
+      }))
+    : ann._targetRef?.deref()
+      ? getRelevantComputedStyles(ann._targetRef.deref()!)
+      : undefined
+  pendingTextSelection.value = null
+  pendingTarget.value = ann._targetRef?.deref() || null
+  transition('input-open')
+}
+
+function onInputDelete() {
+  if (!editingAnnotation.value)
+    return
+  const removed = removeAnnotation(editingAnnotation.value.id)
   if (removed)
     emit('annotation-delete', removed)
+  resetPendingState()
+  transition('inspect')
+}
+
+function onInputSave(comment: string) {
+  if (!editingAnnotation.value)
+    return
+  const updated = updateAnnotation(editingAnnotation.value.id, { comment })
+  if (updated)
+    emit('annotation-update', updated)
+  resetPendingState()
+  transition('inspect')
 }
 
 function onToggleArea(value: boolean) {
@@ -508,7 +573,7 @@ onBeforeUnmount(() => {
 
 <template>
   <component :is="portalWrapper" v-bind="portalProps">
-    <div ref="rootEl" data-agentation-vue :data-va-theme="settings.theme !== 'auto' ? settings.theme : undefined">
+    <div ref="rootEl" data-agentation-vue :data-va-theme="settings.theme !== 'auto' ? settings.theme : undefined" :style="rootStyle">
       <!-- Intercept overlay -->
       <div
         v-if="mode !== 'idle'"
@@ -551,8 +616,16 @@ onBeforeUnmount(() => {
         :y="ann.y"
         :is-fixed="ann.isFixed"
         :is-stale="!ann._targetRef?.deref() && !!ann._targetRef"
-        :color="settings.markerColor"
         @click="onMarkerClick(ann)"
+      />
+
+      <!-- Pending marker (unsaved annotation) -->
+      <AnnotationMarker
+        v-if="mode === 'input-open' && pendingPosition && !editingAnnotation"
+        :number="annotations.length + 1"
+        :x="pendingMarkerX"
+        :y="pendingMarkerY"
+        :is-pending="true"
       />
 
       <!-- Annotation input -->
@@ -562,8 +635,11 @@ onBeforeUnmount(() => {
         :element-name="pendingElementName"
         :component-chain="pendingComponentChain"
         :computed-styles="pendingComputedStyles"
+        :initial-comment="editingAnnotation?.comment"
+        :is-editing="!!editingAnnotation"
         @add="onInputAdd"
         @cancel="onInputCancel"
+        @delete="onInputDelete"
       />
 
       <!-- Settings panel -->

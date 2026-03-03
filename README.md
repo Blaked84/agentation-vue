@@ -74,3 +74,26 @@ Then place the component once in your root `App.vue`:
 - **Themes** — light, dark, or auto (follows system preference)
 - **Auto-hide launcher** — optionally tucks the collapsed floating button near screen edges and reveals it on approach
 - **Session persistence** — annotations survive page refreshes via `sessionStorage`
+- **Custom tooltip directive** — `v-va-tooltip` with optional keyboard shortcut badge
+
+## Custom Tooltips
+
+The plugin registers a global directive `v-va-tooltip` (Vue 2.7 and Vue 3).
+
+```vue
+<button v-va-tooltip="'Copy annotations'">Copy</button>
+
+<button v-va-tooltip="{ text: 'Copy annotations', shortcut: 'C' }">
+  Copy
+</button>
+```
+
+`showDelay` is supported (in ms), with a default of `300`:
+
+```vue
+<button v-va-tooltip="{ text: 'Copy annotations', shortcut: 'C', showDelay: 300 }">
+  Copy
+</button>
+```
+
+You can also import and register `vaTooltipDirective` manually if you don't use `AgentationVuePlugin`.

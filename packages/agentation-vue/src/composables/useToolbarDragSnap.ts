@@ -17,7 +17,7 @@ interface UseToolbarDragSnapOptions {
   onDragEnd?: () => void
 }
 
-const TOOLBAR_SIZE = 44
+const TOOLBAR_SIZE = 42
 const EDGE_OFFSET = 20
 const LONG_PRESS_MS = 350
 const HALF_TOOLBAR_SIZE = TOOLBAR_SIZE / 2

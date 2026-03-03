@@ -2,20 +2,24 @@
 import { computed, onMounted, ref } from 'vue-demi'
 import ComponentChain from './ComponentChain.vue'
 import VaButton from './VaButton.vue'
+import VaIcon from './VaIcon.vue'
 
 const props = defineProps<{
   position: { x: number, y: number }
   elementName?: string
   componentChain?: string
   computedStyles?: Record<string, string>
+  initialComment?: string
+  isEditing?: boolean
 }>()
 
 const emit = defineEmits<{
   add: [comment: string]
   cancel: []
+  delete: []
 }>()
 
-const comment = ref('')
+const comment = ref(props.initialComment || '')
 const inputEl = ref<HTMLInputElement | null>(null)
 const computedStyleEntries = computed(() => Object.entries(props.computedStyles || {}))
 
@@ -80,12 +84,22 @@ onMounted(() => {
       @keydown.escape="$emit('cancel')"
     >
     <div class="__va-input-actions">
-      <VaButton variant="secondary" @click="$emit('cancel')">
-        Cancel
-      </VaButton>
-      <VaButton :disabled="!comment.trim()" @click="onAdd">
-        Add
-      </VaButton>
+      <button
+        v-if="isEditing"
+        class="__va-input-delete-btn"
+        type="button"
+        @click="$emit('delete')"
+      >
+        <VaIcon name="trash" />
+      </button>
+      <div class="__va-input-actions-right">
+        <VaButton variant="secondary" @click="$emit('cancel')">
+          Cancel
+        </VaButton>
+        <VaButton :disabled="!comment.trim()" @click="onAdd">
+          {{ isEditing ? 'Save' : 'Add' }}
+        </VaButton>
+      </div>
     </div>
   </div>
 </template>
