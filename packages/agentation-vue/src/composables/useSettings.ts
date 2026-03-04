@@ -5,7 +5,7 @@ const STORAGE_KEY = 'agentation-vue-settings'
 
 const defaults: Settings = {
   outputDetail: 'standard',
-  markerColor: '#FF5C00',
+  markerColor: '#42B883',
   blockPageInteractions: false,
   autoHideToolbar: false,
   toolbarPlacement: 'bottom-right',
