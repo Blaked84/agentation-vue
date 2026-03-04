@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { KeyboardShortcutConfig } from './composables/useKeyboardShortcuts'
 import type { Annotation, OutputDetail, Settings } from './types'
 import { isVue2 as _isVue2, computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue-demi'
 import AgentationToolbar from './components/AgentationToolbar.vue'
@@ -11,12 +12,11 @@ import { useAnnotations } from './composables/useAnnotations'
 import { useAreaSelect } from './composables/useAreaSelect'
 import { useElementDetection } from './composables/useElementDetection'
 import { useInteractionMode } from './composables/useInteractionMode'
+import { DEFAULT_SHORTCUT_CONFIG, useKeyboardShortcuts } from './composables/useKeyboardShortcuts'
 import { useMarkerPositions } from './composables/useMarkerPositions'
 import { useMultiSelect } from './composables/useMultiSelect'
 import { useOutputFormatter } from './composables/useOutputFormatter'
 import { useSettings } from './composables/useSettings'
-import { useKeyboardShortcuts, DEFAULT_SHORTCUT_CONFIG } from './composables/useKeyboardShortcuts'
-import type { KeyboardShortcutConfig } from './composables/useKeyboardShortcuts'
 import { useTextSelection } from './composables/useTextSelection'
 import { VA_DATA_ATTR_SELECTOR } from './constants'
 import { copyToClipboard } from './utils/clipboard'
@@ -194,7 +194,8 @@ watch(() => props.pageUrl, (url) => {
   syncUrlScope(url || getCurrentUrl())
 }, { immediate: true })
 watch(() => props.activationKey, (v) => {
-  if (v !== undefined) settings.activationKey = v
+  if (v !== undefined)
+    settings.activationKey = v
 }, { immediate: true })
 
 // Event handlers

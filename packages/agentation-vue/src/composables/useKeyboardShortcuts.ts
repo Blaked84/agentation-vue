@@ -1,21 +1,21 @@
 import type { ComputedRef, Ref } from 'vue-demi'
 import type { InteractionMode } from '../types'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue-demi'
+import { onBeforeUnmount, onMounted, watch } from 'vue-demi'
 import { VA_DATA_ATTR_SELECTOR } from '../constants'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-export type ShortcutAction =
-  | 'activate'
-  | 'element-select'
-  | 'area-select'
-  | 'pause-animations'
-  | 'copy'
-  | 'clear'
-  | 'settings'
-  | 'minimize'
+export type ShortcutAction
+  = | 'activate'
+    | 'element-select'
+    | 'area-select'
+    | 'pause-animations'
+    | 'copy'
+    | 'clear'
+    | 'settings'
+    | 'minimize'
 
 export interface DoubleTapConfig {
   enabled: boolean
@@ -86,12 +86,32 @@ export const DEFAULT_SHORTCUT_CONFIG: KeyboardShortcutConfig = {
 // ---------------------------------------------------------------------------
 
 const BROWSER_BLACKLIST = new Set([
-  'Meta+l', 'Meta+t', 'Meta+w', 'Meta+r', 'Meta+n', 'Meta+q',
-  'Meta+Shift+t', 'Meta+Shift+n',
-  'Control+l', 'Control+t', 'Control+w', 'Control+r', 'Control+n', 'Control+q',
-  'Control+Shift+t', 'Control+Shift+n',
-  'Meta+c', 'Meta+v', 'Meta+x', 'Meta+a', 'Meta+z',
-  'Control+c', 'Control+v', 'Control+x', 'Control+a', 'Control+z',
+  'Meta+l',
+  'Meta+t',
+  'Meta+w',
+  'Meta+r',
+  'Meta+n',
+  'Meta+q',
+  'Meta+Shift+t',
+  'Meta+Shift+n',
+  'Control+l',
+  'Control+t',
+  'Control+w',
+  'Control+r',
+  'Control+n',
+  'Control+q',
+  'Control+Shift+t',
+  'Control+Shift+n',
+  'Meta+c',
+  'Meta+v',
+  'Meta+x',
+  'Meta+a',
+  'Meta+z',
+  'Control+c',
+  'Control+v',
+  'Control+x',
+  'Control+a',
+  'Control+z',
 ])
 
 // ---------------------------------------------------------------------------
@@ -133,20 +153,26 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
 
   function isForeignEditable(): boolean {
     const active = document.activeElement
-    if (!active) return false
+    if (!active)
+      return false
     const tag = active.tagName.toLowerCase()
     const isEditable = tag === 'input' || tag === 'textarea'
       || (active as HTMLElement).isContentEditable
-    if (!isEditable) return false
+    if (!isEditable)
+      return false
     return !active.closest(VA_DATA_ATTR_SELECTOR)
   }
 
   function isBrowserCombo(e: KeyboardEvent): boolean {
-    if (!e.metaKey && !e.ctrlKey) return false
+    if (!e.metaKey && !e.ctrlKey)
+      return false
     const parts: string[] = []
-    if (e.metaKey) parts.push('Meta')
-    if (e.ctrlKey) parts.push('Control')
-    if (e.shiftKey) parts.push('Shift')
+    if (e.metaKey)
+      parts.push('Meta')
+    if (e.ctrlKey)
+      parts.push('Control')
+    if (e.shiftKey)
+      parts.push('Shift')
     parts.push(e.key)
     return BROWSER_BLACKLIST.has(parts.join('+'))
   }
@@ -154,7 +180,8 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
   function findActionForKey(key: string): ShortcutAction | null {
     const normalized = key.toLowerCase()
     for (const [action, mappedKey] of Object.entries(mergedKeymap)) {
-      if (!mappedKey) continue
+      if (!mappedKey)
+        continue
       if (mappedKey.toLowerCase() === normalized || mappedKey === key) {
         return action as ShortcutAction
       }
@@ -184,7 +211,8 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
         break
       case 'minimize':
         actions.deactivate()
-        if (toolbarRef.value) toolbarRef.value.expanded = false
+        if (toolbarRef.value)
+          toolbarRef.value.expanded = false
         break
     }
   }
@@ -199,8 +227,10 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
   // --- Main keydown handler (capture phase) ---
 
   function onKeyDown(e: KeyboardEvent): void {
-    if (e.repeat) return
-    if (isBrowserCombo(e)) return
+    if (e.repeat)
+      return
+    if (isBrowserCombo(e))
+      return
 
     const hasModifier = e.metaKey || e.ctrlKey || e.altKey
     const scope = getCurrentScope()
@@ -231,14 +261,18 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
 
     // --- OPEN scope (inspect, multi-selecting, area-selecting) ---
 
-    if (cfg().conflictPolicy === 'ignore-editables' && isForeignEditable()) return
-    if (isInteractionLocked()) return
+    if (cfg().conflictPolicy === 'ignore-editables' && isForeignEditable())
+      return
+    if (isInteractionLocked())
+      return
 
     // Direct shortcut matching (no modifier combos)
-    if (hasModifier) return
+    if (hasModifier)
+      return
 
     const action = findActionForKey(e.key)
-    if (!action) return
+    if (!action)
+      return
 
     if (cfg().priorityWhenOpen) {
       consume(e)
@@ -251,9 +285,12 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
 
   function onKeyUp(e: KeyboardEvent): void {
     const { doubleTap } = cfg()
-    if (!doubleTap.enabled) return
-    if (e.key !== doubleTap.key) return
-    if (e.repeat) return
+    if (!doubleTap.enabled)
+      return
+    if (e.key !== doubleTap.key)
+      return
+    if (e.repeat)
+      return
 
     const now = Date.now()
     const delta = now - lastActivationKeyUpTime
@@ -264,11 +301,13 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
       const scope = getCurrentScope()
       if (scope === 'closed') {
         actions.activate()
-        if (toolbarRef.value) toolbarRef.value.expanded = true
+        if (toolbarRef.value)
+          toolbarRef.value.expanded = true
       }
       else if (scope === 'open') {
         actions.deactivate()
-        if (toolbarRef.value) toolbarRef.value.expanded = false
+        if (toolbarRef.value)
+          toolbarRef.value.expanded = false
       }
     }
   }
@@ -282,7 +321,8 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
   // --- Lifecycle ---
 
   function attach(): void {
-    if (listenerAttached) return
+    if (listenerAttached)
+      return
     listenerAttached = true
     document.addEventListener('keydown', onKeyDown, true)
     document.addEventListener('keyup', onKeyUp, true)
@@ -291,7 +331,8 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
   }
 
   function detach(): void {
-    if (!listenerAttached) return
+    if (!listenerAttached)
+      return
     listenerAttached = false
     document.removeEventListener('keydown', onKeyDown, true)
     document.removeEventListener('keyup', onKeyUp, true)
