@@ -17,7 +17,8 @@ const shouldTruncate = computed(() => components.value.length >= TRUNCATE_THRESH
 
 // For 'auto' mode: first + ellipsis + last 2
 const autoTruncated = computed(() => {
-  if (!shouldTruncate.value) return components.value
+  if (!shouldTruncate.value)
+    return components.value
   const all = components.value
   return [all[0], null, all[all.length - 2], all[all.length - 1]] as (string | null)[]
 })
