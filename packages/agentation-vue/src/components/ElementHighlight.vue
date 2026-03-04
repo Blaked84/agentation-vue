@@ -26,7 +26,7 @@ const highlightStyle = computed(() => {
     data-agentation-vue
   >
     <div v-if="componentChain" class="__va-highlight-label __va-highlight-label--chain">
-      <ComponentChain :chain="componentChain" variant="dark" />
+      <ComponentChain :chain="componentChain" variant="dark" truncate="auto" />
     </div>
     <span v-else class="__va-highlight-label">{{ elementName }}</span>
   </div>

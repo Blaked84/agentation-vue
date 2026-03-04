@@ -757,6 +757,26 @@
   color: var(--va-accent);
 }
 
+.__va-comp-ellipsis {
+  opacity: 0.5;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.__va-comp-chain--collapsible {
+  cursor: pointer;
+  flex-wrap: wrap;
+}
+
+.__va-comp-toggle {
+  font-size: 10px;
+  opacity: 0.6;
+  flex-shrink: 0;
+  user-select: none;
+  width: 10px;
+  text-align: center;
+}
+
 .__va-input input {
   width: 100%;
   padding: 8px 10px;

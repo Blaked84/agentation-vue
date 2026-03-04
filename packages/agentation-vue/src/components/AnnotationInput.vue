@@ -59,7 +59,7 @@ onMounted(() => {
       @mousedown.stop
     >
       <summary class="__va-input-styles-summary">
-        <ComponentChain v-if="componentChain" :chain="componentChain" variant="light" />
+        <ComponentChain v-if="componentChain" :chain="componentChain" variant="light" truncate="leaf" />
         <span v-else class="__va-input-styles-element">{{ elementName || 'Annotation' }}</span>
       </summary>
       <div class="__va-input-styles-block">
@@ -73,7 +73,7 @@ onMounted(() => {
       </div>
     </details>
     <div v-else-if="componentChain" class="__va-input-chain">
-      <ComponentChain :chain="componentChain" variant="light" />
+      <ComponentChain :chain="componentChain" variant="light" truncate="leaf" />
     </div>
     <span v-else class="__va-input-label">{{ elementName || 'Annotation' }}</span>
     <input
