@@ -15,10 +15,12 @@ export default defineNuxtConfig({
     resolve: {
       alias: {
         'agentation-vue/style.css': resolve(
-          __dirname, '../../packages/agentation-vue/src/styles/agentation.css',
+          __dirname,
+          '../../packages/agentation-vue/src/styles/agentation.css',
         ),
         'agentation-vue': resolve(
-          __dirname, '../../packages/agentation-vue/src/index.ts',
+          __dirname,
+          '../../packages/agentation-vue/src/index.ts',
         ),
       },
     },

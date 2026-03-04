@@ -75,10 +75,10 @@ export default {
         },
       },
       maxWidth: {
-        'landing': '1120px',
+        landing: '1120px',
       },
       spacing: {
-        'section': '6rem',
+        section: '6rem',
       },
     },
   },

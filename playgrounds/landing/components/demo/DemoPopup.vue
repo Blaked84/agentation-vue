@@ -4,7 +4,7 @@ import { ComponentChain } from 'agentation-vue'
 withDefaults(defineProps<{
   visible?: boolean
   text?: string
-  position?: { x: number; y: number }
+  position?: { x: number, y: number }
 }>(), {
   visible: false,
   text: '',

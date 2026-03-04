@@ -18,7 +18,7 @@ export function useDemoChoreography(
   const annotationCount = ref(0)
 
   const highlightVisible = ref(false)
-  const highlightRect = ref<{ x: number; y: number; width: number; height: number } | null>(null)
+  const highlightRect = ref<{ x: number, y: number, width: number, height: number } | null>(null)
 
   const popupVisible = ref(false)
   const popupText = ref('')
@@ -47,9 +47,11 @@ export function useDemoChoreography(
   /** Position relative to the root container — for cursor (absolute at container level) */
   function getRelativeRect(selector: string) {
     const container = containerRef.value
-    if (!container) return null
+    if (!container)
+      return null
     const el = container.querySelector(selector)
-    if (!el) return null
+    if (!el)
+      return null
     const containerRect = container.getBoundingClientRect()
     const elRect = el.getBoundingClientRect()
     return {
@@ -65,9 +67,11 @@ export function useDemoChoreography(
   /** Position relative to the browser content area — for highlight, popup, marker */
   function getContentRelativeRect(selector: string) {
     const content = contentRef.value
-    if (!content) return null
+    if (!content)
+      return null
     const el = content.querySelector(selector)
-    if (!el) return null
+    if (!el)
+      return null
     const contentRect = content.getBoundingClientRect()
     const elRect = el.getBoundingClientRect()
     return {
@@ -245,11 +249,13 @@ export function useDemoChoreography(
 
   async function startLoop() {
     running = true
+    // eslint-disable-next-line no-unmodified-loop-condition -- `running` is set to false in stopLoop() called externally
     while (running) {
       abortController = new AbortController()
       try {
         await runCycle()
-      } catch (e) {
+      }
+      catch (e) {
         if (e instanceof DemoAbortError) {
           continue
         }
@@ -267,7 +273,8 @@ export function useDemoChoreography(
     if (document.hidden) {
       stop()
       resetState()
-    } else {
+    }
+    else {
       startLoop()
     }
   }

@@ -3,7 +3,7 @@ import { ComponentChain } from 'agentation-vue'
 
 withDefaults(defineProps<{
   visible?: boolean
-  rect?: { x: number; y: number; width: number; height: number } | null
+  rect?: { x: number, y: number, width: number, height: number } | null
   chain?: string
 }>(), {
   visible: false,

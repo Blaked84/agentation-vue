@@ -17,10 +17,12 @@
           <p class="mb-1.5 font-mono text-xs text-ink-400">
             # register plugin
           </p>
-          <UiCode><span class="text-[#cc99cd]">import</span> { AgentationVuePlugin } <span class="text-[#cc99cd]">from</span> <span class="text-[#7ec699]">'agentation-vue'</span>
-<span class="text-[#cc99cd]">import</span> <span class="text-[#7ec699]">'agentation-vue/style.css'</span>
+          <UiCode>
+            <span class="text-[#cc99cd]">import</span> { AgentationVuePlugin } <span class="text-[#cc99cd]">from</span> <span class="text-[#7ec699]">'agentation-vue'</span>
+            <span class="text-[#cc99cd]">import</span> <span class="text-[#7ec699]">'agentation-vue/style.css'</span>
 
-app.<span class="text-[#f8c555]">use</span>(AgentationVuePlugin)</UiCode>
+            app.<span class="text-[#f8c555]">use</span>(AgentationVuePlugin)
+          </UiCode>
         </div>
 
         <div>

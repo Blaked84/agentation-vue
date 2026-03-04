@@ -10,7 +10,8 @@ function dismiss() {
 
 function onPointerDown(e: PointerEvent) {
   const target = e.target as HTMLElement
-  if (!target.closest('.__va-toolbar')) return
+  if (!target.closest('.__va-toolbar'))
+    return
   // In Nuxt SSR, Vue's <Teleport to="body"> renders inside a <teleport> element
   // within #__nuxt. The real toolbar has a <teleport> ancestor; the demo fake doesn't.
   if (target.closest('teleport')) {

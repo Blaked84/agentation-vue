@@ -2,7 +2,7 @@
 import { VaIcon } from 'agentation-vue'
 
 withDefaults(defineProps<{
-  position?: { x: number; y: number }
+  position?: { x: number, y: number }
   number?: number
   visible?: boolean
   pending?: boolean

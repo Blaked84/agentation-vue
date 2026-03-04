@@ -4,7 +4,9 @@ const copied = ref(false)
 function copyInstall() {
   navigator.clipboard.writeText('npm install agentation-vue')
   copied.value = true
-  setTimeout(() => { copied.value = false }, 2000)
+  setTimeout(() => {
+    copied.value = false
+  }, 2000)
 }
 </script>
 

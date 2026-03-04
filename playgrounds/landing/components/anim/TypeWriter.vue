@@ -22,14 +22,17 @@ onMounted(() => {
       }
       else {
         clearInterval(interval)
-        setTimeout(() => { showCursor.value = false }, 1000)
+        setTimeout(() => {
+          showCursor.value = false
+        }, 1000)
       }
     }, props.speed)
   }, props.delay)
 })
 
 onBeforeUnmount(() => {
-  if (timer) clearTimeout(timer)
+  if (timer)
+    clearTimeout(timer)
 })
 </script>
 
