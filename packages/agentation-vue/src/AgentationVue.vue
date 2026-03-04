@@ -15,6 +15,8 @@ import { useMarkerPositions } from './composables/useMarkerPositions'
 import { useMultiSelect } from './composables/useMultiSelect'
 import { useOutputFormatter } from './composables/useOutputFormatter'
 import { useSettings } from './composables/useSettings'
+import { useKeyboardShortcuts, DEFAULT_SHORTCUT_CONFIG } from './composables/useKeyboardShortcuts'
+import type { KeyboardShortcutConfig } from './composables/useKeyboardShortcuts'
 import { useTextSelection } from './composables/useTextSelection'
 import { VA_DATA_ATTR_SELECTOR } from './constants'
 import { copyToClipboard } from './utils/clipboard'
@@ -31,6 +33,7 @@ const props = withDefaults(defineProps<{
   autoHideToolbar?: boolean
   pageUrl?: string
   theme?: 'light' | 'dark' | 'auto'
+  activationKey?: 'none' | 'Meta' | 'Alt' | 'Shift'
 }>(), {
   copyToClipboard: true,
 })
@@ -189,6 +192,9 @@ watch(() => props.autoHideToolbar, (v) => {
 }, { immediate: true })
 watch(() => props.pageUrl, (url) => {
   syncUrlScope(url || getCurrentUrl())
+}, { immediate: true })
+watch(() => props.activationKey, (v) => {
+  if (v !== undefined) settings.activationKey = v
 }, { immediate: true })
 
 // Event handlers
@@ -655,20 +661,36 @@ function onOpenSettings(anchorEl: HTMLElement | null) {
   settingsOpen.value = true
 }
 
-// Escape key handler
-function onKeyDown(e: KeyboardEvent) {
-  if (e.key === 'Escape') {
-    if (mode.value === 'input-open') {
-      onInputCancel()
-    }
-    else if (mode.value !== 'idle') {
-      onDeactivate()
-      if (toolbarRef.value) {
-        toolbarRef.value.expanded = false
-      }
-    }
-  }
-}
+// Keyboard shortcut manager
+const shortcutConfig = computed<KeyboardShortcutConfig>(() => ({
+  ...DEFAULT_SHORTCUT_CONFIG,
+  doubleTap: {
+    ...DEFAULT_SHORTCUT_CONFIG.doubleTap,
+    enabled: settings.activationKey !== 'none',
+    key: settings.activationKey !== 'none' ? settings.activationKey : DEFAULT_SHORTCUT_CONFIG.doubleTap.key,
+  },
+}))
+
+useKeyboardShortcuts({
+  mode,
+  settingsOpen,
+  toolbarDragging,
+  toolbarRef,
+  isInteractionLocked,
+  config: shortcutConfig,
+  actions: {
+    activate: onActivate,
+    deactivate: onDeactivate,
+    elementSelect: () => onToggleArea(false),
+    areaSelect: () => onToggleArea(true),
+    pauseAnimations: () => animPause.toggle(),
+    copy: () => onCopy(),
+    clear: () => onClear(),
+    openSettings: () => onOpenSettings(null),
+    inputCancel: () => onInputCancel(),
+    closeSettings: () => closeSettings(),
+  },
+})
 
 onMounted(() => {
   patchHistoryEvents()
@@ -679,7 +701,6 @@ onMounted(() => {
   document.addEventListener('mousedown', onDocumentMouseDown, true)
   document.addEventListener('mouseup', onDocumentMouseUp, true)
   document.addEventListener('wheel', onDocumentWheel, { passive: true, capture: true })
-  document.addEventListener('keydown', onKeyDown)
 })
 
 onBeforeUnmount(() => {
@@ -690,7 +711,6 @@ onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onDocumentMouseDown, true)
   document.removeEventListener('mouseup', onDocumentMouseUp, true)
   document.removeEventListener('wheel', onDocumentWheel, true)
-  document.removeEventListener('keydown', onKeyDown)
 })
 </script>
 

@@ -14,6 +14,7 @@ const emit = defineEmits<{
 const settings = toRef(props, 'settings')
 
 const presetColors = ['#8B5CF6', '#3B82F6', '#06B6D4', '#10B981', '#EAB308', '#FF5C00', '#EF4444']
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent)
 
 function update(key: keyof Settings, value: any) {
   emit('update', { [key]: value })
@@ -117,6 +118,26 @@ function toggleTheme() {
         aria-label="Auto-hide floating button"
         @update:model-value="update('autoHideToolbar', $event)"
       />
+    </div>
+
+    <div class="__va-settings-divider" />
+
+    <div class="__va-settings-row">
+      <span class="__va-settings-label">Activate with double tap</span>
+      <select :value="settings.activationKey" @change="onSelectChange('activationKey', $event)">
+        <option value="none">
+          Off
+        </option>
+        <option value="Meta">
+          {{ isMac ? '&#8984; Cmd' : 'Ctrl' }}
+        </option>
+        <option value="Alt">
+          {{ isMac ? '&#8997; Option' : 'Alt' }}
+        </option>
+        <option value="Shift">
+          Shift
+        </option>
+      </select>
     </div>
   </div>
 </template>

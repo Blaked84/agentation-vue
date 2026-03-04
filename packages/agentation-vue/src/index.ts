@@ -24,6 +24,7 @@ export { useAnnotations } from './composables/useAnnotations'
 export { useAreaSelect } from './composables/useAreaSelect'
 export { useElementDetection } from './composables/useElementDetection'
 export { useInteractionMode } from './composables/useInteractionMode'
+export { useKeyboardShortcuts, DEFAULT_SHORTCUT_CONFIG } from './composables/useKeyboardShortcuts'
 export { useMarkerPositions } from './composables/useMarkerPositions'
 export { useMultiSelect } from './composables/useMultiSelect'
 export { formatAnnotations, useOutputFormatter } from './composables/useOutputFormatter'
@@ -33,6 +34,12 @@ export { useToolbarAutoHide } from './composables/useToolbarAutoHide'
 export type { VaTooltipOptions, VaTooltipPlacement, VaTooltipValue } from './directives/vaTooltip'
 export { icons } from './icons'
 export type { IconName } from './icons'
+export type {
+  DoubleTapConfig,
+  KeyboardShortcutConfig,
+  KeyboardShortcutState,
+  ShortcutAction,
+} from './composables/useKeyboardShortcuts'
 export type {
   AgentationEmits,
   AgentationProps,
