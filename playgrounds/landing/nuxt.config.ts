@@ -1,5 +1,7 @@
 import { resolve } from 'node:path'
 
+const isGitHubPages = process.env.GITHUB_PAGES === 'true'
+
 export default defineNuxtConfig({
   ssr: true,
   nitro: { preset: 'static' },
@@ -29,6 +31,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css', 'agentation-vue/style.css'],
 
   app: {
+    ...(isGitHubPages && { baseURL: '/agentation-vue/' }),
     head: {
       title: 'agentation-vue — Visual annotations for AI coding agents',
       htmlAttrs: { lang: 'en' },
