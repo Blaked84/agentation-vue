@@ -219,7 +219,7 @@ defineExpose({ expanded, placement })
         <div class="__va-toolbar-sep" />
 
         <!-- Settings -->
-        <VaIconButton title="Settings" shortcut="," @click="onOpenSettings">
+        <VaIconButton title="Settings" @click="onOpenSettings">
           <VaIcon name="settings" />
         </VaIconButton>
 

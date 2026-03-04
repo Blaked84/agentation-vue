@@ -12,6 +12,7 @@ const defaults: Settings = {
   clearAfterCopy: false,
   showComponentTree: true,
   theme: 'auto',
+  activationKey: 'Shift',
 }
 
 function loadSettings(): Settings {

@@ -173,25 +173,16 @@ function onDocumentPointerDown(e: PointerEvent) {
   emit('close')
 }
 
-function onDocumentKeyDown(e: KeyboardEvent) {
-  if (!props.open)
-    return
-  if (e.key === 'Escape')
-    emit('close')
-}
-
 function addGlobalListeners() {
   window.addEventListener('resize', schedulePositionUpdate)
   window.addEventListener('scroll', schedulePositionUpdate, true)
   document.addEventListener('pointerdown', onDocumentPointerDown, true)
-  document.addEventListener('keydown', onDocumentKeyDown, true)
 }
 
 function removeGlobalListeners() {
   window.removeEventListener('resize', schedulePositionUpdate)
   window.removeEventListener('scroll', schedulePositionUpdate, true)
   document.removeEventListener('pointerdown', onDocumentPointerDown, true)
-  document.removeEventListener('keydown', onDocumentKeyDown, true)
 }
 
 watch(

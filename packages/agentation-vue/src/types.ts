@@ -61,6 +61,7 @@ export interface AgentationProps {
   pageUrl?: string
   demoAnnotations?: Annotation[]
   theme?: 'light' | 'dark' | 'auto'
+  activationKey?: 'none' | 'Meta' | 'Alt' | 'Shift'
 }
 
 export interface AgentationEmits {
@@ -80,4 +81,5 @@ export interface Settings {
   clearAfterCopy: boolean
   showComponentTree: boolean
   theme: 'light' | 'dark' | 'auto'
+  activationKey: 'none' | 'Meta' | 'Alt' | 'Shift'
 }

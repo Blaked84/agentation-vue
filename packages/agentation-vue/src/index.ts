@@ -24,6 +24,13 @@ export { useAnnotations } from './composables/useAnnotations'
 export { useAreaSelect } from './composables/useAreaSelect'
 export { useElementDetection } from './composables/useElementDetection'
 export { useInteractionMode } from './composables/useInteractionMode'
+export { DEFAULT_SHORTCUT_CONFIG, useKeyboardShortcuts } from './composables/useKeyboardShortcuts'
+export type {
+  DoubleTapConfig,
+  KeyboardShortcutConfig,
+  KeyboardShortcutState,
+  ShortcutAction,
+} from './composables/useKeyboardShortcuts'
 export { useMarkerPositions } from './composables/useMarkerPositions'
 export { useMultiSelect } from './composables/useMultiSelect'
 export { formatAnnotations, useOutputFormatter } from './composables/useOutputFormatter'

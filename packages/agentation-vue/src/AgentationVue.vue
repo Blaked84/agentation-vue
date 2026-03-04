@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { KeyboardShortcutConfig } from './composables/useKeyboardShortcuts'
 import type { Annotation, OutputDetail, Settings } from './types'
 import { isVue2 as _isVue2, computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue-demi'
 import AgentationToolbar from './components/AgentationToolbar.vue'
@@ -11,6 +12,7 @@ import { useAnnotations } from './composables/useAnnotations'
 import { useAreaSelect } from './composables/useAreaSelect'
 import { useElementDetection } from './composables/useElementDetection'
 import { useInteractionMode } from './composables/useInteractionMode'
+import { DEFAULT_SHORTCUT_CONFIG, useKeyboardShortcuts } from './composables/useKeyboardShortcuts'
 import { useMarkerPositions } from './composables/useMarkerPositions'
 import { useMultiSelect } from './composables/useMultiSelect'
 import { useOutputFormatter } from './composables/useOutputFormatter'
@@ -31,6 +33,7 @@ const props = withDefaults(defineProps<{
   autoHideToolbar?: boolean
   pageUrl?: string
   theme?: 'light' | 'dark' | 'auto'
+  activationKey?: 'none' | 'Meta' | 'Alt' | 'Shift'
 }>(), {
   copyToClipboard: true,
 })
@@ -189,6 +192,10 @@ watch(() => props.autoHideToolbar, (v) => {
 }, { immediate: true })
 watch(() => props.pageUrl, (url) => {
   syncUrlScope(url || getCurrentUrl())
+}, { immediate: true })
+watch(() => props.activationKey, (v) => {
+  if (v !== undefined)
+    settings.activationKey = v
 }, { immediate: true })
 
 // Event handlers
@@ -665,20 +672,36 @@ function onOpenSettings(anchorEl: HTMLElement | null) {
   settingsOpen.value = true
 }
 
-// Escape key handler
-function onKeyDown(e: KeyboardEvent) {
-  if (e.key === 'Escape') {
-    if (mode.value === 'input-open') {
-      onInputCancel()
-    }
-    else if (mode.value !== 'idle') {
-      onDeactivate()
-      if (toolbarRef.value) {
-        toolbarRef.value.expanded = false
-      }
-    }
-  }
-}
+// Keyboard shortcut manager
+const shortcutConfig = computed<KeyboardShortcutConfig>(() => ({
+  ...DEFAULT_SHORTCUT_CONFIG,
+  doubleTap: {
+    ...DEFAULT_SHORTCUT_CONFIG.doubleTap,
+    enabled: settings.activationKey !== 'none',
+    key: settings.activationKey !== 'none' ? settings.activationKey : DEFAULT_SHORTCUT_CONFIG.doubleTap.key,
+  },
+}))
+
+useKeyboardShortcuts({
+  mode,
+  settingsOpen,
+  toolbarDragging,
+  toolbarRef,
+  isInteractionLocked,
+  config: shortcutConfig,
+  actions: {
+    activate: onActivate,
+    deactivate: onDeactivate,
+    elementSelect: () => onToggleArea(false),
+    areaSelect: () => onToggleArea(true),
+    pauseAnimations: () => animPause.toggle(),
+    copy: () => onCopy(),
+    clear: () => onClear(),
+    openSettings: () => onOpenSettings(null),
+    inputCancel: () => onInputCancel(),
+    closeSettings: () => closeSettings(),
+  },
+})
 
 onMounted(() => {
   patchHistoryEvents()
@@ -690,7 +713,6 @@ onMounted(() => {
   document.addEventListener('mouseup', onDocumentMouseUp, true)
   document.addEventListener('wheel', onDocumentWheel, { passive: true, capture: true })
   document.addEventListener('click', onDocumentClick, true)
-  document.addEventListener('keydown', onKeyDown)
 })
 
 onBeforeUnmount(() => {
@@ -702,7 +724,6 @@ onBeforeUnmount(() => {
   document.removeEventListener('mouseup', onDocumentMouseUp, true)
   document.removeEventListener('wheel', onDocumentWheel, true)
   document.removeEventListener('click', onDocumentClick, true)
-  document.removeEventListener('keydown', onKeyDown)
 })
 </script>
 
