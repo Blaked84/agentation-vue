@@ -12,8 +12,8 @@
 
 /* Accent color defaults — only on root, so inline style override propagates to children */
 [data-agentation-vue]:not([data-agentation-vue] [data-agentation-vue]) {
-  --va-accent: #ff5c00;
-  --va-accent-rgb: 255, 92, 0;
+  --va-accent: #42b883;
+  --va-accent-rgb: 66, 184, 131;
 }
 
 @media (prefers-color-scheme: dark) {

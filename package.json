@@ -6,6 +6,9 @@
   "scripts": {
     "dev:vue3": "pnpm -C playgrounds/vue3 dev",
     "dev:vue2": "pnpm -C playgrounds/vue2 dev",
+    "dev:landing": "pnpm -C playgrounds/landing dev",
+    "build:landing": "pnpm -C playgrounds/landing generate",
+    "preview:landing": "pnpm -C playgrounds/landing preview",
     "build": "pnpm -C packages/agentation-vue build",
     "test": "vitest",
     "test:unit": "vitest --project unit",
