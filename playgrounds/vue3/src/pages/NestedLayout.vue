@@ -2,6 +2,9 @@
 import { ref } from 'vue'
 import MocButton from '../components/moc/MocButton.vue'
 import MocCard from '../components/moc/MocCard.vue'
+import MocPanel from '../components/moc/MocPanel.vue'
+import MocSection from '../components/moc/MocSection.vue'
+import MocWidget from '../components/moc/MocWidget.vue'
 
 const sidebarCollapsed = ref(false)
 const modalOpen = ref(false)
@@ -35,20 +38,24 @@ const modalOpen = ref(false)
       </div>
 
       <div class="main-content">
-        <div class="overflow-container">
-          <MocCard title="Overflow: hidden container">
-            <p class="card-copy">
-              Content inside an overflow:hidden parent. Annotations should still work via portal.
-            </p>
-            <MocButton class="test-overflow-btn" variant="primary">
-              Button in overflow
-            </MocButton>
-            <div class="overflow-long-text">
-              This text extends beyond the container boundaries but is clipped.
-              Try annotating elements inside this container.
-            </div>
-          </MocCard>
-        </div>
+        <MocSection title="Deeply Nested Components">
+          <MocPanel title="Panel wrapper">
+            <MocWidget label="Widget level">
+              <MocCard title="Overflow: hidden container">
+                <p class="card-copy">
+                  Content inside an overflow:hidden parent. Annotations should still work via portal.
+                </p>
+                <MocButton class="test-overflow-btn" variant="primary">
+                  Button in overflow
+                </MocButton>
+                <div class="overflow-long-text">
+                  This text extends beyond the container boundaries but is clipped.
+                  Try annotating elements inside this container.
+                </div>
+              </MocCard>
+            </MocWidget>
+          </MocPanel>
+        </MocSection>
 
         <div class="stacking-demo">
           <h3>Stacking Contexts</h3>
@@ -64,14 +71,18 @@ const modalOpen = ref(false)
         </div>
 
         <div class="transform-container">
-          <MocCard title="Transform Context">
-            <p class="card-copy">
-              This box has a CSS transform applied. Elements inside create a new stacking context.
-            </p>
-            <MocButton variant="secondary">
-              Inside transform
-            </MocButton>
-          </MocCard>
+          <MocPanel title="Transform Panel">
+            <MocWidget label="Nested widget">
+              <MocCard title="Transform Context">
+                <p class="card-copy">
+                  This box has a CSS transform applied. Elements inside create a new stacking context.
+                </p>
+                <MocButton variant="secondary">
+                  Inside transform
+                </MocButton>
+              </MocCard>
+            </MocWidget>
+          </MocPanel>
         </div>
 
         <MocButton variant="primary" @click="modalOpen = true">

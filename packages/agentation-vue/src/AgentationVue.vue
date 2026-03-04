@@ -408,6 +408,16 @@ function onDocumentWheel(e: WheelEvent) {
   onOverlayWheel(e)
 }
 
+function onDocumentClick(e: MouseEvent) {
+  if (mode.value === 'idle')
+    return
+  const target = e.target as Element
+  if (!target || target.closest(VA_DATA_ATTR_SELECTOR))
+    return
+  e.preventDefault()
+  e.stopPropagation()
+}
+
 function getVueComponents(el: Element): string | undefined {
   return settings.showComponentTree
     ? detectVueComponents(el, settings.outputDetail === 'forensic')
@@ -702,6 +712,7 @@ onMounted(() => {
   document.addEventListener('mousedown', onDocumentMouseDown, true)
   document.addEventListener('mouseup', onDocumentMouseUp, true)
   document.addEventListener('wheel', onDocumentWheel, { passive: true, capture: true })
+  document.addEventListener('click', onDocumentClick, true)
 })
 
 onBeforeUnmount(() => {
@@ -712,6 +723,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onDocumentMouseDown, true)
   document.removeEventListener('mouseup', onDocumentMouseUp, true)
   document.removeEventListener('wheel', onDocumentWheel, true)
+  document.removeEventListener('click', onDocumentClick, true)
 })
 </script>
 

@@ -419,17 +419,17 @@
 
 .__va-drag-handle-dots {
   display: grid;
-  grid-template-columns: repeat(2, 4px);
-  grid-template-rows: repeat(3, 4px);
-  gap: 3px;
+  grid-template-columns: repeat(2, 3px);
+  grid-template-rows: repeat(3, 3px);
+  gap: 2.5px;
 }
 
 .__va-drag-handle-dots span {
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
   border-radius: 50%;
   background: currentColor;
-  opacity: 0.8;
+  opacity: 0.6;
 }
 
 .__va-toolbar-badge {
@@ -755,6 +755,26 @@
 
 .__va-comp-chain--light {
   color: var(--va-accent);
+}
+
+.__va-comp-ellipsis {
+  opacity: 0.5;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.__va-comp-chain--collapsible {
+  cursor: pointer;
+  flex-wrap: wrap;
+}
+
+.__va-comp-toggle {
+  font-size: 10px;
+  opacity: 0.6;
+  flex-shrink: 0;
+  user-select: none;
+  width: 10px;
+  text-align: center;
 }
 
 .__va-input input {
