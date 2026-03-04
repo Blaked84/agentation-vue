@@ -12,13 +12,17 @@ function copyInstall() {
   <section class="bg-dot-grid pt-20 pb-12 md:pt-28">
     <div class="mx-auto max-w-landing px-6 text-center">
       <p class="font-mono text-xs uppercase tracking-wider text-ink-300">
-        Vue 2.7 & Vue 3 · MIT License
+        Vue 2.7 & Vue 3
       </p>
 
       <h1 class="mt-4 text-4xl leading-[1.1] tracking-tight md:text-5xl lg:text-6xl">
-        Visual annotations<br>
-        for <em class="not-italic italic text-ember-500">AI</em> coding agents.
+        See it. Point it. <em class="not-italic italic text-ember-500">Fix it.</em>
       </h1>
+
+      <p class="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-ink-500 md:text-lg">
+        Agentation-vue turns UI annotations into instructions for your coding agents.
+        Click any element, add a note, and paste the output into Claude Code, Cursor, or any AI tool.
+      </p>
 
       <div class="mx-auto mt-10 max-w-4xl text-left">
         <ClientOnly>
@@ -55,6 +59,11 @@ function copyInstall() {
           GitHub →
         </a>
       </div>
+
+      <p class="mt-6 text-xs text-ink-300">
+        Unofficial Vue.js port of
+        <a href="https://agentation.dev" class="underline decoration-ink-300/50 underline-offset-2 transition-colors hover:text-ink-500">agentation.dev</a>
+      </p>
     </div>
   </section>
 </template>
