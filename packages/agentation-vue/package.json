@@ -1,18 +1,26 @@
 {
   "name": "agentation-vue",
-  "type": "module",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "description": "Visual feedback tool for AI coding agents — Vue 2.7 & 3",
   "author": "Dorian Becker",
   "license": "PolyForm-Shield-1.0.0",
   "homepage": "https://github.com/Blaked84/agentation-vue",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Blaked84/agentation-vue.git",
+    "url": "git+https://github.com/Blaked84/agentation-vue.git",
     "directory": "packages/agentation-vue"
   },
-  "keywords": ["vue", "agentation", "annotation", "ai", "feedback", "vue-demi"],
-  "sideEffects": ["**/*.css"],
+  "keywords": [
+    "vue",
+    "agentation",
+    "annotation",
+    "ai",
+    "feedback",
+    "vue-demi"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -23,7 +31,9 @@
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "unbuild",
     "prepack": "pnpm run build",
@@ -38,6 +48,7 @@
   },
   "devDependencies": {
     "unbuild": "^3.0.0",
-    "vue": "^3.5.0"
+    "vue": "^3.5.0",
+    "vue-sfc-transformer": "^0.1.17"
   }
 }
