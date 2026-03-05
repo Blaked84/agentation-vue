@@ -1,12 +1,12 @@
 <script setup lang="ts">
-const copied = ref(false)
+const copied = ref(false);
 
 function copyInstall() {
-  navigator.clipboard.writeText('npm install agentation-vue')
-  copied.value = true
+  navigator.clipboard.writeText("npm install agentation-vue");
+  copied.value = true;
   setTimeout(() => {
-    copied.value = false
-  }, 2000)
+    copied.value = false;
+  }, 2000);
 }
 </script>
 
@@ -17,19 +17,27 @@ function copyInstall() {
         Vue 2.7 & Vue 3
       </p>
 
-      <h1 class="mt-4 text-4xl leading-[1.1] tracking-tight md:text-5xl lg:text-6xl">
-        See it. Point it. <em class="not-italic italic text-ember-500">Fix it.</em>
+      <h1
+        class="mt-4 text-4xl leading-[1.1] tracking-tight md:text-5xl lg:text-6xl"
+      >
+        See it. Point it.
+        <em class="not-italic italic text-ember-500">Fix it.</em>
       </h1>
 
-      <p class="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-ink-500 md:text-lg">
-        Agentation-vue turns UI annotations into instructions for your coding agents.
-        Click any element, add a note, and paste the output into Claude Code, Cursor, or any AI tool.
+      <p
+        class="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-ink-500 md:text-lg"
+      >
+        Agentation-vue turns UI annotations into instructions for your coding
+        agents. Click any element, add a note, and paste the output into Claude
+        Code, Cursor, or any AI tool.
       </p>
 
       <div class="mx-auto mt-10 max-w-4xl text-left">
-        <ClientOnly>
-          <DemoAnimation />
-        </ClientOnly>
+        <div class="demo-zoom">
+          <ClientOnly>
+            <DemoAnimation />
+          </ClientOnly>
+        </div>
       </div>
 
       <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -49,7 +57,10 @@ function copyInstall() {
             stroke-linejoin="round"
           >
             <rect v-if="!copied" x="9" y="9" width="13" height="13" rx="2" />
-            <path v-if="!copied" d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+            <path
+              v-if="!copied"
+              d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"
+            />
             <path v-if="copied" d="M20 6L9 17l-5-5" />
           </svg>
         </button>
@@ -64,8 +75,28 @@ function copyInstall() {
 
       <p class="mt-6 text-xs text-ink-300">
         Unofficial Vue.js port of
-        <a href="https://agentation.dev" class="underline decoration-ink-300/50 underline-offset-2 transition-colors hover:text-ink-500">agentation.dev</a>
+        <a
+          href="https://agentation.dev"
+          class="underline decoration-ink-300/50 underline-offset-2 transition-colors hover:text-ink-500"
+          >agentation.dev</a
+        >
       </p>
     </div>
   </section>
 </template>
+
+<style scoped>
+.demo-zoom {
+  zoom: 0.55;
+}
+@media (min-width: 640px) {
+  .demo-zoom {
+    zoom: 0.9;
+  }
+}
+@media (min-width: 768px) {
+  .demo-zoom {
+    zoom: 1;
+  }
+}
+</style>
