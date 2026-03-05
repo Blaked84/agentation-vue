@@ -7,7 +7,7 @@
   "homepage": "https://github.com/Blaked84/agentation-vue",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Blaked84/agentation-vue.git",
+    "url": "git+https://github.com/Blaked84/agentation-vue.git",
     "directory": "packages/agentation-vue"
   },
   "keywords": [
@@ -54,6 +54,7 @@
   },
   "devDependencies": {
     "unbuild": "^3.0.0",
-    "vue": "^3.5.0"
+    "vue": "^3.5.0",
+    "vue-sfc-transformer": "^0.1.17"
   }
 }
