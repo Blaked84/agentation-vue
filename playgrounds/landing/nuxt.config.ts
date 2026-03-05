@@ -1,5 +1,8 @@
+import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import process from 'node:process'
+
+const pkg = JSON.parse(readFileSync(resolve(__dirname, '../../packages/agentation-vue/package.json'), 'utf-8'))
 
 const isGitHubPages = process.env.GITHUB_PAGES === 'true'
 
@@ -7,6 +10,12 @@ export default defineNuxtConfig({
   ssr: true,
   nitro: { preset: 'static' },
   devServer: { port: 3002 },
+
+  runtimeConfig: {
+    public: {
+      packageVersion: pkg.version,
+    },
+  },
 
   modules: ['@nuxtjs/tailwindcss'],
 
@@ -41,7 +50,7 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Inconsolata:wght@400;500;700&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
         },
       ],
       meta: [
