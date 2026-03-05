@@ -1,12 +1,12 @@
 <script setup lang="ts">
-const copied = ref(false);
+const copied = ref(false)
 
 function copyInstall() {
-  navigator.clipboard.writeText("npm install agentation-vue");
-  copied.value = true;
+  navigator.clipboard.writeText('npm install agentation-vue')
+  copied.value = true
   setTimeout(() => {
-    copied.value = false;
-  }, 2000);
+    copied.value = false
+  }, 2000)
 }
 </script>
 
@@ -78,8 +78,7 @@ function copyInstall() {
         <a
           href="https://agentation.dev"
           class="underline decoration-ink-300/40 underline-offset-2 transition-colors hover:text-ink-600"
-          >agentation.dev</a
-        >
+        >agentation.dev</a>
       </p>
     </div>
   </section>

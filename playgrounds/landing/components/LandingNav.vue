@@ -1,3 +1,7 @@
+<script setup lang="ts">
+const { packageVersion: version } = useRuntimeConfig().public
+</script>
+
 <template>
   <nav class="sticky top-0 z-50 border-b border-ink-900/10 bg-cream-50/90 backdrop-blur-md">
     <div class="mx-auto flex h-16 max-w-landing items-center justify-between px-6">
@@ -18,7 +22,3 @@
     </div>
   </nav>
 </template>
-
-<script setup lang="ts">
-const { packageVersion: version } = useRuntimeConfig().public
-</script>

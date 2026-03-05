@@ -1,5 +1,5 @@
-import { resolve } from 'node:path'
 import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import process from 'node:process'
 
 const pkg = JSON.parse(readFileSync(resolve(__dirname, '../../packages/agentation-vue/package.json'), 'utf-8'))

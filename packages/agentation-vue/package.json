@@ -3,15 +3,15 @@
   "type": "module",
   "version": "0.2.0",
   "description": "Visual feedback tool for AI coding agents — Vue 2.7 & 3",
-  "license": "PolyForm-Shield-1.0.0",
   "author": "Dorian Becker",
+  "license": "PolyForm-Shield-1.0.0",
   "homepage": "https://github.com/Blaked84/agentation-vue",
-  "keywords": ["vue", "agentation", "annotation", "ai", "feedback", "vue-demi"],
   "repository": {
     "type": "git",
     "url": "https://github.com/Blaked84/agentation-vue.git",
     "directory": "packages/agentation-vue"
   },
+  "keywords": ["vue", "agentation", "annotation", "ai", "feedback", "vue-demi"],
   "sideEffects": ["**/*.css"],
   "exports": {
     ".": {
