@@ -1,12 +1,12 @@
 <script setup lang="ts">
-const copied = ref(false)
+const copied = ref(false);
 
 function copyInstall() {
-  navigator.clipboard.writeText('npm install agentation-vue')
-  copied.value = true
+  navigator.clipboard.writeText("npm install agentation-vue");
+  copied.value = true;
   setTimeout(() => {
-    copied.value = false
-  }, 2000)
+    copied.value = false;
+  }, 2000);
 }
 </script>
 
@@ -21,7 +21,7 @@ function copyInstall() {
         class="mt-4 text-4xl leading-[1.1] tracking-tight md:text-5xl lg:text-6xl"
       >
         See it. Point it.
-        <em class="not-italic italic text-ember-500">Fix it.</em>
+        <em class="typewriter not-italic text-ember-500"><span class="typewriter-text">Fix it.</span><span class="terminal-cursor" /></em>
       </h1>
 
       <p
@@ -73,12 +73,13 @@ function copyInstall() {
         </a>
       </div>
 
-      <p class="mt-6 text-xs text-ink-300">
+      <p class="mt-10 mb-2 font-mono text-xs tracking-wide text-ink-300">
         Unofficial Vue.js port of
         <a
           href="https://agentation.dev"
-          class="underline decoration-ink-300/50 underline-offset-2 transition-colors hover:text-ink-500"
-        >agentation.dev</a>
+          class="underline decoration-ink-300/40 underline-offset-2 transition-colors hover:text-ink-600"
+          >agentation.dev</a
+        >
       </p>
     </div>
   </section>
@@ -97,5 +98,49 @@ function copyInstall() {
   .demo-zoom {
     zoom: 1;
   }
+}
+
+.typewriter {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.typewriter-text {
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: bottom;
+  animation: type 0.7s steps(7) 0.6s forwards;
+}
+
+.terminal-cursor {
+  display: inline-block;
+  width: 0.5ch;
+  height: 0.85em;
+  margin-left: 2px;
+  vertical-align: baseline;
+  background-color: currentColor;
+  opacity: 0;
+  animation:
+    cursor-on 0s 0.4s forwards,
+    blink 1s step-end 0.4s 4,
+    cursor-off 0s 4.4s forwards;
+}
+
+@keyframes type {
+  to { width: 7ch; }
+}
+
+@keyframes cursor-on {
+  to { opacity: 1; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes cursor-off {
+  to { opacity: 0; }
 }
 </style>

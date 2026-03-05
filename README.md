@@ -4,15 +4,9 @@ Visual feedback tool for AI coding agents. Drop a single component into your Vue
 
 Compatible with **Vue 3.3+** and **Vue 2.7**.
 
+> **Note:** This is an unofficial, community-maintained Vue adaptation of [Agentation](https://github.com/benjitaylor/agentation). It is not affiliated with or endorsed by the original project.
+
 ## Installation
-
-### From GitHub Release (current)
-
-```bash
-npm install https://github.com/<org>/<repo>/releases/download/v0.1.0/agentation-vue-0.1.0.tgz
-```
-
-### From npm (later)
 
 ```bash
 npm install agentation-vue
@@ -84,26 +78,10 @@ Then place the component once in your root `App.vue`:
 - **Session persistence** — annotations survive refreshes and are scoped per page URL via `sessionStorage`
 - **Custom tooltip directive** — `v-va-tooltip` with optional keyboard shortcut badge
 
-## Custom Tooltips
+## Acknowledgments
 
-The plugin registers a global directive `v-va-tooltip` (Vue 2.7 and Vue 3).
+This project is inspired by and based on [Agentation](https://github.com/benjitaylor/agentation) by [Ben Taylor](https://github.com/benjitaylor). Thank you for the original concept and implementation.
 
-```vue
-<button v-va-tooltip="'Copy annotations'">
-  Copy
-</button>
+## License
 
-<button v-va-tooltip="{ text: 'Copy annotations', shortcut: 'C' }">
-  Copy
-</button>
-```
-
-`showDelay` is supported (in ms), with a default of `300`:
-
-```vue
-<button v-va-tooltip="{ text: 'Copy annotations', shortcut: 'C', showDelay: 300 }">
-  Copy
-</button>
-```
-
-You can also import and register `vaTooltipDirective` manually if you don't use `AgentationVuePlugin`.
+[PolyForm Shield 1.0.0](./LICENSE) — Copyright (c) 2026 Dorian Becker

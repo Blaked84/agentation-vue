@@ -3,7 +3,7 @@
     <div class="mx-auto flex h-16 max-w-landing items-center justify-between px-6">
       <div class="flex items-baseline gap-3">
         <a href="/" class="font-display text-xl text-ink-900">agentation<span class="text-ember-500">-vue</span></a>
-        <span class="font-mono text-xs text-ink-300">v0.1</span>
+        <span class="font-mono text-xs text-ink-300">v{{ version }}</span>
       </div>
 
       <a
@@ -18,3 +18,7 @@
     </div>
   </nav>
 </template>
+
+<script setup lang="ts">
+const { packageVersion: version } = useRuntimeConfig().public
+</script>

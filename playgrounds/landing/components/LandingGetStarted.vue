@@ -46,12 +46,6 @@
         >
           npm →
         </a>
-        <a
-          href="https://agentation.dev/schema/annotation.v1.json"
-          class="text-ink-500 transition-colors hover:text-ink-900"
-        >
-          Schema →
-        </a>
       </div>
     </div>
   </section>
