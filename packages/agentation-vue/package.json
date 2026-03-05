@@ -1,6 +1,5 @@
 {
   "name": "agentation-vue",
-  "type": "module",
   "version": "0.2.1",
   "description": "Visual feedback tool for AI coding agents — Vue 2.7 & 3",
   "author": "Dorian Becker",
