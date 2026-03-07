@@ -115,7 +115,11 @@ test.describe('Toolbar', () => {
     await expect(ag.dragHandle).toBeVisible()
     await expect(ag.dragHandle).toHaveAttribute('aria-label', 'Glisser pour déplacer')
 
-    await ag.dragHandle.hover()
+    const handleBox = await ag.dragHandle.boundingBox()
+    if (!handleBox)
+      throw new Error('Drag handle not found')
+
+    await ag.page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2)
     await ag.page.mouse.down()
     await expect(ag.page.locator('.__va-snap-zone--rect')).toHaveCount(6)
     await ag.page.mouse.move(30, 30)
@@ -133,7 +137,11 @@ test.describe('Toolbar', () => {
     if (!targetBox)
       throw new Error('Drag target not found')
 
-    await ag.dragHandle.hover()
+    const handleBox = await ag.dragHandle.boundingBox()
+    if (!handleBox)
+      throw new Error('Drag handle not found')
+
+    await ag.page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2)
     await ag.page.mouse.down()
     // Confirm drag activated before moving to target
     await expect(ag.page.locator('.__va-snap-zone--rect')).toHaveCount(6)

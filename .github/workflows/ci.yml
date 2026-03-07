@@ -89,3 +89,30 @@ jobs:
             test-results/
             playwright-report/
           retention-days: 7
+
+  extension-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+      - run: npx playwright install --with-deps chromium
+      - run: pnpm test:extension
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: extension-e2e-results
+          path: |
+            packages/chrome-extension/test-results/
+            packages/chrome-extension/playwright-report/
+          retention-days: 7

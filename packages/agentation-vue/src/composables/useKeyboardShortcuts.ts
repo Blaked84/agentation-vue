@@ -1,7 +1,7 @@
 import type { ComputedRef, Ref } from 'vue-demi'
 import type { InteractionMode } from '../types'
 import { onBeforeUnmount, onMounted, watch } from 'vue-demi'
-import { VA_DATA_ATTR_SELECTOR } from '../constants'
+import { getDeepActiveElement, isInsideAgentationTree } from '../utils/agentation-tree'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -152,7 +152,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
   }
 
   function isForeignEditable(): boolean {
-    const active = document.activeElement
+    const active = getDeepActiveElement()
     if (!active)
       return false
     const tag = active.tagName.toLowerCase()
@@ -160,7 +160,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
       || (active as HTMLElement).isContentEditable
     if (!isEditable)
       return false
-    return !active.closest(VA_DATA_ATTR_SELECTOR)
+    return !isInsideAgentationTree(active)
   }
 
   function isBrowserCombo(e: KeyboardEvent): boolean {

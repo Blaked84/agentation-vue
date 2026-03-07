@@ -20,7 +20,11 @@ export { default as VaIconButton } from './components/VaIconButton.vue'
 export { default as VaToggle } from './components/VaToggle.vue'
 export { vaTooltipDirective }
 export { useAnimationPause } from './composables/useAnimationPause'
-export { useAnnotations } from './composables/useAnnotations'
+export {
+  resetAnnotationStorage,
+  setAnnotationStorage,
+  useAnnotations,
+} from './composables/useAnnotations'
 export { useAreaSelect } from './composables/useAreaSelect'
 export { useElementDetection } from './composables/useElementDetection'
 export { useInteractionMode } from './composables/useInteractionMode'
@@ -34,7 +38,11 @@ export type {
 export { useMarkerPositions } from './composables/useMarkerPositions'
 export { useMultiSelect } from './composables/useMultiSelect'
 export { formatAnnotations, useOutputFormatter } from './composables/useOutputFormatter'
-export { useSettings } from './composables/useSettings'
+export {
+  resetSettingsStorage,
+  setSettingsStorage,
+  useSettings,
+} from './composables/useSettings'
 export { useTextSelection } from './composables/useTextSelection'
 export { useToolbarAutoHide } from './composables/useToolbarAutoHide'
 export type { VaTooltipOptions, VaTooltipPlacement, VaTooltipValue } from './directives/vaTooltip'
@@ -49,4 +57,7 @@ export type {
   InteractionMode,
   OutputDetail,
   Settings,
+  StorageAdapter,
 } from './types'
+export { resetVueDetector, setVueDetector } from './utils/dom-inspector'
+export type { VueDetector } from './utils/dom-inspector'

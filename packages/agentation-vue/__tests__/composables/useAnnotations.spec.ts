@@ -25,12 +25,16 @@ beforeAll(() => {
 })
 
 let useAnnotations: typeof import('../../src/composables/useAnnotations').useAnnotations
+let setAnnotationStorage: typeof import('../../src/composables/useAnnotations').setAnnotationStorage
+let resetAnnotationStorage: typeof import('../../src/composables/useAnnotations').resetAnnotationStorage
 
 beforeEach(async () => {
   storage.clear()
   vi.resetModules()
   const mod = await import('../../src/composables/useAnnotations')
   useAnnotations = mod.useAnnotations
+  setAnnotationStorage = mod.setAnnotationStorage
+  resetAnnotationStorage = mod.resetAnnotationStorage
 })
 
 afterAll(() => {
@@ -205,5 +209,34 @@ describe('useAnnotations', () => {
     setScopeUrl('https://example.com/a')
     expect(annotations.value).toHaveLength(1)
     expect(annotations.value[0].comment).toBe('Page A')
+  })
+
+  it('supports overriding the storage adapter', () => {
+    const customStorage = new Map<string, string>()
+    setAnnotationStorage({
+      getItem: key => customStorage.get(key) ?? null,
+      setItem: (key, value) => { customStorage.set(key, value) },
+    })
+
+    const { addAnnotation } = useAnnotations()
+    addAnnotation(makeAnnotation({ comment: 'Custom storage' }))
+
+    const raw = customStorage.get(STORAGE_KEY)
+    expect(raw).toBeDefined()
+    expect(storage.get(STORAGE_KEY)).toBeUndefined()
+  })
+
+  it('resetAnnotationStorage restores the default adapter', () => {
+    setAnnotationStorage({
+      getItem: () => null,
+      setItem: () => {},
+    })
+
+    resetAnnotationStorage()
+
+    const { addAnnotation } = useAnnotations()
+    addAnnotation(makeAnnotation({ comment: 'Default restored' }))
+
+    expect(storage.get(STORAGE_KEY)).toBeDefined()
   })
 })

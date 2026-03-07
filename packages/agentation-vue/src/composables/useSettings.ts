@@ -1,7 +1,18 @@
-import type { Settings } from '../types'
+import type { Settings, StorageAdapter } from '../types'
 import { reactive, watch } from 'vue-demi'
 
 const STORAGE_KEY = 'agentation-vue-settings'
+
+const fallbackSettingsStorage: StorageAdapter = {
+  getItem(key) {
+    return localStorage.getItem(key)
+  },
+  setItem(key, value) {
+    localStorage.setItem(key, value)
+  },
+}
+
+let settingsStorage: StorageAdapter = fallbackSettingsStorage
 
 const defaults: Settings = {
   outputDetail: 'standard',
@@ -17,7 +28,7 @@ const defaults: Settings = {
 
 function loadSettings(): Settings {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY)
+    const stored = settingsStorage.getItem(STORAGE_KEY)
     if (stored)
       return { ...defaults, ...JSON.parse(stored) }
   }
@@ -31,11 +42,21 @@ watch(
   () => ({ ...settings }),
   (val) => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(val))
+      settingsStorage.setItem(STORAGE_KEY, JSON.stringify(val))
     }
     catch {}
   },
 )
+
+export function setSettingsStorage(adapter: StorageAdapter) {
+  settingsStorage = adapter
+  Object.assign(settings, loadSettings())
+}
+
+export function resetSettingsStorage() {
+  settingsStorage = fallbackSettingsStorage
+  Object.assign(settings, loadSettings())
+}
 
 export function useSettings() {
   function resetSettings() {

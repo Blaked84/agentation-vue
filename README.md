@@ -64,6 +64,10 @@ Then place the component once in your root `App.vue`:
 
 > Vue 2 templates require a single root element — wrap your content in a `<div>`.
 
+## Chrome extension
+
+This repo also contains a Chrome extension for injecting Agentation without modifying the target app code.
+
 ## Features
 
 - **Click-to-annotate** — click any element to pin a numbered marker and leave a comment

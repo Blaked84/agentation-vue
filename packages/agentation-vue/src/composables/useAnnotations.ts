@@ -1,8 +1,19 @@
-import type { Annotation } from '../types'
+import type { Annotation, StorageAdapter } from '../types'
 import { ref } from 'vue-demi'
 
 const STORAGE_KEY = 'agentation-vue-annotations'
 type AnnotationStore = Record<string, Annotation[]>
+
+const fallbackAnnotationStorage: StorageAdapter = {
+  getItem(key) {
+    return sessionStorage.getItem(key)
+  },
+  setItem(key, value) {
+    sessionStorage.setItem(key, value)
+  },
+}
+
+let annotationStorage: StorageAdapter = fallbackAnnotationStorage
 
 function serializeAnnotations(annotations: Annotation[]): string {
   return JSON.stringify(annotations.map(({ _targetRef, ...rest }) => rest))
@@ -37,7 +48,7 @@ function parseStore(raw: string | null, currentUrl: string): AnnotationStore {
 
 function loadAnnotations(url: string): Annotation[] {
   try {
-    const stored = sessionStorage.getItem(STORAGE_KEY)
+    const stored = annotationStorage.getItem(STORAGE_KEY)
     const store = parseStore(stored, url)
     const annotations = store[url]
     return Array.isArray(annotations) ? annotations : []
@@ -65,7 +76,7 @@ function setScopeUrl(url: string) {
 
 function save() {
   try {
-    const stored = sessionStorage.getItem(STORAGE_KEY)
+    const stored = annotationStorage.getItem(STORAGE_KEY)
     const store = parseStore(stored, scopedUrl)
 
     if (annotations.value.length > 0)
@@ -81,7 +92,7 @@ function save() {
         ]),
       ),
     )
-    sessionStorage.setItem(STORAGE_KEY, serialized)
+    annotationStorage.setItem(STORAGE_KEY, serialized)
   }
   catch {}
 }
@@ -126,6 +137,16 @@ function clearAnnotations(): Annotation[] {
 }
 
 setScopeUrl(scopedUrl)
+
+export function setAnnotationStorage(adapter: StorageAdapter) {
+  annotationStorage = adapter
+  setScopeUrl(scopedUrl)
+}
+
+export function resetAnnotationStorage() {
+  annotationStorage = fallbackAnnotationStorage
+  setScopeUrl(scopedUrl)
+}
 
 export function useAnnotations(initialUrl: string = getCurrentUrl()) {
   setScopeUrl(initialUrl)

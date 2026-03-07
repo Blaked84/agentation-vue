@@ -1,4 +1,5 @@
 let vueDetectionAvailable: boolean | null = null
+let customVueDetector: ((el: Element, includeFile?: boolean) => string | undefined) | null = null
 
 const DEFAULT_STYLE_VALUES = new Set([
   'none',
@@ -142,6 +143,9 @@ function walkComponentChain(inst: VueInstance, includeFile?: boolean): string[] 
 }
 
 export function detectVueComponents(el: Element, includeFile = false): string | undefined {
+  if (customVueDetector)
+    return customVueDetector(el, includeFile)
+
   if (vueDetectionAvailable === false)
     return undefined
 
@@ -158,6 +162,18 @@ export function detectVueComponents(el: Element, includeFile = false): string | 
   }
 
   return undefined
+}
+
+export type VueDetector = (el: Element, includeFile?: boolean) => string | undefined
+
+export function setVueDetector(detector: VueDetector) {
+  customVueDetector = detector
+  vueDetectionAvailable = null
+}
+
+export function resetVueDetector() {
+  customVueDetector = null
+  vueDetectionAvailable = null
 }
 
 export function isFixed(el: Element): boolean {

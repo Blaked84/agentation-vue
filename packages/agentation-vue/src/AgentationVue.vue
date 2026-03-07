@@ -18,7 +18,7 @@ import { useMultiSelect } from './composables/useMultiSelect'
 import { useOutputFormatter } from './composables/useOutputFormatter'
 import { useSettings } from './composables/useSettings'
 import { useTextSelection } from './composables/useTextSelection'
-import { VA_DATA_ATTR_SELECTOR } from './constants'
+import { isInsideAgentationTree } from './utils/agentation-tree'
 import { copyToClipboard } from './utils/clipboard'
 import { isFixed as checkIsFixed, detectVueComponents, getAccessibilityInfo, getComputedStylesSummary, getNearbyElements, getNearbyText, getRelevantComputedStyles } from './utils/dom-inspector'
 import { createPortalContainer, destroyPortalContainer } from './utils/portal'
@@ -34,6 +34,7 @@ const props = withDefaults(defineProps<{
   pageUrl?: string
   theme?: 'light' | 'dark' | 'auto'
   activationKey?: 'none' | 'Meta' | 'Alt' | 'Shift'
+  disablePortal?: boolean
 }>(), {
   copyToClipboard: true,
 })
@@ -151,11 +152,11 @@ const PassThrough = defineComponent({
   },
 })
 
-const portalWrapper = isVue2 ? PassThrough : 'Teleport'
-const portalProps = isVue2 ? {} : { to: 'body' }
+const portalWrapper = computed(() => (props.disablePortal || isVue2) ? PassThrough : 'Teleport')
+const portalProps = computed(() => (props.disablePortal || isVue2) ? {} : { to: 'body' })
 
 onMounted(() => {
-  if (isVue2 && rootEl.value) {
+  if (!props.disablePortal && isVue2 && rootEl.value) {
     portalContainer = createPortalContainer()
     portalContainer.appendChild(rootEl.value)
   }
@@ -303,7 +304,7 @@ function onOverlayMouseUp(e: MouseEvent) {
 
   // Normal click annotation
   const el = getElementUnderOverlay(e)
-  if (!el || el.closest(VA_DATA_ATTR_SELECTOR))
+  if (!el || isInsideAgentationTree(el))
     return
 
   pendingPosition.value = { x: e.clientX, y: e.clientY }
@@ -412,7 +413,7 @@ function onDocumentClick(e: MouseEvent) {
   if (mode.value === 'idle')
     return
   const target = e.target as Element
-  if (!target || target.closest(VA_DATA_ATTR_SELECTOR))
+  if (!target || isInsideAgentationTree(target, e))
     return
   e.preventDefault()
   e.stopPropagation()
