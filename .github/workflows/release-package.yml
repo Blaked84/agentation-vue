@@ -44,3 +44,35 @@ jobs:
           done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Chrome extension release asset
+        if: steps.changesets.outputs.published == 'true'
+        id: chrome-extension
+        run: |
+          VERSION=$(echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -r '.[] | select(.name=="agentation-vue") | .version')
+          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+            echo "No agentation-vue release published; skipping Chrome extension asset."
+            exit 0
+          fi
+
+          pnpm build:extension
+          ARCHIVE="agentation-vue-chrome-extension-v${VERSION}.zip"
+          cd packages/chrome-extension/dist
+          zip -r "$GITHUB_WORKSPACE/$ARCHIVE" .
+          echo "archive=$ARCHIVE" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Chrome extension workflow artifact
+        if: steps.chrome-extension.outputs.archive != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.chrome-extension.outputs.archive }}
+          path: ${{ github.workspace }}/${{ steps.chrome-extension.outputs.archive }}
+          retention-days: 7
+
+      - name: Upload Chrome extension to GitHub Release
+        if: steps.chrome-extension.outputs.archive != ''
+        run: |
+          gh release upload "${{ steps.chrome-extension.outputs.tag }}" "${{ github.workspace }}/${{ steps.chrome-extension.outputs.archive }}" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

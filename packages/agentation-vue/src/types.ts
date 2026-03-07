@@ -62,6 +62,7 @@ export interface AgentationProps {
   demoAnnotations?: Annotation[]
   theme?: 'light' | 'dark' | 'auto'
   activationKey?: 'none' | 'Meta' | 'Alt' | 'Shift'
+  disablePortal?: boolean
 }
 
 export interface AgentationEmits {
@@ -82,4 +83,9 @@ export interface Settings {
   showComponentTree: boolean
   theme: 'light' | 'dark' | 'auto'
   activationKey: 'none' | 'Meta' | 'Alt' | 'Shift'
+}
+
+export interface StorageAdapter {
+  getItem: (key: string) => string | null
+  setItem: (key: string, value: string) => void
 }

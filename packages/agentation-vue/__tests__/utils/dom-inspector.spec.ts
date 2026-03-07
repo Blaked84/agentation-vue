@@ -11,12 +11,16 @@ import {
 // ---------------------------------------------------------------------------
 describe('detectVueComponents', () => {
   let detectVueComponents: typeof import('../../src/utils/dom-inspector').detectVueComponents
+  let setVueDetector: typeof import('../../src/utils/dom-inspector').setVueDetector
+  let resetVueDetector: typeof import('../../src/utils/dom-inspector').resetVueDetector
   let container: HTMLElement
 
   beforeEach(async () => {
     vi.resetModules()
     const mod = await import('../../src/utils/dom-inspector')
     detectVueComponents = mod.detectVueComponents
+    setVueDetector = mod.setVueDetector
+    resetVueDetector = mod.resetVueDetector
     container = document.createElement('div')
     document.body.appendChild(container)
   })
@@ -115,6 +119,28 @@ describe('detectVueComponents', () => {
     }
 
     expect(detectVueComponents(el)).toBe('Visible')
+  })
+
+  it('supports a custom Vue detector override', () => {
+    const el = document.createElement('div')
+    container.appendChild(el)
+
+    setVueDetector(() => 'Bridge > Result')
+
+    expect(detectVueComponents(el)).toBe('Bridge > Result')
+  })
+
+  it('resetVueDetector restores the default detector', () => {
+    const el = document.createElement('div')
+    container.appendChild(el)
+    setVueDetector(() => 'Bridge > Result')
+
+    resetVueDetector()
+    ;(el as any).__vueParentComponent = {
+      type: { name: 'Widget' },
+    }
+
+    expect(detectVueComponents(el)).toBe('Widget')
   })
 })
 

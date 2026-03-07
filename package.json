@@ -10,11 +10,13 @@
     "build:landing": "pnpm -C playgrounds/landing generate",
     "preview:landing": "pnpm -C playgrounds/landing preview",
     "build": "pnpm -C packages/agentation-vue build",
+    "build:extension": "pnpm -C packages/chrome-extension build",
     "test": "vitest",
     "test:unit": "vitest --project unit",
     "test:e2e": "playwright test",
     "test:e2e:vue3": "VUE_VERSION=3 playwright test",
     "test:e2e:vue2": "VUE_VERSION=2 playwright test",
+    "test:extension": "pnpm -C packages/chrome-extension test",
     "lint": "eslint .",
     "typecheck": "pnpm -r --parallel typecheck",
     "changeset": "changeset",
@@ -24,11 +26,14 @@
     "@antfu/eslint-config": "^4.12.0",
     "@changesets/cli": "^2.27.0",
     "@playwright/test": "^1.50.0",
+    "@vitejs/plugin-vue": "^5.0.0",
     "@vue/test-utils": "^2.4.0",
     "eslint": "^9.20.0",
     "jsdom": "^28.1.0",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0",
+    "vue": "^3.5.0",
+    "vue-demi": "^0.14.10",
     "vue-tsc": "^2.2.0"
   }
 }

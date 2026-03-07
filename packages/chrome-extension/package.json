@@ -1,0 +1,22 @@
+{
+  "name": "agentation-vue-chrome-extension",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "test": "playwright test -c playwright.config.ts"
+  },
+  "dependencies": {
+    "agentation-vue": "workspace:*",
+    "vue": "^3.5.0",
+    "vue-demi": "^0.14.10"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0",
+    "@types/chrome": "^0.1.30",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "playwright": "^1.50.0",
+    "vite": "^6.0.0"
+  }
+}

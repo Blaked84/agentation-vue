@@ -77,6 +77,7 @@ class AgentationPage {
   async activate() {
     await this.toggleButton.click()
     await this.elementSelectorBtn.waitFor({ state: 'visible' })
+    await this.page.waitForTimeout(400)
   }
 
   async gotoAndActivate(path = '/') {

@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "agentation-vue": ["../agentation-vue/src/index.ts"],
+      "@agentation-vue-src/*": ["../agentation-vue/src/*"]
+    },
+    "types": ["chrome", "node", "vite/client"]
+  },
+  "include": ["src/**/*", "tests/**/*"]
+}

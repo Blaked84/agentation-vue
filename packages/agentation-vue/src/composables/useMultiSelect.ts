@@ -1,7 +1,7 @@
 import type { Ref } from 'vue-demi'
 import type { BoundingBox, InteractionMode } from '../types'
 import { ref } from 'vue-demi'
-import { VA_DATA_ATTR_SELECTOR } from '../constants'
+import { isInsideAgentationTree } from '../utils/agentation-tree'
 
 const LEAF_TAGS = new Set(['button', 'a', 'input', 'img'])
 
@@ -25,7 +25,7 @@ export function useMultiSelect(
   function cacheElements() {
     cachedElements = []
     for (const el of document.querySelectorAll('body *')) {
-      if (el.closest(VA_DATA_ATTR_SELECTOR))
+      if (isInsideAgentationTree(el))
         continue
       const rect = el.getBoundingClientRect()
       if (rect.width === 0 || rect.height === 0)
