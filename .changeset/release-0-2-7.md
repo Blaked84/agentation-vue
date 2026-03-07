@@ -1,5 +1,5 @@
 ---
-"agentation-vue": minor
+"agentation-vue": patch
 ---
 
 ### Features
