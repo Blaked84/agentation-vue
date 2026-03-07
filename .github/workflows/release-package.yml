@@ -21,58 +21,47 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - uses: changesets/action@v1
         id: changesets
         with:
-          publish: pnpm changeset publish
           title: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Upload tgz to GitHub Release
-        if: steps.changesets.outputs.published == 'true'
+      - name: Detect version bump
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        id: version
+        run: |
+          VERSION=$(node -p "require('./packages/agentation-vue/package.json').version")
+          TAG="v${VERSION}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists, skipping release."
+          else
+            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        if: steps.version.outputs.tag != ''
         run: |
           pnpm -C packages/agentation-vue pack --pack-destination "$GITHUB_WORKSPACE"
-          for pkg in $(echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -r '.[] | "agentation-vue@v\(.version)"'); do
-            TAG="${pkg#agentation-vue@}"
-            gh release upload "$TAG" agentation-vue-*.tgz --clobber
-          done
+          gh release create "${{ steps.version.outputs.tag }}" \
+            --title "${{ steps.version.outputs.tag }}" \
+            --generate-notes \
+            agentation-vue-*.tgz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Chrome extension release asset
-        if: steps.changesets.outputs.published == 'true'
+      - name: Build and upload Chrome extension
+        if: steps.version.outputs.tag != ''
         id: chrome-extension
         run: |
-          VERSION=$(echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -r '.[] | select(.name=="agentation-vue") | .version')
-          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
-            echo "No agentation-vue release published; skipping Chrome extension asset."
-            exit 0
-          fi
-
           pnpm build:extension
-          ARCHIVE="agentation-vue-chrome-extension-v${VERSION}.zip"
+          ARCHIVE="agentation-vue-chrome-extension-${{ steps.version.outputs.tag }}.zip"
           cd packages/chrome-extension/dist
           zip -r "$GITHUB_WORKSPACE/$ARCHIVE" .
-          echo "archive=$ARCHIVE" >> "$GITHUB_OUTPUT"
-          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Upload Chrome extension workflow artifact
-        if: steps.chrome-extension.outputs.archive != ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.chrome-extension.outputs.archive }}
-          path: ${{ github.workspace }}/${{ steps.chrome-extension.outputs.archive }}
-          retention-days: 7
-
-      - name: Upload Chrome extension to GitHub Release
-        if: steps.chrome-extension.outputs.archive != ''
-        run: |
-          gh release upload "${{ steps.chrome-extension.outputs.tag }}" "${{ github.workspace }}/${{ steps.chrome-extension.outputs.archive }}" --clobber
+          gh release upload "${{ steps.version.outputs.tag }}" "$GITHUB_WORKSPACE/$ARCHIVE" --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
