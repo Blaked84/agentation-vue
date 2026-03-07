@@ -4,13 +4,13 @@ import { defineConfig } from '@playwright/test'
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
-  reporter: 'html',
+  reporter: process.env.CI ? 'html' : 'line',
   timeout: 60_000,
   expect: {
     timeout: 10_000,
   },
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://127.0.0.1:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },

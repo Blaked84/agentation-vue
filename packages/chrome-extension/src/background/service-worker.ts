@@ -73,7 +73,7 @@ async function enableOriginForTab(tab: chrome.tabs.Tab): Promise<boolean> {
   await registerOriginScripts(origin)
   await addEnabledOrigin(origin)
   await ensureScriptsInjected(tab.id)
-  await chrome.tabs.sendMessage(tab.id, { type: PING_MESSAGE }).catch(() => undefined)
+  void chrome.tabs.sendMessage(tab.id, { type: PING_MESSAGE }).catch(() => undefined)
   return true
 }
 
@@ -84,7 +84,7 @@ async function disableOriginForTab(tab: chrome.tabs.Tab): Promise<boolean> {
   const origin = getOrigin(tab.url)
   await unregisterOriginScripts(origin)
   await removeEnabledOrigin(origin)
-  await chrome.tabs.sendMessage(tab.id, { type: UNMOUNT_MESSAGE }).catch(() => undefined)
+  void chrome.tabs.sendMessage(tab.id, { type: UNMOUNT_MESSAGE }).catch(() => undefined)
   await clearBadge(tab.id)
   return true
 }

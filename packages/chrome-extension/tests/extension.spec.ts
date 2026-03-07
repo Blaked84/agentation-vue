@@ -8,6 +8,7 @@ import { chromium, expect, test } from '@playwright/test'
 test.describe.configure({ mode: 'serial' })
 
 const extensionPath = resolve(fileURLToPath(new URL('..', import.meta.url)), 'dist')
+const navigationOptions = { waitUntil: 'domcontentloaded' as const }
 
 test.describe('chrome extension integration', () => {
   let userDataDir: string
@@ -64,23 +65,23 @@ test.describe('chrome extension integration', () => {
 
   test.beforeEach(async () => {
     page = context.pages()[0] ?? await context.newPage()
-    await page.goto('http://localhost:3000/')
+    await page.goto('/', navigationOptions)
     await page.evaluate(() => {
       sessionStorage.clear()
       localStorage.clear()
     })
-    await page.reload()
+    await page.reload(navigationOptions)
     await deactivateCurrentTab().catch(() => undefined)
   })
 
   test('mounts inside a shadow root and auto-remounts after reload', async () => {
     await activateCurrentTab()
-    await page.reload()
+    await page.reload(navigationOptions)
 
     expect(await hasShadowToolbar()).toBe(true)
     await expect(page.locator('.__va-toolbar')).toBeVisible()
 
-    await page.reload()
+    await page.reload(navigationOptions)
 
     expect(await hasShadowToolbar()).toBe(true)
     await expect(page.locator('.__va-toolbar')).toBeVisible()
@@ -88,7 +89,7 @@ test.describe('chrome extension integration', () => {
 
   test('detects Vue components through the main-world bridge', async () => {
     await activateCurrentTab()
-    await page.reload()
+    await page.reload(navigationOptions)
     await page.locator('.__va-toolbar-toggle').click()
 
     const target = page.locator('.test-submit').first()
@@ -107,7 +108,7 @@ test.describe('chrome extension integration', () => {
 
   test('persists annotations in extension session storage and not page sessionStorage', async () => {
     await activateCurrentTab()
-    await page.reload()
+    await page.reload(navigationOptions)
     await page.locator('.__va-toolbar-toggle').click()
 
     const target = page.locator('.test-submit').first()
@@ -127,17 +128,17 @@ test.describe('chrome extension integration', () => {
     const pageStorage = await page.evaluate(() => sessionStorage.getItem('agentation-vue-annotations'))
     expect(pageStorage).toBeNull()
 
-    await page.reload()
+    await page.reload(navigationOptions)
     await expect(page.locator('.__va-marker')).toHaveCount(1)
   })
 
   test('stops auto-mounting after deactivation', async () => {
     await activateCurrentTab()
-    await page.reload()
+    await page.reload(navigationOptions)
     expect(await hasShadowToolbar()).toBe(true)
 
     await deactivateCurrentTab()
-    await page.reload()
+    await page.reload(navigationOptions)
     expect(await hasShadowToolbar()).toBe(false)
   })
 })

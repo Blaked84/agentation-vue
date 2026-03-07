@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "node ./scripts/build.mjs",
+    "pretest": "pnpm run build",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "test": "playwright test -c playwright.config.ts"
   },

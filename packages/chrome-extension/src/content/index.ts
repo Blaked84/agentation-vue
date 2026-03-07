@@ -66,7 +66,7 @@ async function bootstrap() {
 
     if (message.type === PING_MESSAGE) {
       void mountHandle.reportCount()
-      return true
+      return undefined
     }
 
     return undefined
