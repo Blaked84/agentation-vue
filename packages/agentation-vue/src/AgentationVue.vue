@@ -196,6 +196,16 @@ const pendingIsSelection = computed(
       || !!areaSelect.areaRect.value),
 )
 
+const mentionCandidates = computed(() =>
+  annotations.value
+    .map((ann, i) => ({
+      id: ann.id,
+      displayNumber: i + 1,
+      commentPreview: ann.comment.replace(/@\[\d+\]/g, '@\u2026').slice(0, 40) + (ann.comment.length > 40 ? '\u2026' : ''),
+    }))
+    .filter(c => !editingAnnotation.value || c.id !== editingAnnotation.value.id),
+)
+
 // Portal setup (Vue 2.7 compat)
 let portalContainer: HTMLElement | null = null
 const isVue2 = _isVue2
@@ -994,6 +1004,7 @@ onBeforeUnmount(() => {
         :computed-styles="pendingComputedStyles"
         :initial-comment="editingAnnotation?.comment"
         :is-editing="!!editingAnnotation"
+        :mention-candidates="mentionCandidates"
         @add="onInputAdd"
         @cancel="onInputCancel"
         @delete="onInputDelete"

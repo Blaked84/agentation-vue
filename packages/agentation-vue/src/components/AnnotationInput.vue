@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue-demi'
+import type { MentionCandidate } from '../utils/mention'
+import { computed, onMounted, ref, toRef } from 'vue-demi'
+import { useMentionDropdown } from '../composables/useMentionDropdown'
+import { hydrateMentions, serializeMentions } from '../utils/mention'
 import ComponentChain from './ComponentChain.vue'
+import MentionDropdown from './MentionDropdown.vue'
 import VaButton from './VaButton.vue'
 import VaIcon from './VaIcon.vue'
 
@@ -11,6 +15,7 @@ const props = defineProps<{
   computedStyles?: Record<string, string>
   initialComment?: string
   isEditing?: boolean
+  mentionCandidates?: MentionCandidate[]
 }>()
 
 const emit = defineEmits<{
@@ -19,16 +24,13 @@ const emit = defineEmits<{
   delete: []
 }>()
 
-const comment = ref(props.initialComment || '')
-const inputEl = ref<HTMLTextAreaElement | null>(null)
+const inputEl = ref<HTMLDivElement | null>(null)
+const commentText = ref(props.initialComment || '')
 const computedStyleEntries = computed(() => Object.entries(props.computedStyles || {}))
+const candidates = toRef(props, 'mentionCandidates')
+const safeCandidates = computed(() => candidates.value || [])
 
-function autoResize() {
-  const el = inputEl.value
-  if (!el) return
-  el.style.height = 'auto'
-  el.style.height = `${el.scrollHeight}px`
-}
+const mention = useMentionDropdown(inputEl, safeCandidates)
 
 const inputStyle = computed(() => {
   const x = Math.min(props.position.x, window.innerWidth - 380)
@@ -39,15 +41,86 @@ const inputStyle = computed(() => {
   }
 })
 
+function autoResize() {
+  const el = inputEl.value
+  if (!el)
+    return
+  el.style.height = 'auto'
+  el.style.height = `${el.scrollHeight}px`
+}
+
+function getComment(): string {
+  const el = inputEl.value
+  if (!el)
+    return ''
+  return serializeMentions(el)
+}
+
+function onInput() {
+  commentText.value = getComment()
+  autoResize()
+  mention.checkForTrigger()
+}
+
+function onKeyDown(e: KeyboardEvent) {
+  // Let the mention dropdown handle navigation keys first
+  if (mention.onKeyDown(e))
+    return
+
+  if (e.key === 'Enter' && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
+    e.preventDefault()
+    onAdd()
+  }
+  else if (e.key === 'Escape') {
+    if (mention.isOpen.value) {
+      e.preventDefault()
+      mention.close()
+    }
+    else {
+      emit('cancel')
+    }
+  }
+}
+
 function onAdd() {
-  const text = comment.value.trim()
+  const text = getComment().trim()
   if (!text)
     return
   emit('add', text)
 }
 
+function onPaste(e: ClipboardEvent) {
+  e.preventDefault()
+  const text = e.clipboardData?.getData('text/plain') || ''
+  document.execCommand('insertText', false, text)
+}
+
+function onSelectCandidate(candidate: MentionCandidate) {
+  mention.selectCandidate(candidate)
+}
+
 onMounted(() => {
-  inputEl.value?.focus()
+  const el = inputEl.value
+  if (!el)
+    return
+
+  if (props.initialComment) {
+    const html = hydrateMentions(props.initialComment, safeCandidates.value)
+    el.innerHTML = html
+  }
+
+  el.focus()
+
+  // Place cursor at end
+  const sel = window.getSelection()
+  if (sel && el.childNodes.length > 0) {
+    const range = document.createRange()
+    range.selectNodeContents(el)
+    range.collapse(false)
+    sel.removeAllRanges()
+    sel.addRange(range)
+  }
+
   autoResize()
 })
 </script>
@@ -84,14 +157,23 @@ onMounted(() => {
       <ComponentChain :chain="componentChain" variant="light" truncate="leaf" />
     </div>
     <span v-else class="__va-input-label">{{ elementName || 'Annotation' }}</span>
-    <textarea
+    <div
       ref="inputEl"
-      v-model="comment"
-      placeholder="Add a comment..."
-      rows="1"
-      @input="autoResize"
-      @keydown.enter.exact="onAdd"
-      @keydown.escape="$emit('cancel')"
+      class="__va-input-editable"
+      contenteditable="true"
+      role="textbox"
+      aria-multiline="true"
+      data-placeholder="Add a comment..."
+      @input="onInput"
+      @keydown="onKeyDown"
+      @paste="onPaste"
+    />
+    <MentionDropdown
+      :open="mention.isOpen.value"
+      :candidates="mention.filteredCandidates.value"
+      :active-index="mention.activeIndex.value"
+      :position="mention.dropdownPosition.value"
+      @select="onSelectCandidate"
     />
     <div class="__va-input-actions">
       <button
@@ -106,7 +188,7 @@ onMounted(() => {
         <VaButton variant="secondary" @click="$emit('cancel')">
           Cancel
         </VaButton>
-        <VaButton :disabled="!comment.trim()" @click="onAdd">
+        <VaButton :disabled="!commentText.trim()" @click="onAdd">
           {{ isEditing ? 'Save' : 'Add' }}
         </VaButton>
       </div>
