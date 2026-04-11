@@ -178,6 +178,8 @@ test.describe('chrome extension integration', () => {
   })
 
   test('allows typing in the annotation popup without triggering toolbar shortcuts', async () => {
+    const worker = await getServiceWorker()
+    await worker.evaluate(() => globalThis.__agentationTestApi?.clearAnnotationStorage())
     await activateCurrentTab()
     await page.reload(navigationOptions)
     await page.locator('.__va-toolbar-toggle').click()
