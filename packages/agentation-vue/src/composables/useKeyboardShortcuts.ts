@@ -126,6 +126,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
   let lastActivationKeyUpTime = 0
   let listenerAttached = false
   let mergedKeymap = { ...DEFAULT_KEYMAP, ...options.config.value.keymap }
+  const suppressedKeyUps = new Set<string>()
 
   // Rebuild keymap when config changes
   watch(options.config, (cfg) => {
@@ -217,11 +218,18 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
     }
   }
 
+  function normalizeKey(key: string): string {
+    return key.length === 1 ? key.toLowerCase() : key
+  }
+
   // --- Consume helper ---
 
-  function consume(e: KeyboardEvent): void {
+  function consume(e: KeyboardEvent, suppressKeyUp = false): void {
     e.preventDefault()
+    e.stopImmediatePropagation()
     e.stopPropagation()
+    if (suppressKeyUp)
+      suppressedKeyUps.add(normalizeKey(e.key))
   }
 
   // --- Main keydown handler (capture phase) ---
@@ -244,7 +252,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
     // --- SETTINGS sub-scope ---
     if (scope === 'settings') {
       if (e.key === 'Escape') {
-        consume(e)
+        consume(e, true)
         actions.closeSettings()
       }
       return
@@ -253,7 +261,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
     // --- INPUT sub-scope ---
     if (scope === 'input') {
       if (e.key === 'Escape') {
-        consume(e)
+        consume(e, true)
         actions.inputCancel()
       }
       return
@@ -275,7 +283,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
       return
 
     if (cfg().priorityWhenOpen) {
-      consume(e)
+      consume(e, true)
     }
 
     executeAction(action)
@@ -284,6 +292,13 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
   // --- Double-tap activation key detection (keyup handler) ---
 
   function onKeyUp(e: KeyboardEvent): void {
+    const normalizedKey = normalizeKey(e.key)
+    if (suppressedKeyUps.has(normalizedKey)) {
+      suppressedKeyUps.delete(normalizedKey)
+      consume(e)
+      return
+    }
+
     const { doubleTap } = cfg()
     if (!doubleTap.enabled)
       return
@@ -316,6 +331,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
 
   function onBlurOrVisibility(): void {
     lastActivationKeyUpTime = 0
+    suppressedKeyUps.clear()
   }
 
   // --- Lifecycle ---
@@ -324,8 +340,8 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
     if (listenerAttached)
       return
     listenerAttached = true
-    document.addEventListener('keydown', onKeyDown, true)
-    document.addEventListener('keyup', onKeyUp, true)
+    window.addEventListener('keydown', onKeyDown, true)
+    window.addEventListener('keyup', onKeyUp, true)
     window.addEventListener('blur', onBlurOrVisibility)
     document.addEventListener('visibilitychange', onBlurOrVisibility)
   }
@@ -334,8 +350,8 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions): Keyb
     if (!listenerAttached)
       return
     listenerAttached = false
-    document.removeEventListener('keydown', onKeyDown, true)
-    document.removeEventListener('keyup', onKeyUp, true)
+    window.removeEventListener('keydown', onKeyDown, true)
+    window.removeEventListener('keyup', onKeyUp, true)
     window.removeEventListener('blur', onBlurOrVisibility)
     document.removeEventListener('visibilitychange', onBlurOrVisibility)
   }

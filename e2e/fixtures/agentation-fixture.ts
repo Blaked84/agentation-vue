@@ -34,6 +34,10 @@ class AgentationPage {
   // Copy feedback
   readonly copyFeedback: Locator
 
+  // Undo feedback
+  readonly undoFeedback: Locator
+  readonly undoBtn: Locator
+
   constructor(page: Page) {
     this.page = page
 
@@ -54,12 +58,14 @@ class AgentationPage {
     this.highlightLabel = page.locator('.__va-highlight-label')
 
     this.annotationInput = page.locator('.__va-input')
-    this.inputField = page.locator('.__va-input input')
+    this.inputField = page.locator('.__va-input .__va-input-editable')
     this.addBtn = page.locator('.__va-btn--primary')
     this.cancelBtn = page.locator('.__va-btn--secondary')
 
     this.settingsPanel = page.locator('.__va-settings')
     this.copyFeedback = page.locator('.__va-copy-feedback')
+    this.undoFeedback = page.locator('.__va-undo-feedback')
+    this.undoBtn = page.locator('.__va-undo-btn')
   }
 
   async goto(path = '/', { clean = true } = {}) {
@@ -99,7 +105,8 @@ class AgentationPage {
   }
 
   async addComment(text: string) {
-    await this.inputField.fill(text)
+    await this.inputField.click()
+    await this.page.keyboard.type(text)
     await this.addBtn.click()
     await this.annotationInput.waitFor({ state: 'hidden', timeout: 3000 })
   }

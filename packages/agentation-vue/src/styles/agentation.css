@@ -777,20 +777,104 @@
   text-align: center;
 }
 
-.__va-input input {
+.__va-input-editable {
   width: 100%;
   padding: 8px 10px;
   border: 1px solid var(--va-border);
   border-radius: 6px;
   font-size: 13px;
+  font-family: inherit;
   background: var(--va-bg);
   color: var(--va-text);
   outline: none;
+  overflow: hidden;
+  line-height: 1.4;
   transition: border-color 150ms ease;
+  min-height: 1.4em;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
-.__va-input input:focus {
+.__va-input-editable:focus {
   border-color: var(--va-accent);
+}
+
+.__va-input-editable:empty::before {
+  content: attr(data-placeholder);
+  color: var(--va-text-secondary);
+  pointer-events: none;
+}
+
+/* Mention chip */
+.__va-mention {
+  display: inline;
+  background: rgba(var(--va-accent-rgb), 0.15);
+  color: var(--va-accent);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  user-select: all;
+  cursor: default;
+}
+
+.__va-mention--deleted {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+/* Mention dropdown */
+.__va-mention-dropdown {
+  position: absolute;
+  z-index: 1;
+  background: var(--va-bg);
+  border: 1px solid var(--va-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 4px;
+  min-width: 180px;
+  max-width: 280px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.__va-mention-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--va-text);
+}
+
+.__va-mention-option:hover,
+.__va-mention-option--active {
+  background: var(--va-bg-secondary);
+}
+
+.__va-mention-option-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--va-accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.__va-mention-option-preview {
+  color: var(--va-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .__va-input-actions {
@@ -886,10 +970,23 @@
 
 .__va-settings-top {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--va-border);
+}
+
+.__va-settings-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--va-text);
+}
+
+.__va-settings-version {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--va-text-secondary);
 }
 
 .__va-theme-toggle {
@@ -1058,4 +1155,46 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* === Undo Feedback === */
+.__va-undo-feedback {
+  position: fixed;
+  bottom: 72px;
+  right: 20px;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--va-bg);
+  color: var(--va-text);
+  border: 1px solid var(--va-border);
+  padding: 8px 12px 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: __va-fadeIn 150ms ease;
+}
+
+.__va-undo-feedback--shifted {
+  bottom: 112px;
+}
+
+.__va-undo-btn {
+  background: var(--va-accent);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+  outline: none;
+  font-family: inherit;
+}
+
+.__va-undo-btn:hover {
+  opacity: 0.85;
 }

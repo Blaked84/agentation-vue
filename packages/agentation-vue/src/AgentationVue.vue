@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import type { KeyboardShortcutConfig } from './composables/useKeyboardShortcuts'
 import type { Annotation, OutputDetail, Settings } from './types'
-import { isVue2 as _isVue2, computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue-demi'
+import {
+  isVue2 as _isVue2,
+  computed,
+  defineComponent,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue-demi'
 import AgentationToolbar from './components/AgentationToolbar.vue'
 import AnnotationInput from './components/AnnotationInput.vue'
 import AnnotationMarker from './components/AnnotationMarker.vue'
@@ -12,7 +20,10 @@ import { useAnnotations } from './composables/useAnnotations'
 import { useAreaSelect } from './composables/useAreaSelect'
 import { useElementDetection } from './composables/useElementDetection'
 import { useInteractionMode } from './composables/useInteractionMode'
-import { DEFAULT_SHORTCUT_CONFIG, useKeyboardShortcuts } from './composables/useKeyboardShortcuts'
+import {
+  DEFAULT_SHORTCUT_CONFIG,
+  useKeyboardShortcuts,
+} from './composables/useKeyboardShortcuts'
 import { useMarkerPositions } from './composables/useMarkerPositions'
 import { useMultiSelect } from './composables/useMultiSelect'
 import { useOutputFormatter } from './composables/useOutputFormatter'
@@ -20,24 +31,35 @@ import { useSettings } from './composables/useSettings'
 import { useTextSelection } from './composables/useTextSelection'
 import { isInsideAgentationTree } from './utils/agentation-tree'
 import { copyToClipboard } from './utils/clipboard'
-import { isFixed as checkIsFixed, detectVueComponents, getAccessibilityInfo, getComputedStylesSummary, getNearbyElements, getNearbyText, getRelevantComputedStyles } from './utils/dom-inspector'
+import {
+  isFixed as checkIsFixed,
+  detectVueComponents,
+  getAccessibilityInfo,
+  getComputedStylesSummary,
+  getNearbyElements,
+  getNearbyText,
+  getRelevantComputedStyles,
+} from './utils/dom-inspector'
 import { createPortalContainer, destroyPortalContainer } from './utils/portal'
 import { getElementName, getElementPath } from './utils/selectors'
 import { boundingBoxToStyle } from './utils/style'
 
-const props = withDefaults(defineProps<{
-  outputDetail?: OutputDetail
-  markerColor?: string
-  copyToClipboard?: boolean
-  blockPageInteractions?: boolean
-  autoHideToolbar?: boolean
-  pageUrl?: string
-  theme?: 'light' | 'dark' | 'auto'
-  activationKey?: 'none' | 'Meta' | 'Alt' | 'Shift'
-  disablePortal?: boolean
-}>(), {
-  copyToClipboard: true,
-})
+const props = withDefaults(
+  defineProps<{
+    outputDetail?: OutputDetail
+    markerColor?: string
+    copyToClipboard?: boolean
+    blockPageInteractions?: boolean
+    autoHideToolbar?: boolean
+    pageUrl?: string
+    theme?: 'light' | 'dark' | 'auto'
+    activationKey?: 'none' | 'Meta' | 'Alt' | 'Shift'
+    disablePortal?: boolean
+  }>(),
+  {
+    copyToClipboard: true,
+  },
+)
 
 const emit = defineEmits<{
   'annotation-add': [annotation: Annotation]
@@ -71,7 +93,9 @@ function patchHistoryEvents() {
     win.dispatchEvent(new Event(HISTORY_CHANGE_EVENT))
   }
 
-  win.history.replaceState = function (...args: Parameters<History['replaceState']>) {
+  win.history.replaceState = function (
+    ...args: Parameters<History['replaceState']>
+  ) {
     originalReplaceState(...args)
     win.dispatchEvent(new Event(HISTORY_CHANGE_EVENT))
   }
@@ -86,13 +110,30 @@ const currentUrl = ref(props.pageUrl || getCurrentUrl())
 // Core composables
 const { settings } = useSettings()
 const { mode, transition } = useInteractionMode()
-const { annotations, addAnnotation, removeAnnotation, updateAnnotation, clearAnnotations, setScopeUrl } = useAnnotations(currentUrl.value)
-const { hoveredRect, hoveredName, hoveredComponentChain, onMouseMove, clearHighlight, getElementUnderOverlay, cleanup: cleanupDetection } = useElementDetection(overlayEl, () => settings.showComponentTree)
+const {
+  annotations,
+  addAnnotation,
+  removeAnnotation,
+  updateAnnotation,
+  clearAnnotations,
+  restoreAnnotations,
+  setScopeUrl,
+} = useAnnotations(currentUrl.value)
+const {
+  hoveredRect,
+  hoveredName,
+  hoveredComponentChain,
+  onMouseMove,
+  clearHighlight,
+  getElementUnderOverlay,
+  cleanup: cleanupDetection,
+} = useElementDetection(overlayEl, () => settings.showComponentTree)
 const textSelection = useTextSelection(mode)
 const multiSelect = useMultiSelect(mode, transition)
 const areaSelect = useAreaSelect(mode, transition)
 const animPause = useAnimationPause()
-const { recalculatePositions: _recalculatePositions } = useMarkerPositions(annotations)
+const { recalculatePositions: _recalculatePositions }
+  = useMarkerPositions(annotations)
 const { formatAnnotations } = useOutputFormatter()
 
 // Local state
@@ -101,16 +142,26 @@ const pendingElementName = ref('')
 const pendingTarget = ref<Element | null>(null)
 const pendingComponentChain = ref<string | undefined>()
 const pendingComputedStyles = ref<Record<string, string> | undefined>()
-const pendingTextSelection = ref<{ text: string, element: Element, rect: { x: number, y: number, width: number, height: number } } | null>(null)
+const pendingTextSelection = ref<{
+  text: string
+  element: Element
+  rect: { x: number, y: number, width: number, height: number }
+} | null>(null)
 const editingAnnotation = ref<Annotation | null>(null)
 const settingsOpen = ref(false)
 const settingsAnchorEl = ref<HTMLElement | null>(null)
 const copyFeedback = ref(false)
+const undoFeedback = ref(false)
+const undoSnapshot = ref<Annotation[]>([])
+let undoTimer: ReturnType<typeof setTimeout> | null = null
+const UNDO_TIMEOUT_MS = 5_000
 const toolbarDragging = ref(false)
 const DRAG_END_SUPPRESSION_MS = 500
 const SETTINGS_CLOSE_SUPPRESSION_MS = 220
 let suppressInteractionsUntil = 0
-const effectiveBlockPageInteractions = computed(() => props.blockPageInteractions ?? settings.blockPageInteractions)
+const effectiveBlockPageInteractions = computed(
+  () => props.blockPageInteractions ?? settings.blockPageInteractions,
+)
 const rootStyle = computed(() => {
   const hex = settings.markerColor
   if (!hex)
@@ -132,13 +183,28 @@ const pendingMarkerX = computed(() => {
 const pendingMarkerY = computed(() => {
   if (!pendingPosition.value)
     return 0
-  return pendingPosition.value.y + (window.scrollY || document.documentElement.scrollTop)
+  return (
+    pendingPosition.value.y
+    + (window.scrollY || document.documentElement.scrollTop)
+  )
 })
-const pendingIsSelection = computed(() => (
-  mode.value === 'input-open'
-  && !editingAnnotation.value
-  && (multiSelect.selectedElements.value.length > 0 || !!areaSelect.areaRect.value)
-))
+const pendingIsSelection = computed(
+  () =>
+    mode.value === 'input-open'
+    && !editingAnnotation.value
+    && (multiSelect.selectedElements.value.length > 0
+      || !!areaSelect.areaRect.value),
+)
+
+const mentionCandidates = computed(() =>
+  annotations.value
+    .map((ann, i) => ({
+      id: ann.id,
+      displayNumber: i + 1,
+      commentPreview: ann.comment.replace(/@\[\d+\]/g, '@\u2026').slice(0, 40) + (ann.comment.length > 40 ? '\u2026' : ''),
+    }))
+    .filter(c => !editingAnnotation.value || c.id !== editingAnnotation.value.id),
+)
 
 // Portal setup (Vue 2.7 compat)
 let portalContainer: HTMLElement | null = null
@@ -152,8 +218,12 @@ const PassThrough = defineComponent({
   },
 })
 
-const portalWrapper = computed(() => (props.disablePortal || isVue2) ? PassThrough : 'Teleport')
-const portalProps = computed(() => (props.disablePortal || isVue2) ? {} : { to: 'body' })
+const portalWrapper = computed(() =>
+  props.disablePortal || isVue2 ? PassThrough : 'Teleport',
+)
+const portalProps = computed(() =>
+  props.disablePortal || isVue2 ? {} : { to: 'body' },
+)
 
 onMounted(() => {
   if (!props.disablePortal && isVue2 && rootEl.value) {
@@ -163,6 +233,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  dismissUndo()
   animPause.cleanup()
   cleanupDetection()
   if (portalContainer) {
@@ -171,33 +242,61 @@ onBeforeUnmount(() => {
 })
 
 // Apply prop overrides to settings
-watch(() => props.outputDetail, (v) => {
-  if (v)
-    settings.outputDetail = v
-}, { immediate: true })
-watch(() => props.markerColor, (v) => {
-  if (v)
-    settings.markerColor = v
-}, { immediate: true })
-watch(() => props.theme, (v) => {
-  if (v)
-    settings.theme = v
-}, { immediate: true })
-watch(() => props.blockPageInteractions, (v) => {
-  if (v)
-    settings.blockPageInteractions = v
-}, { immediate: true })
-watch(() => props.autoHideToolbar, (v) => {
-  if (v)
-    settings.autoHideToolbar = v
-}, { immediate: true })
-watch(() => props.pageUrl, (url) => {
-  syncUrlScope(url || getCurrentUrl())
-}, { immediate: true })
-watch(() => props.activationKey, (v) => {
-  if (v !== undefined)
-    settings.activationKey = v
-}, { immediate: true })
+watch(
+  () => props.outputDetail,
+  (v) => {
+    if (v)
+      settings.outputDetail = v
+  },
+  { immediate: true },
+)
+watch(
+  () => props.markerColor,
+  (v) => {
+    if (v)
+      settings.markerColor = v
+  },
+  { immediate: true },
+)
+watch(
+  () => props.theme,
+  (v) => {
+    if (v)
+      settings.theme = v
+  },
+  { immediate: true },
+)
+watch(
+  () => props.blockPageInteractions,
+  (v) => {
+    if (v)
+      settings.blockPageInteractions = v
+  },
+  { immediate: true },
+)
+watch(
+  () => props.autoHideToolbar,
+  (v) => {
+    if (v)
+      settings.autoHideToolbar = v
+  },
+  { immediate: true },
+)
+watch(
+  () => props.pageUrl,
+  (url) => {
+    syncUrlScope(url || getCurrentUrl())
+  },
+  { immediate: true },
+)
+watch(
+  () => props.activationKey,
+  (v) => {
+    if (v !== undefined)
+      settings.activationKey = v
+  },
+  { immediate: true },
+)
 
 // Event handlers
 function onActivate() {
@@ -260,7 +359,10 @@ function onOverlayMouseUp(e: MouseEvent) {
     areaSelect.onMouseUp()
     const rect = areaSelect.areaRect.value
     if (rect && rect.width > 10 && rect.height > 10) {
-      pendingPosition.value = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }
+      pendingPosition.value = {
+        x: rect.x + rect.width / 2,
+        y: rect.y + rect.height / 2,
+      }
       pendingElementName.value = 'Area selection'
       pendingComponentChain.value = undefined
       pendingComputedStyles.value = undefined
@@ -286,7 +388,9 @@ function onOverlayMouseUp(e: MouseEvent) {
     }
     pendingElementName.value = `"${textResult.selectedText.slice(0, 30)}"`
     pendingComponentChain.value = getVueComponents(textResult.anchorElement)
-    pendingComputedStyles.value = getRelevantComputedStyles(textResult.anchorElement)
+    pendingComputedStyles.value = getRelevantComputedStyles(
+      textResult.anchorElement,
+    )
     pendingTarget.value = textResult.anchorElement
     pendingTextSelection.value = {
       text: textResult.selectedText,
@@ -309,7 +413,9 @@ function onOverlayMouseUp(e: MouseEvent) {
 
   pendingPosition.value = { x: e.clientX, y: e.clientY }
   pendingElementName.value = getElementName(el)
-  pendingComponentChain.value = settings.showComponentTree ? detectVueComponents(el) : undefined
+  pendingComponentChain.value = settings.showComponentTree
+    ? detectVueComponents(el)
+    : undefined
   pendingComputedStyles.value = getRelevantComputedStyles(el)
   pendingTarget.value = el
   pendingTextSelection.value = null
@@ -343,15 +449,26 @@ function getElementAtPointThroughOverlay(x: number, y: number): Element | null {
 }
 
 function shouldUseDocumentFallbackEvents() {
-  return mode.value === 'inspect' && !effectiveBlockPageInteractions.value && !isInteractionLocked()
+  return (
+    mode.value === 'inspect'
+    && !effectiveBlockPageInteractions.value
+    && !isInteractionLocked()
+  )
 }
 
 function lockInteractionsTemporarily(durationMs: number) {
-  suppressInteractionsUntil = Math.max(suppressInteractionsUntil, Date.now() + durationMs)
+  suppressInteractionsUntil = Math.max(
+    suppressInteractionsUntil,
+    Date.now() + durationMs,
+  )
 }
 
 function isInteractionLocked() {
-  return settingsOpen.value || toolbarDragging.value || Date.now() < suppressInteractionsUntil
+  return (
+    settingsOpen.value
+    || toolbarDragging.value
+    || Date.now() < suppressInteractionsUntil
+  )
 }
 
 function closeSettings(lockInteractions = true) {
@@ -365,6 +482,7 @@ function closeSettings(lockInteractions = true) {
 function syncUrlScope(nextUrl: string) {
   if (!nextUrl || currentUrl.value === nextUrl)
     return
+  dismissUndo()
   currentUrl.value = nextUrl
   setScopeUrl(nextUrl)
 }
@@ -444,7 +562,10 @@ function onInputAdd(comment: string) {
   const detail = settings.outputDetail
   const url = resolvedUrl.value
 
-  if (mode.value === 'input-open' && multiSelect.selectedElements.value.length > 0) {
+  if (
+    mode.value === 'input-open'
+    && multiSelect.selectedElements.value.length > 0
+  ) {
     // Multi-select annotation
     const selected = multiSelect.selectedElements.value
     const elements = selected.map(el => ({
@@ -476,22 +597,32 @@ function onInputAdd(comment: string) {
     }
 
     const ann = addAnnotation({
-      x: pendingPosition.value!.x / window.innerWidth * 100,
+      x: (pendingPosition.value!.x / window.innerWidth) * 100,
       y: pendingPosition.value!.y + scrollTop,
       comment,
       url,
       element: 'multi',
-      elementPath: `region at (${Math.round(boundingBox.x)}, ${Math.round(boundingBox.y)})`,
+      elementPath: `region at (${Math.round(boundingBox.x)}, ${Math.round(
+        boundingBox.y,
+      )})`,
       isMultiSelect: true,
       elements,
       boundingBox,
       vueComponents: getVueComponents(firstElement),
       nearbyElements: getNearbyElements(firstElement),
       nearbyText: getNearbyText(firstElement),
-      cssClasses: detail === 'forensic' ? Array.from(firstElement.classList).join(' ') : undefined,
-      fullPath: detail === 'forensic' ? getElementPath(firstElement) : undefined,
-      computedStyles: detail === 'forensic' ? getComputedStylesSummary(firstElement) : undefined,
-      accessibility: detail === 'forensic' ? getAccessibilityInfo(firstElement) : undefined,
+      cssClasses:
+        detail === 'forensic'
+          ? Array.from(firstElement.classList).join(' ')
+          : undefined,
+      fullPath:
+        detail === 'forensic' ? getElementPath(firstElement) : undefined,
+      computedStyles:
+        detail === 'forensic'
+          ? getComputedStylesSummary(firstElement)
+          : undefined,
+      accessibility:
+        detail === 'forensic' ? getAccessibilityInfo(firstElement) : undefined,
     })
     emit('annotation-add', ann)
     multiSelect.reset()
@@ -501,9 +632,10 @@ function onInputAdd(comment: string) {
     const area = { ...areaSelect.areaRect.value! }
     const centerX = area.x + area.width / 2
     const centerY = area.y + area.height / 2
-    const centerElement = getElementAtPointThroughOverlay(centerX, centerY) || document.body
+    const centerElement
+      = getElementAtPointThroughOverlay(centerX, centerY) || document.body
     const ann = addAnnotation({
-      x: centerX / window.innerWidth * 100,
+      x: (centerX / window.innerWidth) * 100,
       y: centerY + scrollTop,
       comment,
       url,
@@ -515,10 +647,18 @@ function onInputAdd(comment: string) {
       vueComponents: getVueComponents(centerElement),
       nearbyElements: getNearbyElements(centerElement),
       nearbyText: getNearbyText(centerElement),
-      cssClasses: detail === 'forensic' ? Array.from(centerElement.classList).join(' ') : undefined,
-      fullPath: detail === 'forensic' ? getElementPath(centerElement) : undefined,
-      computedStyles: detail === 'forensic' ? getComputedStylesSummary(centerElement) : undefined,
-      accessibility: detail === 'forensic' ? getAccessibilityInfo(centerElement) : undefined,
+      cssClasses:
+        detail === 'forensic'
+          ? Array.from(centerElement.classList).join(' ')
+          : undefined,
+      fullPath:
+        detail === 'forensic' ? getElementPath(centerElement) : undefined,
+      computedStyles:
+        detail === 'forensic'
+          ? getComputedStylesSummary(centerElement)
+          : undefined,
+      accessibility:
+        detail === 'forensic' ? getAccessibilityInfo(centerElement) : undefined,
     })
     emit('annotation-add', ann)
     areaSelect.reset()
@@ -527,7 +667,7 @@ function onInputAdd(comment: string) {
     // Text selection annotation
     const { element: el, rect, text } = pendingTextSelection.value
     const ann = addAnnotation({
-      x: pendingPosition.value!.x / window.innerWidth * 100,
+      x: (pendingPosition.value!.x / window.innerWidth) * 100,
       y: pendingPosition.value!.y + scrollTop,
       comment,
       url,
@@ -538,10 +678,13 @@ function onInputAdd(comment: string) {
       vueComponents: getVueComponents(el),
       nearbyElements: getNearbyElements(el),
       nearbyText: getNearbyText(el),
-      cssClasses: detail === 'forensic' ? Array.from(el.classList).join(' ') : undefined,
+      cssClasses:
+        detail === 'forensic' ? Array.from(el.classList).join(' ') : undefined,
       fullPath: detail === 'forensic' ? getElementPath(el) : undefined,
-      computedStyles: detail === 'forensic' ? getComputedStylesSummary(el) : undefined,
-      accessibility: detail === 'forensic' ? getAccessibilityInfo(el) : undefined,
+      computedStyles:
+        detail === 'forensic' ? getComputedStylesSummary(el) : undefined,
+      accessibility:
+        detail === 'forensic' ? getAccessibilityInfo(el) : undefined,
       _targetRef: new WeakRef(el),
     })
     emit('annotation-add', ann)
@@ -553,8 +696,10 @@ function onInputAdd(comment: string) {
     const fixed = checkIsFixed(el)
 
     const ann = addAnnotation({
-      x: pendingPosition.value!.x / window.innerWidth * 100,
-      y: fixed ? pendingPosition.value!.y : pendingPosition.value!.y + scrollTop,
+      x: (pendingPosition.value!.x / window.innerWidth) * 100,
+      y: fixed
+        ? pendingPosition.value!.y
+        : pendingPosition.value!.y + scrollTop,
       comment,
       url,
       element: el.tagName.toLowerCase(),
@@ -564,11 +709,19 @@ function onInputAdd(comment: string) {
       vueComponents: getVueComponents(el),
       nearbyElements: getNearbyElements(el),
       nearbyText: getNearbyText(el),
-      boundingBox: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
-      cssClasses: detail === 'forensic' ? Array.from(el.classList).join(' ') : undefined,
+      boundingBox: {
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+      },
+      cssClasses:
+        detail === 'forensic' ? Array.from(el.classList).join(' ') : undefined,
       fullPath: detail === 'forensic' ? getElementPath(el) : undefined,
-      computedStyles: detail === 'forensic' ? getComputedStylesSummary(el) : undefined,
-      accessibility: detail === 'forensic' ? getAccessibilityInfo(el) : undefined,
+      computedStyles:
+        detail === 'forensic' ? getComputedStylesSummary(el) : undefined,
+      accessibility:
+        detail === 'forensic' ? getAccessibilityInfo(el) : undefined,
     })
     emit('annotation-add', ann)
   }
@@ -585,7 +738,11 @@ function onInputCancel() {
 }
 
 async function onCopy() {
-  const markdown = formatAnnotations(annotations.value, settings.outputDetail, resolvedUrl.value)
+  const markdown = formatAnnotations(
+    annotations.value,
+    settings.outputDetail,
+    resolvedUrl.value,
+  )
 
   if (props.copyToClipboard !== false) {
     const success = await copyToClipboard(markdown)
@@ -599,14 +756,41 @@ async function onCopy() {
 
   emit('copy', markdown)
   if (settings.clearAfterCopy) {
-    const cleared = clearAnnotations()
-    emit('annotations-clear', cleared)
+    onClear()
   }
 }
 
+function dismissUndo() {
+  undoFeedback.value = false
+  undoSnapshot.value = []
+  if (undoTimer) {
+    clearTimeout(undoTimer)
+    undoTimer = null
+  }
+}
+
+function startUndoTimer() {
+  if (undoTimer)
+    clearTimeout(undoTimer)
+  undoTimer = setTimeout(() => dismissUndo(), UNDO_TIMEOUT_MS)
+}
+
+function onUndo() {
+  const snapshot = undoSnapshot.value
+  dismissUndo()
+  if (snapshot.length > 0)
+    restoreAnnotations(snapshot)
+}
+
 function onClear() {
+  dismissUndo()
   const cleared = clearAnnotations()
+  if (cleared.length === 0)
+    return
   emit('annotations-clear', cleared)
+  undoSnapshot.value = cleared
+  undoFeedback.value = true
+  startUndoTimer()
 }
 
 function onMarkerClick(ann: Annotation) {
@@ -617,13 +801,22 @@ function onMarkerClick(ann: Annotation) {
 
   editingAnnotation.value = ann
   pendingPosition.value = { x: markerX, y: markerY }
-  pendingElementName.value = getElementName(ann._targetRef?.deref() || document.createElement(ann.element))
+  pendingElementName.value = getElementName(
+    ann._targetRef?.deref() || document.createElement(ann.element),
+  )
   pendingComponentChain.value = ann.vueComponents
   pendingComputedStyles.value = ann.computedStyles
-    ? Object.fromEntries(ann.computedStyles.split('\n').filter(Boolean).map((line) => {
-        const idx = line.indexOf(':')
-        return idx > -1 ? [line.slice(0, idx).trim(), line.slice(idx + 1).trim()] : [line, '']
-      }))
+    ? Object.fromEntries(
+        ann.computedStyles
+          .split('\n')
+          .filter(Boolean)
+          .map((line) => {
+            const idx = line.indexOf(':')
+            return idx > -1
+              ? [line.slice(0, idx).trim(), line.slice(idx + 1).trim()]
+              : [line, '']
+          }),
+      )
     : ann._targetRef?.deref()
       ? getRelevantComputedStyles(ann._targetRef.deref()!)
       : undefined
@@ -679,7 +872,10 @@ const shortcutConfig = computed<KeyboardShortcutConfig>(() => ({
   doubleTap: {
     ...DEFAULT_SHORTCUT_CONFIG.doubleTap,
     enabled: settings.activationKey !== 'none',
-    key: settings.activationKey !== 'none' ? settings.activationKey : DEFAULT_SHORTCUT_CONFIG.doubleTap.key,
+    key:
+      settings.activationKey !== 'none'
+        ? settings.activationKey
+        : DEFAULT_SHORTCUT_CONFIG.doubleTap.key,
   },
 }))
 
@@ -712,7 +908,10 @@ onMounted(() => {
   document.addEventListener('mousemove', onDocumentMouseMove, true)
   document.addEventListener('mousedown', onDocumentMouseDown, true)
   document.addEventListener('mouseup', onDocumentMouseUp, true)
-  document.addEventListener('wheel', onDocumentWheel, { passive: true, capture: true })
+  document.addEventListener('wheel', onDocumentWheel, {
+    passive: true,
+    capture: true,
+  })
   document.addEventListener('click', onDocumentClick, true)
 })
 
@@ -730,14 +929,23 @@ onBeforeUnmount(() => {
 
 <template>
   <component :is="portalWrapper" v-bind="portalProps">
-    <div ref="rootEl" data-agentation-vue :data-va-theme="settings.theme !== 'auto' ? settings.theme : undefined" :style="rootStyle">
+    <div
+      ref="rootEl"
+      data-agentation-vue
+      :data-va-theme="settings.theme !== 'auto' ? settings.theme : undefined"
+      :style="rootStyle"
+    >
       <!-- Intercept overlay -->
       <div
         v-if="mode !== 'idle'"
         ref="overlayEl"
         class="__va-intercept"
         :class="{ '__va-intercept--input-open': mode === 'input-open' }"
-        :style="mode === 'inspect' && !effectiveBlockPageInteractions ? { pointerEvents: 'none' } : undefined"
+        :style="
+          mode === 'inspect' && !effectiveBlockPageInteractions
+            ? { pointerEvents: 'none' }
+            : undefined
+        "
         @mousemove="onOverlayMouseMove"
         @mousedown="onOverlayMouseDown"
         @mouseup="onOverlayMouseUp"
@@ -796,6 +1004,7 @@ onBeforeUnmount(() => {
         :computed-styles="pendingComputedStyles"
         :initial-comment="editingAnnotation?.comment"
         :is-editing="!!editingAnnotation"
+        :mention-candidates="mentionCandidates"
         @add="onInputAdd"
         @cancel="onInputCancel"
         @delete="onInputDelete"
@@ -813,6 +1022,18 @@ onBeforeUnmount(() => {
       <!-- Copy feedback -->
       <div v-if="copyFeedback" class="__va-copy-feedback">
         Copied!
+      </div>
+
+      <!-- Undo clear feedback -->
+      <div
+        v-if="undoFeedback"
+        class="__va-undo-feedback"
+        :class="{ '__va-undo-feedback--shifted': copyFeedback }"
+      >
+        <span>Annotations cleared</span>
+        <button type="button" class="__va-undo-btn" @click="onUndo">
+          Undo
+        </button>
       </div>
 
       <!-- Toolbar -->

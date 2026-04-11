@@ -24,7 +24,7 @@ export async function registerOriginScripts(origin: string) {
       js: [MAIN_WORLD_FILE],
       matches,
       persistAcrossSessions: true,
-      runAt: 'document_idle',
+      runAt: 'document_start',
       world: 'MAIN',
     },
   ])

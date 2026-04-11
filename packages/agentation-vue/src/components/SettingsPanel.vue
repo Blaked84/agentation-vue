@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Settings } from '../types'
 import { computed, toRef } from 'vue-demi'
+import { VA_VERSION } from '../constants'
 import { vaTooltipDirective } from '../directives/vaTooltip'
 import VaIcon from './VaIcon.vue'
 import VaToggle from './VaToggle.vue'
@@ -48,6 +49,7 @@ function toggleTheme() {
 <template>
   <div class="__va-settings" data-agentation-vue @click.stop>
     <div class="__va-settings-top">
+      <span class="__va-settings-title">Agentation vue <span class="__va-settings-version">v{{ VA_VERSION }}</span></span>
       <button v-va-tooltip="'Toggle theme'" type="button" class="__va-theme-toggle" @click="toggleTheme">
         <VaIcon :name="themeIcon" />
       </button>

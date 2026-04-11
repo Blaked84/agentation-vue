@@ -121,7 +121,8 @@ test.describe('chrome extension integration', () => {
       position: { x: box.x + box.width / 2, y: box.y + box.height / 2 },
     })
 
-    await page.locator('.__va-input input').fill('Persist me')
+    await page.locator('.__va-input .__va-input-editable').click()
+    await page.keyboard.type('Persist me')
     await page.locator('.__va-btn--primary').click()
     await expect(page.locator('.__va-marker')).toHaveCount(1)
 
@@ -130,6 +131,74 @@ test.describe('chrome extension integration', () => {
 
     await page.reload(navigationOptions)
     await expect(page.locator('.__va-marker')).toHaveCount(1)
+  })
+
+  test('blocks page keyup shortcuts while toolbar is open', async () => {
+    await activateCurrentTab()
+    await page.reload(navigationOptions)
+    await page.evaluate(() => {
+      ;(window as Window & {
+        __resetAgentationShortcutHits?: () => void
+      }).__resetAgentationShortcutHits?.()
+    })
+
+    await page.locator('.__va-toolbar-toggle').click()
+    await expect(page.locator('.__va-toolbar')).toHaveClass(/__va-toolbar--expanded/)
+
+    await page.keyboard.press('Escape')
+
+    await expect(page.locator('.__va-toolbar')).toHaveClass(/__va-toolbar--collapsed/)
+    const hits = await page.evaluate(() => {
+      return (window as Window & {
+        __agentationShortcutHits?: string[]
+      }).__agentationShortcutHits ?? []
+    })
+    expect(hits).toEqual([])
+  })
+
+  test('blocks page keypress shortcuts while toolbar is open', async () => {
+    await activateCurrentTab()
+    await page.reload(navigationOptions)
+    await page.evaluate(() => {
+      ;(window as Window & {
+        __resetAgentationShortcutHits?: () => void
+      }).__resetAgentationShortcutHits?.()
+    })
+
+    await page.locator('.__va-toolbar-toggle').click()
+    await expect(page.locator('.__va-toolbar')).toHaveClass(/__va-toolbar--expanded/)
+
+    await page.keyboard.press('v')
+
+    const hits = await page.evaluate(() => {
+      return (window as Window & {
+        __agentationShortcutHits?: string[]
+      }).__agentationShortcutHits ?? []
+    })
+    expect(hits).toEqual([])
+  })
+
+  test('allows typing in the annotation popup without triggering toolbar shortcuts', async () => {
+    const worker = await getServiceWorker()
+    await worker.evaluate(() => globalThis.__agentationTestApi?.clearAnnotationStorage())
+    await activateCurrentTab()
+    await page.reload(navigationOptions)
+    await page.locator('.__va-toolbar-toggle').click()
+
+    const target = page.locator('.test-submit').first()
+    const box = await target.boundingBox()
+    if (!box)
+      throw new Error('Target element not found')
+
+    await page.locator('.__va-intercept').click({
+      force: true,
+      position: { x: box.x + box.width / 2, y: box.y + box.height / 2 },
+    })
+
+    const input = page.locator('.__va-input .__va-input-editable')
+    await expect(input).toBeVisible()
+    await page.keyboard.type('va')
+    await expect(input).toHaveText('va')
   })
 
   test('stops auto-mounting after deactivation', async () => {

@@ -12,6 +12,7 @@ declare global {
     enableTabByUrl: (url: string) => Promise<boolean>
     disableTabByUrl: (url: string) => Promise<boolean>
     getEnabledOrigins: () => Promise<string[]>
+    clearAnnotationStorage: () => Promise<void>
   } | undefined
 }
 
@@ -180,6 +181,9 @@ globalThis.__agentationTestApi = {
     if (!tab)
       return false
     return disableOriginForTab(tab)
+  },
+  async clearAnnotationStorage() {
+    await chrome.storage.session.remove('agentation-vue-annotations')
   },
 }
 

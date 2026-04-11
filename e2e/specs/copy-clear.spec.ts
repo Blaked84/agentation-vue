@@ -25,27 +25,29 @@ test.describe('Copy & Clear', () => {
     await expect(ag.copyFeedback).toHaveText('Copied!')
   })
 
-  test('clear removes all annotations after confirming dialog', async ({ ag }) => {
+  test('clear removes all annotations and shows undo toast', async ({ ag }) => {
     await ag.annotateElement('.test-submit', 'Note 1')
     await ag.annotateElement('.test-cancel', 'Note 2')
     await expect(ag.markers()).toHaveCount(2)
 
-    ag.page.on('dialog', dialog => dialog.accept())
     await ag.clearBtn.click()
 
     await expect(ag.markers()).toHaveCount(0)
     await expect(ag.copyBtn).toBeDisabled()
+    await expect(ag.undoFeedback).toBeVisible()
+    await expect(ag.undoFeedback).toContainText('Annotations cleared')
   })
 
-  test('clear does nothing when dialog is dismissed', async ({ ag }) => {
+  test('undo restores cleared annotations', async ({ ag }) => {
     await ag.annotateElement('.test-submit', 'Keep me')
     await expect(ag.markers()).toHaveCount(1)
 
-    ag.page.on('dialog', dialog => dialog.dismiss())
     await ag.clearBtn.click()
+    await expect(ag.markers()).toHaveCount(0)
+    await expect(ag.undoFeedback).toBeVisible()
 
-    // Wait a moment then verify markers still there
-    await ag.page.waitForTimeout(300)
+    await ag.undoBtn.click()
     await expect(ag.markers()).toHaveCount(1)
+    await expect(ag.undoFeedback).not.toBeVisible()
   })
 })
