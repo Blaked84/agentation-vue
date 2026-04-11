@@ -34,6 +34,10 @@ class AgentationPage {
   // Copy feedback
   readonly copyFeedback: Locator
 
+  // Undo feedback
+  readonly undoFeedback: Locator
+  readonly undoBtn: Locator
+
   constructor(page: Page) {
     this.page = page
 
@@ -60,6 +64,8 @@ class AgentationPage {
 
     this.settingsPanel = page.locator('.__va-settings')
     this.copyFeedback = page.locator('.__va-copy-feedback')
+    this.undoFeedback = page.locator('.__va-undo-feedback')
+    this.undoBtn = page.locator('.__va-undo-btn')
   }
 
   async goto(path = '/', { clean = true } = {}) {
