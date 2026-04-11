@@ -983,6 +983,12 @@
   color: var(--va-text);
 }
 
+.__va-settings-version {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--va-text-secondary);
+}
+
 .__va-theme-toggle {
   width: 28px;
   height: 28px;
