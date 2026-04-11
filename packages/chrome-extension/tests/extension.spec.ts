@@ -121,7 +121,7 @@ test.describe('chrome extension integration', () => {
       position: { x: box.x + box.width / 2, y: box.y + box.height / 2 },
     })
 
-    await page.locator('.__va-input input').fill('Persist me')
+    await page.locator('.__va-input textarea').fill('Persist me')
     await page.locator('.__va-btn--primary').click()
     await expect(page.locator('.__va-marker')).toHaveCount(1)
 
@@ -194,7 +194,7 @@ test.describe('chrome extension integration', () => {
       position: { x: box.x + box.width / 2, y: box.y + box.height / 2 },
     })
 
-    const input = page.locator('.__va-input input')
+    const input = page.locator('.__va-input textarea')
     await expect(input).toBeVisible()
     await page.keyboard.type('va')
     await expect(input).toHaveValue('va')

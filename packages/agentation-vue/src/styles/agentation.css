@@ -777,19 +777,23 @@
   text-align: center;
 }
 
-.__va-input input {
+.__va-input textarea {
   width: 100%;
   padding: 8px 10px;
   border: 1px solid var(--va-border);
   border-radius: 6px;
   font-size: 13px;
+  font-family: inherit;
   background: var(--va-bg);
   color: var(--va-text);
   outline: none;
+  resize: none;
+  overflow: hidden;
+  line-height: 1.4;
   transition: border-color 150ms ease;
 }
 
-.__va-input input:focus {
+.__va-input textarea:focus {
   border-color: var(--va-accent);
 }
 

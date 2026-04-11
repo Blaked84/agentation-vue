@@ -20,8 +20,15 @@ const emit = defineEmits<{
 }>()
 
 const comment = ref(props.initialComment || '')
-const inputEl = ref<HTMLInputElement | null>(null)
+const inputEl = ref<HTMLTextAreaElement | null>(null)
 const computedStyleEntries = computed(() => Object.entries(props.computedStyles || {}))
+
+function autoResize() {
+  const el = inputEl.value
+  if (!el) return
+  el.style.height = 'auto'
+  el.style.height = `${el.scrollHeight}px`
+}
 
 const inputStyle = computed(() => {
   const x = Math.min(props.position.x, window.innerWidth - 380)
@@ -41,6 +48,7 @@ function onAdd() {
 
 onMounted(() => {
   inputEl.value?.focus()
+  autoResize()
 })
 </script>
 
@@ -76,13 +84,15 @@ onMounted(() => {
       <ComponentChain :chain="componentChain" variant="light" truncate="leaf" />
     </div>
     <span v-else class="__va-input-label">{{ elementName || 'Annotation' }}</span>
-    <input
+    <textarea
       ref="inputEl"
       v-model="comment"
       placeholder="Add a comment..."
-      @keydown.enter="onAdd"
+      rows="1"
+      @input="autoResize"
+      @keydown.enter.exact="onAdd"
       @keydown.escape="$emit('cancel')"
-    >
+    />
     <div class="__va-input-actions">
       <button
         v-if="isEditing"
