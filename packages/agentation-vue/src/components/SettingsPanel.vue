@@ -48,6 +48,7 @@ function toggleTheme() {
 <template>
   <div class="__va-settings" data-agentation-vue @click.stop>
     <div class="__va-settings-top">
+      <span class="__va-settings-title">Agentation vue</span>
       <button v-va-tooltip="'Toggle theme'" type="button" class="__va-theme-toggle" @click="toggleTheme">
         <VaIcon :name="themeIcon" />
       </button>

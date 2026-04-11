@@ -886,10 +886,17 @@
 
 .__va-settings-top {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--va-border);
+}
+
+.__va-settings-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--va-text);
 }
 
 .__va-theme-toggle {
