@@ -136,6 +136,12 @@ function clearAnnotations(): Annotation[] {
   return cleared
 }
 
+function restoreAnnotations(items: Annotation[]): void {
+  annotations.value.push(...items)
+  counter = getCounterSeed(annotations.value)
+  save()
+}
+
 setScopeUrl(scopedUrl)
 
 export function setAnnotationStorage(adapter: StorageAdapter) {
@@ -150,5 +156,5 @@ export function resetAnnotationStorage() {
 
 export function useAnnotations(initialUrl: string = getCurrentUrl()) {
   setScopeUrl(initialUrl)
-  return { annotations, addAnnotation, removeAnnotation, updateAnnotation, clearAnnotations, setScopeUrl }
+  return { annotations, addAnnotation, removeAnnotation, updateAnnotation, clearAnnotations, restoreAnnotations, setScopeUrl }
 }

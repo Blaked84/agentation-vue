@@ -1066,3 +1066,45 @@
     transform: translateY(0);
   }
 }
+
+/* === Undo Feedback === */
+.__va-undo-feedback {
+  position: fixed;
+  bottom: 72px;
+  right: 20px;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--va-bg);
+  color: var(--va-text);
+  border: 1px solid var(--va-border);
+  padding: 8px 12px 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: __va-fadeIn 150ms ease;
+}
+
+.__va-undo-feedback--shifted {
+  bottom: 112px;
+}
+
+.__va-undo-btn {
+  background: var(--va-accent);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+  outline: none;
+  font-family: inherit;
+}
+
+.__va-undo-btn:hover {
+  opacity: 0.85;
+}

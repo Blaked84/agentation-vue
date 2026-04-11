@@ -98,9 +98,7 @@ function onDeactivate() {
 }
 
 function onClear() {
-  // eslint-disable-next-line no-alert
-  if (confirm('Clear all annotations?'))
-    emit('clear')
+  emit('clear')
 }
 
 function onOpenSettings(e: MouseEvent) {
