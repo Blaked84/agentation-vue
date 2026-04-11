@@ -1,5 +1,28 @@
 import { createApp, defineComponent, h } from 'vue'
 
+declare global {
+  interface Window {
+    __agentationShortcutHits?: string[]
+    __resetAgentationShortcutHits?: () => void
+  }
+}
+
+const shortcutHits: string[] = []
+window.__agentationShortcutHits = shortcutHits
+window.__resetAgentationShortcutHits = () => {
+  shortcutHits.length = 0
+}
+
+window.addEventListener('keyup', (event) => {
+  if (event.key === 'Escape')
+    shortcutHits.push(`keyup:${event.key}`)
+})
+
+window.addEventListener('keypress', (event) => {
+  if (event.key.toLowerCase() === 'v')
+    shortcutHits.push(`keypress:${event.key.toLowerCase()}`)
+})
+
 const MocButton = defineComponent({
   name: 'MocButton',
   render() {

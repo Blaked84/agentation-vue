@@ -1,5 +1,11 @@
 # agentation-vue
 
+## 0.2.8
+
+### Patch Changes
+
+- Stop toolbar keyboard shortcuts from propagating to the host app or Chrome extension when the toolbar is open
+
 ## 0.2.7
 
 ### Patch Changes
