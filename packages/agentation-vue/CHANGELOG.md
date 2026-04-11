@@ -1,6 +1,6 @@
 # agentation-vue
 
-## 0.2.8
+## 0.2.9
 
 ### Patch Changes
 
