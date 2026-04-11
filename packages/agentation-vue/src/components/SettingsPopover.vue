@@ -163,12 +163,10 @@ function schedulePositionUpdate() {
 function onDocumentPointerDown(e: PointerEvent) {
   if (!props.open)
     return
-  const target = e.target as Node | null
-  if (!target)
+  const path = e.composedPath()
+  if (panelEl.value && path.includes(panelEl.value))
     return
-  if (panelEl.value?.contains(target))
-    return
-  if (props.anchorEl?.contains(target))
+  if (props.anchorEl && path.includes(props.anchorEl))
     return
   emit('close')
 }
