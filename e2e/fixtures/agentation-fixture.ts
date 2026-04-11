@@ -58,7 +58,7 @@ class AgentationPage {
     this.highlightLabel = page.locator('.__va-highlight-label')
 
     this.annotationInput = page.locator('.__va-input')
-    this.inputField = page.locator('.__va-input input')
+    this.inputField = page.locator('.__va-input .__va-input-editable')
     this.addBtn = page.locator('.__va-btn--primary')
     this.cancelBtn = page.locator('.__va-btn--secondary')
 
@@ -105,7 +105,8 @@ class AgentationPage {
   }
 
   async addComment(text: string) {
-    await this.inputField.fill(text)
+    await this.inputField.click()
+    await this.page.keyboard.type(text)
     await this.addBtn.click()
     await this.annotationInput.waitFor({ state: 'hidden', timeout: 3000 })
   }

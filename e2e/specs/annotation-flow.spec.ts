@@ -14,7 +14,7 @@ test.describe('Annotation Flow', () => {
 
   test('pressing Enter in input saves annotation', async ({ ag }) => {
     await ag.clickElement('.test-submit')
-    await ag.inputField.fill('Enter saves')
+    await ag.inputField.pressSequentially('Enter saves')
     await ag.page.keyboard.press('Enter')
     await ag.annotationInput.waitFor({ state: 'hidden', timeout: 3000 })
     await expect(ag.markers()).toHaveCount(1)
@@ -22,7 +22,7 @@ test.describe('Annotation Flow', () => {
 
   test('pressing Escape in input cancels without creating marker', async ({ ag }) => {
     await ag.clickElement('.test-submit')
-    await ag.inputField.fill('Will cancel')
+    await ag.inputField.pressSequentially('Will cancel')
     await ag.page.keyboard.press('Escape')
     await expect(ag.annotationInput).not.toBeVisible()
     await expect(ag.markers()).toHaveCount(0)
@@ -30,7 +30,7 @@ test.describe('Annotation Flow', () => {
 
   test('Cancel button dismisses input without creating marker', async ({ ag }) => {
     await ag.clickElement('.test-submit')
-    await ag.inputField.fill('Will cancel')
+    await ag.inputField.pressSequentially('Will cancel')
     await ag.cancelBtn.click()
     await expect(ag.annotationInput).not.toBeVisible()
     await expect(ag.markers()).toHaveCount(0)
@@ -62,7 +62,7 @@ test.describe('Annotation Flow', () => {
   test('Add button is disabled when comment is empty', async ({ ag }) => {
     await ag.clickElement('.test-submit')
     await expect(ag.addBtn).toBeDisabled()
-    await ag.inputField.fill('Now has text')
+    await ag.inputField.pressSequentially('Now has text')
     await expect(ag.addBtn).not.toBeDisabled()
   })
 

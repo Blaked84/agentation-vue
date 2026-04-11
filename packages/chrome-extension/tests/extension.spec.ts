@@ -121,7 +121,8 @@ test.describe('chrome extension integration', () => {
       position: { x: box.x + box.width / 2, y: box.y + box.height / 2 },
     })
 
-    await page.locator('.__va-input textarea').fill('Persist me')
+    await page.locator('.__va-input .__va-input-editable').click()
+    await page.keyboard.type('Persist me')
     await page.locator('.__va-btn--primary').click()
     await expect(page.locator('.__va-marker')).toHaveCount(1)
 
@@ -194,10 +195,10 @@ test.describe('chrome extension integration', () => {
       position: { x: box.x + box.width / 2, y: box.y + box.height / 2 },
     })
 
-    const input = page.locator('.__va-input textarea')
+    const input = page.locator('.__va-input .__va-input-editable')
     await expect(input).toBeVisible()
     await page.keyboard.type('va')
-    await expect(input).toHaveValue('va')
+    await expect(input).toHaveText('va')
   })
 
   test('stops auto-mounting after deactivation', async () => {
