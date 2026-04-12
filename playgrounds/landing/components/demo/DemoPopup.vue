@@ -34,11 +34,11 @@ const fakeChain = 'App > Dashboard > StatsCard > ActionButton'
       <div class="__va-input-chain">
         <ComponentChain :chain="fakeChain" variant="light" />
       </div>
-      <input
-        :value="text"
-        placeholder="Add a comment..."
-        readonly
-      >
+      <div
+        class="__va-input-editable"
+        data-placeholder="Add a comment..."
+        v-text="text"
+      />
       <div class="__va-input-actions">
         <div class="__va-input-actions-right">
           <button type="button" class="__va-btn __va-btn--secondary">
