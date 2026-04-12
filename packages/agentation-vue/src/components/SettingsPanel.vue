@@ -137,7 +137,7 @@ function toggleTheme() {
           {{ isMac ? '&#8997; Option' : 'Alt' }}
         </option>
         <option value="Shift">
-          Shift
+          ⇧ Shift
         </option>
       </select>
     </div>
@@ -155,7 +155,7 @@ function toggleTheme() {
           {{ isMac ? '&#8997; Option' : 'Alt' }}
         </option>
         <option value="Shift">
-          Shift
+          ⇧ Shift
         </option>
         <option value="Control">
           {{ isMac ? '&#8963; Control' : 'Ctrl' }}
