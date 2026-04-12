@@ -96,6 +96,13 @@ function isHostDisabled(el: TooltipHostElement): boolean {
   return false
 }
 
+function getTooltipContainer(el: TooltipHostElement): Node {
+  const root = el.getRootNode()
+  if (root instanceof ShadowRoot)
+    return root
+  return document.body
+}
+
 function createTooltipElement(value: NormalizedTooltipOptions): HTMLDivElement {
   const tooltipEl = document.createElement('div')
   tooltipEl.className = '__va-tooltip'
@@ -199,8 +206,9 @@ function showTooltipNow(el: TooltipHostElement) {
   else
     updateTooltipContent(state.tooltipEl, state.value)
 
-  if (!document.body.contains(state.tooltipEl))
-    document.body.appendChild(state.tooltipEl)
+  const container = getTooltipContainer(el)
+  if (state.tooltipEl.parentNode !== container)
+    container.appendChild(state.tooltipEl)
 
   positionTooltip(el)
   state.tooltipEl.classList.add('__va-tooltip--visible')
