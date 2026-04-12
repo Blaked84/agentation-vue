@@ -1,7 +1,8 @@
 <template>
   <footer class="border-t border-ink-900/10 px-6 py-6">
     <div class="mx-auto flex max-w-landing items-center justify-between">
-      <p class="font-mono text-xs text-ink-300">
+      <p class="flex items-center gap-1.5 font-mono text-xs text-ink-300">
+        <img src="/logo.svg" alt="" class="h-3.5 w-3.5 opacity-40">
         agentation-vue
       </p>
       <div class="flex gap-6 font-mono text-xs text-ink-400">

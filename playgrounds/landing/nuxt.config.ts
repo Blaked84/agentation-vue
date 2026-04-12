@@ -5,11 +5,16 @@ import process from 'node:process'
 const pkg = JSON.parse(readFileSync(resolve(__dirname, '../../packages/agentation-vue/package.json'), 'utf-8'))
 
 const isGitHubPages = process.env.GITHUB_PAGES === 'true'
+const isPromoCapture = process.env.PROMO_CAPTURE === 'true'
 
 export default defineNuxtConfig({
   ssr: true,
-  nitro: { preset: 'static' },
+  nitro: {
+    preset: 'static',
+    prerender: { ignore: ['/promo'] },
+  },
   devServer: { port: 3002 },
+  devtools: { enabled: !isPromoCapture },
 
   runtimeConfig: {
     public: {

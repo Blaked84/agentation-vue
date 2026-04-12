@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const isDesktop = ref(false)
+const route = useRoute()
+const isPromo = computed(() => route.path.startsWith('/promo'))
 
 onMounted(() => {
   const mq = window.matchMedia('(min-width: 768px)')
@@ -11,7 +13,7 @@ onMounted(() => {
 <template>
   <NuxtPage />
   <ClientOnly>
-    <template v-if="isDesktop">
+    <template v-if="isDesktop && !isPromo">
       <agentation-vue />
       <LandingTryIt />
     </template>

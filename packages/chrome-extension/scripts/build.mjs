@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import vue from '@vitejs/plugin-vue'
@@ -29,6 +29,9 @@ function copyStaticFiles() {
       const manifest = readJson(resolve(rootDir, 'manifest.json'))
       manifest.version = getPackageVersion()
       writeFileSync(resolve(distDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`)
+      for (const icon of ['icon16.png', 'icon48.png', 'icon128.png']) {
+        copyFileSync(resolve(rootDir, icon), resolve(distDir, icon))
+      }
     },
   }
 }

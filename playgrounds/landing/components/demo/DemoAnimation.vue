@@ -1,8 +1,16 @@
 <script setup lang="ts">
+import type { DemoStopPhase } from '../../composables/useDemoChoreography'
+
+const props = defineProps<{
+  /** If set, stop the animation at this phase and hold the frame. */
+  stopAtPhase?: DemoStopPhase
+}>()
+
 const containerRef = ref<HTMLElement | null>(null)
 const contentRef = ref<HTMLElement | null>(null)
 
 const {
+  phase,
   cursorX,
   cursorY,
   cursorType,
@@ -20,11 +28,11 @@ const {
   markerPosition,
   terminalText,
   terminalActive,
-} = useDemoChoreography(containerRef, contentRef)
+} = useDemoChoreography(containerRef, contentRef, { stopAtPhase: props.stopAtPhase })
 </script>
 
 <template>
-  <div ref="containerRef" class="relative">
+  <div ref="containerRef" class="relative" :data-demo-phase="phase">
     <!--
       Both windows are FIXED in position — no translate transitions.
       Browser: offset (-20px, -20px) from content center.

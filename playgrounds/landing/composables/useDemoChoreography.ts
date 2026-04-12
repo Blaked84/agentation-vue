@@ -4,10 +4,19 @@ class DemoAbortError extends Error {
   constructor() { super('DemoAbort') }
 }
 
+export type DemoStopPhase = 'annotation-pinned'
+
+export interface DemoChoreographyOptions {
+  /** Stop the animation at a specific phase and hold that frame forever. */
+  stopAtPhase?: DemoStopPhase
+}
+
 export function useDemoChoreography(
   containerRef: Ref<HTMLElement | null>,
   contentRef: Ref<HTMLElement | null>,
+  options: DemoChoreographyOptions = {},
 ) {
+  const phase = ref<'running' | 'frozen'>('running')
   const cursorX = ref(0)
   const cursorY = ref(0)
   const cursorType = ref<'pointer' | 'crosshair' | 'ibeam'>('pointer')
@@ -210,6 +219,16 @@ export function useDemoChoreography(
     markerPending.value = false
     await delay(300)
 
+    // Promo capture: freeze here — annotation popup still open with the
+    // typed comment, committed green marker visible on the button, toolbar
+    // showing "1" annotation. Canonical frame for the Chrome Web Store
+    // screenshot.
+    if (options.stopAtPhase === 'annotation-pinned') {
+      cursorVisible.value = false
+      phase.value = 'frozen'
+      return
+    }
+
     // 10. POPUP-CLOSE
     popupVisible.value = false
     await delay(250)
@@ -249,7 +268,7 @@ export function useDemoChoreography(
 
   async function startLoop() {
     running = true
-    // eslint-disable-next-line no-unmodified-loop-condition -- `running` is set to false in stopLoop() called externally
+
     while (running) {
       abortController = new AbortController()
       try {
@@ -261,6 +280,11 @@ export function useDemoChoreography(
         }
         throw e
       }
+      // If we stopped at a frozen phase, hold that frame and exit the loop.
+      if (phase.value === 'frozen') {
+        running = false
+        break
+      }
     }
   }
 
@@ -270,6 +294,10 @@ export function useDemoChoreography(
   }
 
   function onVisibilityChange() {
+    // Never re-enter the loop once frozen — the captured frame must not move.
+    if (phase.value === 'frozen') {
+      return
+    }
     if (document.hidden) {
       stop()
       resetState()
@@ -290,6 +318,7 @@ export function useDemoChoreography(
   })
 
   return {
+    phase,
     cursorX,
     cursorY,
     cursorType,
