@@ -96,10 +96,10 @@ function toggleTheme() {
     <div class="__va-settings-divider" />
 
     <div class="__va-settings-row">
-      <span class="__va-settings-label">Clear on copy/send</span>
+      <span class="__va-settings-label">Clear After Copy</span>
       <VaToggle
         :model-value="settings.clearAfterCopy"
-        aria-label="Clear on copy/send"
+        aria-label="Clear After Copy"
         @update:model-value="update('clearAfterCopy', $event)"
       />
     </div>
@@ -137,7 +137,28 @@ function toggleTheme() {
           {{ isMac ? '&#8997; Option' : 'Alt' }}
         </option>
         <option value="Shift">
-          Shift
+          ⇧ Shift
+        </option>
+      </select>
+    </div>
+
+    <div class="__va-settings-row">
+      <span class="__va-settings-label">Peek inspect (hold key)</span>
+      <select :value="settings.peekKey" @change="onSelectChange('peekKey', $event)">
+        <option value="none">
+          Off
+        </option>
+        <option value="Meta">
+          {{ isMac ? '&#8984; Cmd' : 'Ctrl' }}
+        </option>
+        <option value="Alt">
+          {{ isMac ? '&#8997; Option' : 'Alt' }}
+        </option>
+        <option value="Shift">
+          ⇧ Shift
+        </option>
+        <option value="Control">
+          {{ isMac ? '&#8963; Control' : 'Ctrl' }}
         </option>
       </select>
     </div>

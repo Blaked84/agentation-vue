@@ -33,19 +33,8 @@
         </div>
       </div>
 
-      <div class="mt-8 flex items-center gap-5 text-sm">
-        <a
-          href="https://github.com/Blaked84/agentation-vue"
-          class="text-ink-500 transition-colors hover:text-ink-900"
-        >
-          GitHub →
-        </a>
-        <a
-          href="https://www.npmjs.com/package/agentation-vue"
-          class="text-ink-500 transition-colors hover:text-ink-900"
-        >
-          npm →
-        </a>
+      <div class="mt-8">
+        <ExternalLinks />
       </div>
     </div>
   </section>

@@ -59,11 +59,12 @@ test.describe('Annotation Flow', () => {
     await expect(ag.markers()).toHaveCount(0)
   })
 
-  test('Add button is disabled when comment is empty', async ({ ag }) => {
+  test('Pin button shows "Pin" when comment is empty, "Add" when filled', async ({ ag }) => {
     await ag.clickElement('.test-submit')
-    await expect(ag.addBtn).toBeDisabled()
+    await expect(ag.addBtn).toBeEnabled()
+    await expect(ag.addBtn).toHaveText('Pin')
     await ag.inputField.pressSequentially('Now has text')
-    await expect(ag.addBtn).not.toBeDisabled()
+    await expect(ag.addBtn).toHaveText('Add')
   })
 
   test('annotation input shows element info', async ({ ag }) => {

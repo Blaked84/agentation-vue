@@ -378,10 +378,38 @@
   outline: none;
 }
 
-.__va-toolbar-toggle svg {
+.__va-toolbar-toggle svg:not(.__va-peek-ring) {
   width: 22px;
   height: 22px;
   flex-shrink: 0;
+}
+
+/* Peek mode — charging ring animation */
+.__va-peek-ring {
+  position: absolute;
+  inset: -3px;
+  width: calc(100% + 6px);
+  height: calc(100% + 6px);
+  pointer-events: none;
+  overflow: visible;
+}
+
+.__va-peek-ring circle {
+  fill: none;
+  stroke: var(--va-accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 131.95;
+  stroke-dashoffset: 131.95;
+  animation: va-peek-fill linear forwards;
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+@keyframes va-peek-fill {
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 .__va-toolbar-sep {
@@ -436,6 +464,7 @@
   position: absolute;
   top: -6px;
   right: -6px;
+  z-index: 1;
   background: var(--va-accent);
   color: white;
   font-size: 11px;
@@ -582,15 +611,25 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(1);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  transition: all 150ms ease;
+  transition: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 150ms ease, opacity 150ms ease;
   user-select: none;
 }
 
 .__va-marker:hover {
   transform: translate(-50%, -50%) scale(1.2);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+.__va-marker--hidden,
+.__va-marker--entering {
+  transform: translate(-50%, -50%) scale(0) !important;
+  pointer-events: none;
+}
+
+.__va-marker--hidden {
+  transition: transform 200ms cubic-bezier(0.55, 0, 1, 0.45), box-shadow 150ms ease, opacity 150ms ease;
 }
 
 .__va-marker--fixed {

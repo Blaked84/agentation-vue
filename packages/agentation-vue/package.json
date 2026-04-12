@@ -1,6 +1,6 @@
 {
   "name": "agentation-vue",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "description": "Visual feedback tool for AI coding agents — Vue 2.7 & 3",
   "author": "Dorian Becker",
   "license": "PolyForm-Shield-1.0.0",
@@ -36,7 +36,7 @@
   ],
   "scripts": {
     "build": "unbuild",
-    "prepack": "pnpm run build",
+    "prepack": "pnpm run build && cp ../../README.md .",
     "dev": "unbuild --stub",
     "typecheck": "vue-tsc --noEmit"
   },

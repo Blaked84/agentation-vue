@@ -1,14 +1,22 @@
 # agentation-vue
 
-## 0.2.11
+## 0.2.12
 
-### Patch Changes
+### Features
 
-- bcce0ed: ### Features
-  - Replace clear confirmation dialog with dismissable undo toast (5s timeout)
-  - Add @mention system for cross-referencing annotations in comments — type `@` to open a completion dropdown, select an annotation to insert an inline chip with stable ID-based references
+- Add peek inspect mode — hold a key to temporarily inspect elements without entering annotation mode
+- Allow pinning annotations without comment text (button shows "Pin" when empty, "Add" when filled)
 
-## 0.2.10
+### Fixes
+
+- Derive `VA_VERSION` from `package.json` at build time instead of a hardcoded string, keeping the version in sync with changesets
+
+### Other
+
+- Add npm version and downloads badges to README
+- Copy root README into package on prepack for npm listing
+
+## 0.2.10 / 0.2.11
 
 ### Patch Changes
 

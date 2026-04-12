@@ -15,7 +15,7 @@
           href="https://www.npmjs.com/package/agentation-vue"
           class="transition-colors hover:text-ink-700"
         >
-          npm
+          NPM
         </a>
       </div>
     </div>

@@ -83,6 +83,7 @@ export interface Settings {
   showComponentTree: boolean
   theme: 'light' | 'dark' | 'auto'
   activationKey: 'none' | 'Meta' | 'Alt' | 'Shift'
+  peekKey: 'none' | 'Meta' | 'Alt' | 'Shift' | 'Control'
 }
 
 export interface StorageAdapter {

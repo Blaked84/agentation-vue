@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue-demi'
+import { computed, onMounted, ref } from 'vue-demi'
 import VaIcon from './VaIcon.vue'
 
 const props = defineProps<{
@@ -10,11 +10,18 @@ const props = defineProps<{
   isStale?: boolean
   isPending?: boolean
   isSelection?: boolean
+  hidden?: boolean
 }>()
 
 defineEmits<{
   click: []
 }>()
+const entering = ref(true)
+onMounted(() => {
+  requestAnimationFrame(() => {
+    entering.value = false
+  })
+})
 
 const markerStyle = computed(() => ({
   left: `${props.x}%`,
@@ -30,6 +37,8 @@ const markerStyle = computed(() => ({
       '__va-marker--stale': isStale,
       '__va-marker--pending': isPending,
       '__va-marker--selection': isSelection,
+      '__va-marker--hidden': hidden,
+      '__va-marker--entering': entering,
     }"
     :style="markerStyle"
     data-agentation-vue
