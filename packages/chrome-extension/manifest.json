@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Agentation Vue",
   "version": "0.2.10",
-  "description": "Agentation-vue turns UI annotations into instructions for your coding agents. Click any element, add a note, and paste the output into Claude Code, Cursor, or any AI tool.",
+  "description": "Turn UI annotations into coding-agent instructions. Click any element, add a note, and paste into any AI tool.",
   "background": {
     "service_worker": "service-worker.js"
   },
