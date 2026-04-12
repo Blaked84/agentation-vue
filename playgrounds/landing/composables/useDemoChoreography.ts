@@ -268,7 +268,7 @@ export function useDemoChoreography(
 
   async function startLoop() {
     running = true
-    // eslint-disable-next-line no-unmodified-loop-condition -- `running` is set to false in stopLoop() called externally
+
     while (running) {
       abortController = new AbortController()
       try {

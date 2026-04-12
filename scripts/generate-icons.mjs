@@ -12,8 +12,9 @@
  * Requires: @resvg/resvg-js (pnpm add -Dw @resvg/resvg-js)
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
-import { resolve, dirname } from 'node:path'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { Resvg } from '@resvg/resvg-js'
 

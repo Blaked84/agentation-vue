@@ -11,9 +11,10 @@
  * Requires: @playwright/test (already in devDependencies)
  */
 
-import { resolve, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { spawn } from 'node:child_process'
+import { dirname, resolve } from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -48,9 +49,15 @@ await new Promise((resolve, reject) => {
 
   server.stdout.on('data', onData)
   server.stderr.on('data', onData)
-  server.on('error', (err) => { clearTimeout(timeout); reject(err) })
+  server.on('error', (err) => {
+    clearTimeout(timeout)
+    reject(err)
+  })
   server.on('exit', (code) => {
-    if (code) { clearTimeout(timeout); reject(new Error(`Server exited with code ${code}`)) }
+    if (code) {
+      clearTimeout(timeout)
+      reject(new Error(`Server exited with code ${code}`))
+    }
   })
 })
 
@@ -73,7 +80,8 @@ try {
 
   await page.screenshot({ path: outputPath, clip: { x: 0, y: 0, width: 1280, height: 800 } })
   console.log('wrote', outputPath)
-} finally {
+}
+finally {
   await browser?.close()
   server.kill()
 }
