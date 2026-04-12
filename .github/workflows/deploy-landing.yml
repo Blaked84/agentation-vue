@@ -30,8 +30,6 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm build:landing
-        env:
-          GITHUB_PAGES: 'true'
 
       - uses: actions/upload-pages-artifact@v3
         with:
