@@ -83,10 +83,7 @@ function onKeyDown(e: KeyboardEvent) {
 }
 
 function onAdd() {
-  const text = getComment().trim()
-  if (!text)
-    return
-  emit('add', text)
+  emit('add', getComment().trim())
 }
 
 function onPaste(e: ClipboardEvent) {
@@ -188,8 +185,8 @@ onMounted(() => {
         <VaButton variant="secondary" @click="$emit('cancel')">
           Cancel
         </VaButton>
-        <VaButton :disabled="!commentText.trim()" @click="onAdd">
-          {{ isEditing ? 'Save' : 'Add' }}
+        <VaButton @click="onAdd">
+          {{ isEditing ? 'Save' : commentText.trim() ? 'Add' : 'Pin' }}
         </VaButton>
       </div>
     </div>

@@ -49,7 +49,8 @@ export function formatAnnotations(
       lines.push(`### ${num}. \`${ann.element}\` — ${ann.elementPath}`)
     }
 
-    lines.push(`- **Comment:** ${ann.comment}`)
+    if (ann.comment)
+      lines.push(`- **Comment:** ${ann.comment}`)
 
     if (ann.selectedText) {
       lines.push(`- **In element:** \`${ann.element}\` — ${ann.elementPath}`)
