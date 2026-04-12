@@ -24,6 +24,7 @@ const defaults: Settings = {
   showComponentTree: true,
   theme: 'auto',
   activationKey: 'Shift',
+  peekKey: 'none',
 }
 
 function loadSettings(): Settings {

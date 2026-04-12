@@ -27,8 +27,10 @@ import {
 import { useMarkerPositions } from './composables/useMarkerPositions'
 import { useMultiSelect } from './composables/useMultiSelect'
 import { useOutputFormatter } from './composables/useOutputFormatter'
+import { usePeekMode } from './composables/usePeekMode'
 import { useSettings } from './composables/useSettings'
 import { useTextSelection } from './composables/useTextSelection'
+import { PEEK_HOLD_DURATION_MS } from './constants'
 import { isInsideAgentationTree } from './utils/agentation-tree'
 import { copyToClipboard } from './utils/clipboard'
 import {
@@ -135,6 +137,27 @@ const animPause = useAnimationPause()
 const { recalculatePositions: _recalculatePositions }
   = useMarkerPositions(annotations)
 const { formatAnnotations } = useOutputFormatter()
+
+// Peek mode
+const peekActive = ref(false)
+const peekMode = usePeekMode({
+  peekKey: () => settings.peekKey,
+  enabled: () => mode.value === 'idle' && (!toolbarRef.value || !toolbarRef.value.expanded),
+  isInputOpen: () => mode.value === 'input-open',
+  onActivate() {
+    peekActive.value = true
+    transition('inspect')
+  },
+  onDeactivate() {
+    peekActive.value = false
+    if (mode.value === 'input-open')
+      return
+    if (mode.value !== 'idle') {
+      transition('idle')
+      clearHighlight()
+    }
+  },
+})
 
 // Local state
 const pendingPosition = ref<{ x: number, y: number } | null>(null)
@@ -298,6 +321,20 @@ watch(
   { immediate: true },
 )
 
+// Crosshair cursor when inspect mode is active
+let crosshairStyle: HTMLStyleElement | null = null
+watch(mode, (current, previous) => {
+  if (current !== 'idle' && previous === 'idle') {
+    crosshairStyle = document.createElement('style')
+    crosshairStyle.textContent = '* { cursor: crosshair !important; }'
+    document.head.appendChild(crosshairStyle)
+  }
+  else if (current === 'idle' && previous !== 'idle') {
+    crosshairStyle?.remove()
+    crosshairStyle = null
+  }
+})
+
 // Event handlers
 function onActivate() {
   transition('inspect')
@@ -325,8 +362,6 @@ function onOverlayMouseMove(e: MouseEvent) {
 
 function onOverlayMouseDown(e: MouseEvent) {
   if (isInteractionLocked())
-    return
-  if (multiSelect.onMouseDown(e))
     return
   areaSelect.onMouseDown(e)
 }
@@ -727,14 +762,27 @@ function onInputAdd(comment: string) {
   }
 
   resetPendingState()
-  transition('inspect')
+  clearHighlight()
+  if (peekActive.value) {
+    transition('inspect')
+    peekMode.scheduleExit()
+  }
+  else {
+    transition('inspect')
+  }
 }
 
 function onInputCancel() {
   resetPendingState()
-  multiSelect.reset()
   areaSelect.reset()
-  transition('inspect')
+  clearHighlight()
+  if (peekActive.value) {
+    transition('idle')
+    peekMode.deactivate()
+  }
+  else {
+    transition('inspect')
+  }
 }
 
 async function onCopy() {
@@ -832,7 +880,14 @@ function onInputDelete() {
   if (removed)
     emit('annotation-delete', removed)
   resetPendingState()
-  transition('inspect')
+  clearHighlight()
+  if (peekActive.value) {
+    transition('idle')
+    peekMode.deactivate()
+  }
+  else {
+    transition('inspect')
+  }
 }
 
 function onInputSave(comment: string) {
@@ -842,7 +897,14 @@ function onInputSave(comment: string) {
   if (updated)
     emit('annotation-update', updated)
   resetPendingState()
-  transition('inspect')
+  clearHighlight()
+  if (peekActive.value) {
+    transition('inspect')
+    peekMode.scheduleExit()
+  }
+  else {
+    transition('inspect')
+  }
 }
 
 function onToggleArea(value: boolean) {
@@ -972,10 +1034,11 @@ onBeforeUnmount(() => {
         :style="boundingBoxToStyle(areaSelect.areaRect.value)"
       />
 
-      <!-- Annotation markers -->
+      <!-- Annotation markers (hidden when toolbar is collapsed) -->
       <AnnotationMarker
         v-for="(ann, i) in annotations"
         :key="ann.id"
+        :hidden="mode === 'idle'"
         :number="i + 1"
         :x="ann.x"
         :y="ann.y"
@@ -1045,6 +1108,8 @@ onBeforeUnmount(() => {
         :is-area-mode="areaSelect.isAreaMode.value"
         :auto-hide-enabled="settings.autoHideToolbar"
         :placement="settings.toolbarPlacement"
+        :is-peek-charging="peekMode.isCharging.value"
+        :peek-duration-ms="PEEK_HOLD_DURATION_MS"
         @activate="onActivate"
         @deactivate="onDeactivate"
         @copy="onCopy"

@@ -13,6 +13,8 @@ const props = defineProps<{
   isAreaMode: boolean
   autoHideEnabled: boolean
   placement: ToolbarAnchor
+  isPeekCharging: boolean
+  peekDurationMs: number
 }>()
 
 const emit = defineEmits<{
@@ -159,6 +161,14 @@ defineExpose({ expanded, placement })
         >
           <VaIcon name="cursor" />
           <span v-if="annotationCount > 0" class="__va-toolbar-badge">{{ annotationCount }}</span>
+          <svg
+            v-if="isPeekCharging"
+            class="__va-peek-ring"
+            viewBox="0 0 46 46"
+            aria-hidden="true"
+          >
+            <circle cx="23" cy="23" r="21" :style="{ animationDuration: `${peekDurationMs}ms` }" />
+          </svg>
         </button>
       </div>
 
