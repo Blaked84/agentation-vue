@@ -54,6 +54,13 @@
   border: none;
   text-decoration: none;
   list-style: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+:where([data-agentation-vue] input, [data-agentation-vue] textarea, [data-agentation-vue] [contenteditable="true"]) {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 /* === Intercept Overlay === */
@@ -1064,6 +1071,10 @@
   font-size: 12px;
   color: var(--va-text-secondary);
   white-space: nowrap;
+}
+
+.__va-settings-row--clickable {
+  cursor: pointer;
 }
 
 .__va-settings-row--stack {

@@ -21,6 +21,13 @@ function update(key: keyof Settings, value: any) {
   emit('update', { [key]: value })
 }
 
+function onToggleRowClick(key: keyof Settings, event: MouseEvent) {
+  const target = event.target as HTMLElement | null
+  if (target?.closest('.__va-toggle'))
+    return
+  update(key, !settings.value[key])
+}
+
 function onSelectChange(key: keyof Settings, event: Event) {
   const target = event.currentTarget as HTMLSelectElement | null
   if (!target)
@@ -67,7 +74,7 @@ function toggleTheme() {
       </select>
     </div>
 
-    <div class="__va-settings-row">
+    <div class="__va-settings-row __va-settings-row--clickable" @click="onToggleRowClick('showComponentTree', $event)">
       <span class="__va-settings-label">Vue component tree</span>
       <VaToggle
         :model-value="settings.showComponentTree"
@@ -95,7 +102,7 @@ function toggleTheme() {
 
     <div class="__va-settings-divider" />
 
-    <div class="__va-settings-row">
+    <div class="__va-settings-row __va-settings-row--clickable" @click="onToggleRowClick('clearAfterCopy', $event)">
       <span class="__va-settings-label">Clear After Copy</span>
       <VaToggle
         :model-value="settings.clearAfterCopy"
@@ -104,7 +111,7 @@ function toggleTheme() {
       />
     </div>
 
-    <div class="__va-settings-row">
+    <div class="__va-settings-row __va-settings-row--clickable" @click="onToggleRowClick('blockPageInteractions', $event)">
       <span class="__va-settings-label">Block page interactions</span>
       <VaToggle
         :model-value="settings.blockPageInteractions"
@@ -113,7 +120,7 @@ function toggleTheme() {
       />
     </div>
 
-    <div class="__va-settings-row">
+    <div class="__va-settings-row __va-settings-row--clickable" @click="onToggleRowClick('autoHideToolbar', $event)">
       <span class="__va-settings-label">Auto-hide floating button</span>
       <VaToggle
         :model-value="settings.autoHideToolbar"

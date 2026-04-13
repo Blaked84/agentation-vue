@@ -326,7 +326,7 @@ let crosshairStyle: HTMLStyleElement | null = null
 watch(mode, (current, previous) => {
   if (current !== 'idle' && previous === 'idle') {
     crosshairStyle = document.createElement('style')
-    crosshairStyle.textContent = '* { cursor: crosshair !important; }'
+    crosshairStyle.textContent = '* { cursor: crosshair !important; } [data-agentation-vue], [data-agentation-vue] * { cursor: auto !important; } [data-agentation-vue] button, [data-agentation-vue] select, [data-agentation-vue] [role="switch"], [data-agentation-vue] a { cursor: pointer !important; }'
     document.head.appendChild(crosshairStyle)
   }
   else if (current === 'idle' && previous !== 'idle') {
