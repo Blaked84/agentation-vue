@@ -7,6 +7,7 @@ const pkg = JSON.parse(readFileSync(resolve(__dirname, '../../packages/agentatio
 const isGitHubPages = process.env.GITHUB_PAGES === 'true'
 const isPromoCapture = process.env.PROMO_CAPTURE === 'true'
 const posthogPublicKey = process.env.POSTHOG_PUBLIC_KEY || ''
+const posthogHost = process.env.POSTHOG_HOST || 'https://eu.i.posthog.com'
 
 export default defineNuxtConfig({
   ssr: true,
@@ -30,9 +31,14 @@ export default defineNuxtConfig({
 
   posthogConfig: {
     publicKey: posthogPublicKey,
-    host: 'https://eu.i.posthog.com',
+    // Managed reverse proxy (set via POSTHOG_HOST secret) to avoid ad-blockers
+    // and keep 1st-party requests. Falls back to eu.i.posthog.com in dev.
+    host: posthogHost,
     clientConfig: {
+      // Keep links in PostHog dashboards pointing back to the real PostHog UI
       ui_host: 'https://eu.posthog.com',
+      defaults: '2026-01-30',
+      person_profiles: 'identified_only',
     },
   },
 
