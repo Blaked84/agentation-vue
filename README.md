@@ -3,6 +3,8 @@
 [![npm version](https://img.shields.io/npm/v/agentation-vue)](https://www.npmjs.com/package/agentation-vue)
 [![npm downloads](https://img.shields.io/npm/dm/agentation-vue)](https://www.npmjs.com/package/agentation-vue)
 
+![agentation-vue in action](https://raw.githubusercontent.com/Blaked84/agentation-vue/main/packages/chrome-extension/promo-1280x800.png)
+
 Visual feedback tool for AI coding agents. Drop a single component into your Vue app and let your AI agent see and annotate UI elements.
 
 Compatible with **Vue 3.3+** and **Vue 2.7**.
