@@ -6,6 +6,7 @@ const pkg = JSON.parse(readFileSync(resolve(__dirname, '../../packages/agentatio
 
 const isGitHubPages = process.env.GITHUB_PAGES === 'true'
 const isPromoCapture = process.env.PROMO_CAPTURE === 'true'
+const posthogPublicKey = process.env.POSTHOG_PUBLIC_KEY || ''
 
 export default defineNuxtConfig({
   ssr: true,
@@ -22,7 +23,18 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ['@nuxtjs/tailwindcss'],
+  modules: [
+    '@nuxtjs/tailwindcss',
+    ...(posthogPublicKey ? ['@posthog/nuxt' as const] : []),
+  ],
+
+  posthogConfig: {
+    publicKey: posthogPublicKey,
+    host: 'https://eu.i.posthog.com',
+    clientConfig: {
+      ui_host: 'https://eu.posthog.com',
+    },
+  },
 
   build: {
     transpile: ['agentation-vue', 'vue-demi'],
