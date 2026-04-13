@@ -30,6 +30,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm build:landing
+        env:
+          POSTHOG_PUBLIC_KEY: ${{ secrets.POSTHOG_PUBLIC_KEY }}
 
       - uses: actions/upload-pages-artifact@v3
         with:
