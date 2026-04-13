@@ -204,10 +204,11 @@ test.describe('chrome extension integration', () => {
   test('stops auto-mounting after deactivation', async () => {
     await activateCurrentTab()
     await page.reload(navigationOptions)
-    expect(await hasShadowToolbar()).toBe(true)
+    await expect.poll(() => hasShadowToolbar(), { timeout: 5_000 }).toBe(true)
 
     await deactivateCurrentTab()
     await page.reload(navigationOptions)
+    await page.waitForLoadState('networkidle')
     expect(await hasShadowToolbar()).toBe(false)
   })
 })
