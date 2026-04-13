@@ -1,10 +1,14 @@
 import { resolve } from 'node:path'
+import process from 'node:process'
 import vue2 from '@vitejs/plugin-vue2'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [vue2()],
-  server: { port: 3001 },
+  server: {
+    port: Number(process.env.PORT) || 3001,
+    strictPort: true,
+  },
   resolve: {
     alias: {
       'agentation-vue/style.css': resolve(__dirname, '../../packages/agentation-vue/src/styles/agentation.css'),
