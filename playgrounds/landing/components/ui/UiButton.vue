@@ -11,7 +11,7 @@ defineProps<{
   <component
     :is="as === 'a' ? 'a' : 'button'"
     :href="href"
-    class="inline-flex items-center justify-center gap-2 font-body font-semibold transition-all duration-150 ease-spring cursor-pointer"
+    class="inline-flex items-center justify-center gap-2 font-body font-semibold transition-[background-color,box-shadow,transform] duration-150 ease-spring cursor-pointer active:scale-[0.96]"
     :class="[
       variant === 'secondary'
         ? 'bg-cream-200 hover:bg-cream-300 text-ink-700 border border-cream-300'
