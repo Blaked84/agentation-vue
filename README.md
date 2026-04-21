@@ -71,6 +71,8 @@ Then place the component once in your root `App.vue`:
 
 ## Chrome extension
 
+[**Install from the Chrome Web Store →**](https://chromewebstore.google.com/detail/agentation-vue/jlnankjnhpjffajbcnodbohdkpoeifmc)
+
 This repo also contains a Chrome extension for injecting Agentation without modifying the target app code.
 
 ## Features

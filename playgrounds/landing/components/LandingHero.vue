@@ -18,14 +18,14 @@ function copyInstall() {
       </p>
 
       <h1
-        class="mt-4 text-4xl leading-[1.1] tracking-tight md:text-5xl lg:text-6xl"
+        class="mt-4 text-4xl leading-[1.1] tracking-tight text-balance md:text-5xl lg:text-6xl"
       >
         See it. Point it.
-        <em class="typewriter not-italic text-ember-500"><span class="typewriter-text">Fix it.</span><span class="terminal-cursor" /></em>
+        <em class="typewriter relative not-italic text-ember-500"><span class="typewriter-text">Fix it.</span><span class="terminal-cursor" /></em>
       </h1>
 
       <p
-        class="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-ink-500 md:text-lg"
+        class="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-balance text-ink-500 md:text-lg"
       >
         Agentation-vue turns UI annotations into instructions for your coding
         agents. Click any element, add a note, and paste the output into Claude
@@ -40,28 +40,29 @@ function copyInstall() {
         </div>
       </div>
 
-      <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+      <div class="mt-8 flex flex-col items-center gap-5">
+        <a
+          href="https://chromewebstore.google.com/detail/agentation-vue/jlnankjnhpjffajbcnodbohdkpoeifmc"
+          class="group inline-flex items-center gap-2.5 rounded-va-lg border border-ember-500 bg-ember-500 px-6 py-3 text-sm font-medium text-white shadow-sm transition-[background-color,box-shadow,transform] duration-150 ease-spring hover:bg-ember-600 hover:shadow-md active:scale-[0.96]"
+        >
+          <LandingIcon name="chrome" class="h-5 w-5" />
+          <span>Add to Chrome</span>
+        </a>
+
+        <div class="flex items-center gap-3 text-xs text-ink-300">
+          <span class="h-px w-8 bg-ink-300/30" />
+          <span class="font-mono uppercase tracking-wider">or add to your Vue codebase</span>
+          <span class="h-px w-8 bg-ink-300/30" />
+        </div>
+
         <button
-          class="group flex items-center gap-3 rounded-va border border-ink-700 bg-ink-900 px-5 py-3 font-mono text-sm text-[#d4d4d4] transition-all duration-150 ease-spring hover:bg-ink-700"
+          class="group flex items-center gap-3 rounded-va border border-ink-700 bg-ink-900 px-5 py-2.5 font-mono text-sm text-[#d4d4d4] transition-[background-color,transform] duration-150 ease-spring hover:bg-ink-700 active:scale-[0.96]"
           @click="copyInstall"
         >
           <span class="select-none text-ink-500">$ </span>
           <span>npm install agentation-vue</span>
           <LandingIcon :name="copied ? 'check' : 'copy'" class="h-4 w-4 text-ink-500 transition-colors group-hover:text-[#d4d4d4]" />
         </button>
-
-        <a
-          href="https://github.com/Blaked84/agentation-vue"
-          class="text-sm text-ink-500 transition-colors hover:text-ink-900"
-        >
-          GitHub →
-        </a>
-        <a
-          href="https://www.npmjs.com/package/agentation-vue"
-          class="text-sm text-ink-500 transition-colors hover:text-ink-900"
-        >
-          NPM →
-        </a>
       </div>
 
       <p class="mt-10 mb-2 font-mono text-xs tracking-wide text-ink-300">
@@ -91,7 +92,7 @@ function copyInstall() {
 }
 
 .typewriter {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Inconsolata', monospace;
 }
 
 .typewriter-text {
@@ -104,6 +105,7 @@ function copyInstall() {
 }
 
 .terminal-cursor {
+  position: absolute;
   display: inline-block;
   width: 0.5ch;
   height: 0.85em;
