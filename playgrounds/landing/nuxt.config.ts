@@ -5,6 +5,7 @@ import process from 'node:process'
 const pkg = JSON.parse(readFileSync(resolve(__dirname, '../../packages/agentation-vue/package.json'), 'utf-8'))
 
 const isGitHubPages = process.env.GITHUB_PAGES === 'true'
+const siteUrl = process.env.SITE_URL || (isGitHubPages ? 'https://blaked84.github.io/agentation-vue' : 'http://localhost:3002')
 const isPromoCapture = process.env.PROMO_CAPTURE === 'true'
 const posthogPublicKey = process.env.POSTHOG_PUBLIC_KEY || ''
 const posthogHost = process.env.POSTHOG_HOST || 'https://eu.i.posthog.com'
@@ -80,9 +81,20 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: 'Drop a Vue component into your app. Click any element to generate structured Markdown for AI coding agents.' },
-        { property: 'og:title', content: 'agentation-vue' },
-        { property: 'og:description', content: 'Visual annotations for AI coding agents — Vue 2.7 & Vue 3.' },
+        // Open Graph
+        { property: 'og:title', content: 'agentation-vue — Visual annotations for AI coding agents' },
+        { property: 'og:description', content: 'Click any element, add a note, and paste the output into Claude Code, Cursor, or any AI tool. Vue 2.7 & Vue 3.' },
         { property: 'og:type', content: 'website' },
+        { property: 'og:url', content: siteUrl },
+        { property: 'og:image', content: `${siteUrl}/og.png` },
+        { property: 'og:image:width', content: '1280' },
+        { property: 'og:image:height', content: '800' },
+        { property: 'og:image:alt', content: 'agentation-vue — Visual annotations for AI coding agents' },
+        // Twitter Card
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'agentation-vue — Visual annotations for AI coding agents' },
+        { name: 'twitter:description', content: 'Click any element, add a note, and paste the output into Claude Code, Cursor, or any AI tool. Vue 2.7 & Vue 3.' },
+        { name: 'twitter:image', content: `${siteUrl}/og.png` },
       ],
     },
   },
