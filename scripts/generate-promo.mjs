@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 /**
- * Capture the Chrome Web Store promotional image (1280x800).
+ * Capture promotional images for the project.
  *
- * Starts the landing dev server, waits for the demo animation to reach
- * the terminal-output frame, takes a screenshot, then shuts down.
- *
- * Output: packages/chrome-extension/promo-1280x800.png
+ * Starts the landing dev server, captures two screenshots, then shuts down:
+ *   1. Chrome Web Store (1280×800)  → packages/chrome-extension/promo-1280x800.png
+ *   2. Open Graph / Twitter Card (1200×630) → playgrounds/landing/public/og.png
  *
  * Usage: node scripts/generate-promo.mjs
  * Requires: @playwright/test (already in devDependencies)
@@ -20,10 +19,24 @@ import { chromium } from '@playwright/test'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = resolve(__dirname, '..')
 const landingDir = resolve(root, 'playgrounds/landing')
-const outputPath = resolve(root, 'packages/chrome-extension/promo-1280x800.png')
 
 const PORT = 3099 // avoid clashing with dev:landing on 3002
-const URL = `http://localhost:${PORT}/promo/chrome-store`
+const BASE_URL = `http://localhost:${PORT}`
+
+const targets = [
+  {
+    name: 'Chrome Web Store',
+    path: '/promo/chrome-store',
+    viewport: { width: 1280, height: 800 },
+    output: resolve(root, 'packages/chrome-extension/promo-1280x800.png'),
+  },
+  {
+    name: 'Open Graph',
+    path: '/promo/og',
+    viewport: { width: 1200, height: 630 },
+    output: resolve(root, 'playgrounds/landing/public/og.png'),
+  },
+]
 
 // ---------------------------------------------------------------------------
 // 1. Start the landing dev server
@@ -64,22 +77,28 @@ await new Promise((resolve, reject) => {
 console.log('dev server ready')
 
 // ---------------------------------------------------------------------------
-// 2. Capture screenshot with Playwright
+// 2. Capture screenshots with Playwright
 // ---------------------------------------------------------------------------
 let browser
 try {
   browser = await chromium.launch()
-  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
 
-  await page.goto(URL, { waitUntil: 'networkidle' })
+  for (const target of targets) {
+    console.log(`capturing ${target.name} (${target.viewport.width}×${target.viewport.height})…`)
+    const page = await browser.newPage({ viewport: target.viewport })
 
-  // Wait for the demo animation to reach the frozen "annotation-pinned" frame.
-  await page.waitForSelector('[data-demo-phase="frozen"]', { timeout: 30_000 })
-  // Short settle delay so marker/toolbar transitions are fully at rest.
-  await page.waitForTimeout(400)
+    await page.goto(`${BASE_URL}${target.path}`, { waitUntil: 'networkidle' })
 
-  await page.screenshot({ path: outputPath, clip: { x: 0, y: 0, width: 1280, height: 800 } })
-  console.log('wrote', outputPath)
+    await page.waitForSelector('[data-demo-phase="frozen"]', { timeout: 30_000 })
+    await page.waitForTimeout(400)
+
+    await page.screenshot({
+      path: target.output,
+      clip: { x: 0, y: 0, ...target.viewport },
+    })
+    console.log('wrote', target.output)
+    await page.close()
+  }
 }
 finally {
   await browser?.close()

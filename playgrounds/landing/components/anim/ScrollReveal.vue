@@ -25,7 +25,7 @@ onMounted(() => {
 <template>
   <div
     ref="el"
-    class="transition-all duration-700 ease-spring"
+    class="transition-[opacity,transform] duration-700 ease-spring"
     :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'"
     :style="{ transitionDelay: `${props.delay}ms` }"
   >

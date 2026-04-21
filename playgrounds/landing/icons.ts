@@ -6,6 +6,7 @@ export const landingIcons = {
   'area-select': '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18" opacity="0.3"/>',
   'search': '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
   'keyboard': '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01"/><path d="M6 12h.01M10 12h.01M14 12h.01M18 12h.01"/><path d="M8 16h8"/>',
+  'chrome': '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/>',
 } as const
 
 export type LandingIconName = keyof typeof landingIcons

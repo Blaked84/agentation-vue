@@ -15,7 +15,7 @@ withDefaults(defineProps<{
 <template>
   <div
     v-if="rect"
-    class="pointer-events-none absolute transition-all duration-150 ease-out"
+    class="pointer-events-none absolute transition-[opacity,transform] duration-150 ease-out"
     data-agentation-vue
     :style="{
       left: `${rect.x}px`,

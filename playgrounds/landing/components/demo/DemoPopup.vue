@@ -16,7 +16,7 @@ const fakeChain = 'App > Dashboard > StatsCard > ActionButton'
 
 <template>
   <div
-    class="absolute z-40 transition-all duration-200"
+    class="absolute z-40 transition-[opacity,transform] duration-200"
     data-agentation-vue
     data-va-theme="dark"
     :style="{

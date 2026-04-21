@@ -34,7 +34,7 @@ const capabilities: { title: string, description: string, icon: LandingIconName 
           <h3 class="font-body text-sm font-semibold text-ink-900">
             {{ cap.title }}
           </h3>
-          <p class="mt-1 text-sm text-ink-500">
+          <p class="mt-1 text-sm text-pretty text-ink-500">
             {{ cap.description }}
           </p>
         </div>
