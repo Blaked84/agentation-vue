@@ -1,6 +1,7 @@
+import { HOST_ATTR_SELECTOR, HOST_ID } from '../shared/host'
+
 const REQUEST_EVENT = 'agentation:detect-vue:request'
 const RESPONSE_EVENT = 'agentation:detect-vue:response'
-const HOST_ID = '__agentation-ext-host'
 const EXPANDED_TOOLBAR_SELECTOR = '.__va-toolbar.__va-toolbar--expanded'
 const SHORTCUT_BUTTON_LABELS: Record<string, string> = {
   v: 'Element selector',
@@ -233,7 +234,11 @@ function walkComponentChain(instance: VueInstance, includeFile: boolean): string
 }
 
 function detectVueChainAtPoint(x: number, y: number, includeFile: boolean): string | undefined {
-  const target = document.elementFromPoint(x, y)
+  // Skip elements belonging to the extension's own UI (shadow host / overlays),
+  // so we reach the underlying page element even while the input popup is visible.
+  const target = document.elementsFromPoint(x, y).find(
+    el => !el.closest(HOST_ATTR_SELECTOR),
+  )
   if (!target)
     return undefined
 

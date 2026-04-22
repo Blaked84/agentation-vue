@@ -2,9 +2,7 @@ import type { App } from 'vue'
 import AgentationVue from '@agentation-vue-src/AgentationVue.vue'
 import agentationStyles from '@agentation-vue-src/styles/agentation.css?inline'
 import { createApp, nextTick } from 'vue'
-
-const HOST_ID = '__agentation-ext-host'
-const HOST_ATTR = 'data-agentation-vue'
+import { HOST_ATTR, HOST_ID } from '../shared/host'
 
 interface MountHandle {
   destroy: () => void
