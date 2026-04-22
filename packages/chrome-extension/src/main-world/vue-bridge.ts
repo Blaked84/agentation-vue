@@ -233,7 +233,11 @@ function walkComponentChain(instance: VueInstance, includeFile: boolean): string
 }
 
 function detectVueChainAtPoint(x: number, y: number, includeFile: boolean): string | undefined {
-  const target = document.elementFromPoint(x, y)
+  // Skip elements belonging to the extension's own UI (shadow host / overlays),
+  // so we reach the underlying page element even while the input popup is visible.
+  const target = document.elementsFromPoint(x, y).find(
+    el => !el.closest('[data-agentation-vue]'),
+  )
   if (!target)
     return undefined
 
