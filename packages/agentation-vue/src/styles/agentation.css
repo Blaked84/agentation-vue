@@ -656,11 +656,24 @@
   transition: transform 200ms cubic-bezier(0.55, 0, 1, 0.45), box-shadow 150ms ease, opacity 150ms ease;
 }
 
+.__va-marker--clipped {
+  visibility: hidden;
+}
+
 .__va-marker--fixed {
   position: fixed;
 }
 
 .__va-marker--stale {
+  opacity: 0.5;
+}
+
+.__va-marker--foreign {
+  opacity: 0.8;
+}
+
+/* Stale is a stronger signal than foreign -- keep it dominant when both apply. */
+.__va-marker--stale.__va-marker--foreign {
   opacity: 0.5;
 }
 

@@ -74,6 +74,21 @@ function toggleTheme() {
       </select>
     </div>
 
+    <div class="__va-settings-row">
+      <span class="__va-settings-label">Annotation scope</span>
+      <select :value="settings.scope" @change="onSelectChange('scope', $event)">
+        <option value="domain">
+          Domain
+        </option>
+        <option value="domain-port">
+          Domain and port
+        </option>
+        <option value="path">
+          Path
+        </option>
+      </select>
+    </div>
+
     <div class="__va-settings-row __va-settings-row--clickable" @click="onToggleRowClick('showComponentTree', $event)">
       <span class="__va-settings-label">Vue component tree</span>
       <VaToggle

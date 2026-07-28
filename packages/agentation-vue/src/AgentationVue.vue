@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { KeyboardShortcutConfig } from './composables/useKeyboardShortcuts'
-import type { Annotation, OutputDetail, Settings } from './types'
+import type { Annotation, AnnotationScope, OutputDetail, Settings } from './types'
 import {
   isVue2 as _isVue2,
   computed,
@@ -34,6 +34,10 @@ import { useSettings } from './composables/useSettings'
 import { useTextSelection } from './composables/useTextSelection'
 import { PEEK_HOLD_DURATION_MS } from './constants'
 import { isInsideAgentationTree } from './utils/agentation-tree'
+import {
+  isForeignAnnotation,
+  shouldRenderAnnotationMarker,
+} from './utils/annotation-target'
 import { guardAttributes } from './utils/attribute-guard'
 import { copyToClipboard } from './utils/clipboard'
 import {
@@ -60,8 +64,12 @@ const props = withDefaults(
     theme?: 'light' | 'dark' | 'auto'
     activationKey?: 'none' | 'Meta' | 'Alt' | 'Shift'
     disablePortal?: boolean
+    scope?: AnnotationScope
   }>(),
   {
+    blockPageInteractions: undefined,
+    autoHideToolbar: undefined,
+    disablePortal: undefined,
     copyToClipboard: true,
   },
 )
@@ -123,6 +131,7 @@ const {
   clearAnnotations,
   restoreAnnotations,
   setScopeUrl,
+  setAnnotationScope,
 } = useAnnotations(currentUrl.value)
 const {
   hoveredRect,
@@ -137,8 +146,7 @@ const textSelection = useTextSelection(mode)
 const multiSelect = useMultiSelect(mode, transition)
 const areaSelect = useAreaSelect(mode, transition)
 const animPause = useAnimationPause()
-const { recalculatePositions: _recalculatePositions }
-  = useMarkerPositions(annotations)
+const { targetStates } = useMarkerPositions(annotations)
 const { formatAnnotations } = useOutputFormatter()
 
 // Peek mode
@@ -181,9 +189,13 @@ const undoFeedback = ref(false)
 const undoSnapshot = ref<Annotation[]>([])
 let undoTimer: ReturnType<typeof setTimeout> | null = null
 const UNDO_TIMEOUT_MS = 5_000
+let overlayWheelRestoreTimer: ReturnType<typeof setTimeout> | null = null
+let pointerEventsBeforeWheelSuppression: string | null = null
+let overlayWheelPassthrough = false
 const toolbarDragging = ref(false)
 const DRAG_END_SUPPRESSION_MS = 500
 const SETTINGS_CLOSE_SUPPRESSION_MS = 220
+const OVERLAY_WHEEL_SUPPRESSION_MS = 150
 let suppressInteractionsUntil = 0
 const effectiveBlockPageInteractions = computed(
   () => props.blockPageInteractions ?? settings.blockPageInteractions,
@@ -222,14 +234,33 @@ const pendingIsSelection = computed(
       || !!areaSelect.areaRect.value),
 )
 
+const numberedAnnotations = computed(() =>
+  annotations.value.map((annotation, i) => ({ annotation, number: i + 1 })),
+)
 const mentionCandidates = computed(() =>
-  annotations.value
-    .map((ann, i) => ({
+  numberedAnnotations.value
+    .map(({ annotation: ann, number }) => ({
       id: ann.id,
-      displayNumber: i + 1,
+      displayNumber: number,
       commentPreview: ann.comment.replace(/@\[\d+\]/g, '@\u2026').slice(0, 40) + (ann.comment.length > 40 ? '\u2026' : ''),
     }))
     .filter(c => !editingAnnotation.value || c.id !== editingAnnotation.value.id),
+)
+const markerAnnotations = computed(() =>
+  numberedAnnotations.value
+    .filter(({ annotation }) =>
+      shouldRenderAnnotationMarker(
+        annotation,
+        resolvedUrl.value,
+        targetStates.value.has(annotation.id),
+      ),
+    )
+    .map(({ annotation, number }) => ({
+      annotation,
+      number,
+      isForeign: isForeignAnnotation(annotation, resolvedUrl.value),
+      clipped: targetStates.value.get(annotation.id) === true,
+    })),
 )
 
 // Portal setup (Vue 2.7 compat)
@@ -340,10 +371,28 @@ watch(
   },
   { immediate: true },
 )
+watch(
+  () => props.scope,
+  (v) => {
+    if (v !== undefined)
+      settings.scope = v
+  },
+  { immediate: true },
+)
+watch(
+  () => settings.scope,
+  (v) => {
+    setAnnotationScope(v)
+  },
+  { immediate: true },
+)
 
 // Crosshair cursor when inspect mode is active
 let crosshairStyle: HTMLStyleElement | null = null
 watch(mode, (current, previous) => {
+  if (current !== previous)
+    clearOverlayWheelSuppression()
+
   if (current !== 'idle' && previous === 'idle') {
     crosshairStyle = document.createElement('style')
     crosshairStyle.textContent = '* { cursor: crosshair !important; } [data-agentation-vue], [data-agentation-vue] * { cursor: auto !important; } [data-agentation-vue] button, [data-agentation-vue] select, [data-agentation-vue] [role="switch"], [data-agentation-vue] a { cursor: pointer !important; }'
@@ -483,12 +532,31 @@ function onOverlayWheel(_e: WheelEvent) {
   const overlay = overlayEl.value
   if (!overlay)
     return
-  const previousPointerEvents = overlay.style.pointerEvents
+
+  if (!overlayWheelPassthrough)
+    pointerEventsBeforeWheelSuppression = overlay.style.pointerEvents
+  if (overlayWheelRestoreTimer !== null)
+    clearTimeout(overlayWheelRestoreTimer)
+
   overlay.style.pointerEvents = 'none'
-  requestAnimationFrame(() => {
-    if (overlay)
-      overlay.style.pointerEvents = previousPointerEvents
-  })
+  overlayWheelPassthrough = true
+  overlayWheelRestoreTimer = setTimeout(
+    clearOverlayWheelSuppression,
+    OVERLAY_WHEEL_SUPPRESSION_MS,
+  )
+}
+
+function clearOverlayWheelSuppression() {
+  if (overlayWheelRestoreTimer !== null)
+    clearTimeout(overlayWheelRestoreTimer)
+
+  const overlay = overlayEl.value
+  if (overlay && pointerEventsBeforeWheelSuppression !== null)
+    overlay.style.pointerEvents = pointerEventsBeforeWheelSuppression
+
+  overlayWheelRestoreTimer = null
+  pointerEventsBeforeWheelSuppression = null
+  overlayWheelPassthrough = false
 }
 
 function getElementAtPointThroughOverlay(x: number, y: number): Element | null {
@@ -506,7 +574,10 @@ function getElementAtPointThroughOverlay(x: number, y: number): Element | null {
 function shouldUseDocumentFallbackEvents() {
   return (
     mode.value === 'inspect'
-    && !effectiveBlockPageInteractions.value
+    && (
+      !effectiveBlockPageInteractions.value
+      || overlayWheelPassthrough
+    )
     && !isInteractionLocked()
   )
 }
@@ -998,6 +1069,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  clearOverlayWheelSuppression()
   window.removeEventListener(HISTORY_CHANGE_EVENT, syncUrlScopeFromWindow)
   window.removeEventListener('popstate', syncUrlScopeFromWindow)
   window.removeEventListener('hashchange', syncUrlScopeFromWindow)
@@ -1059,16 +1131,18 @@ onBeforeUnmount(() => {
 
       <!-- Annotation markers (hidden when toolbar is collapsed) -->
       <AnnotationMarker
-        v-for="(ann, i) in annotations"
-        :key="ann.id"
+        v-for="marker in markerAnnotations"
+        :key="marker.annotation.id"
+        :clipped="marker.clipped"
         :hidden="mode === 'idle'"
-        :number="i + 1"
-        :x="ann.x"
-        :y="ann.y"
-        :is-fixed="ann.isFixed"
-        :is-stale="!ann._targetRef?.deref() && !!ann._targetRef"
-        :is-selection="!!(ann.isAreaSelect || ann.isMultiSelect)"
-        @click="onMarkerClick(ann)"
+        :number="marker.number"
+        :x="marker.annotation.x"
+        :y="marker.annotation.y"
+        :is-fixed="marker.annotation.isFixed"
+        :is-stale="!marker.annotation._targetRef?.deref() && !!marker.annotation._targetRef"
+        :is-selection="!!(marker.annotation.isAreaSelect || marker.annotation.isMultiSelect)"
+        :is-foreign="marker.isForeign"
+        @click="onMarkerClick(marker.annotation)"
       />
 
       <!-- Pending marker (unsaved annotation) -->
