@@ -10,6 +10,7 @@ import {
   ref,
   watch,
 } from 'vue-demi'
+import * as vueDemiExports from 'vue-demi'
 import AgentationToolbar from './components/AgentationToolbar.vue'
 import AnnotationInput from './components/AnnotationInput.vue'
 import AnnotationMarker from './components/AnnotationMarker.vue'
@@ -25,6 +26,7 @@ import {
   useKeyboardShortcuts,
 } from './composables/useKeyboardShortcuts'
 import { useMarkerPositions } from './composables/useMarkerPositions'
+import { useModalDialogHost } from './composables/useModalDialogHost'
 import { useMultiSelect } from './composables/useMultiSelect'
 import { useOutputFormatter } from './composables/useOutputFormatter'
 import { usePeekMode } from './composables/usePeekMode'
@@ -32,6 +34,7 @@ import { useSettings } from './composables/useSettings'
 import { useTextSelection } from './composables/useTextSelection'
 import { PEEK_HOLD_DURATION_MS } from './constants'
 import { isInsideAgentationTree } from './utils/agentation-tree'
+import { guardAttributes } from './utils/attribute-guard'
 import { copyToClipboard } from './utils/clipboard'
 import {
   isFixed as checkIsFixed,
@@ -231,6 +234,7 @@ const mentionCandidates = computed(() =>
 
 // Portal setup (Vue 2.7 compat)
 let portalContainer: HTMLElement | null = null
+const attributeGuards: Array<() => void> = []
 const isVue2 = _isVue2
 
 const PassThrough = defineComponent({
@@ -241,8 +245,13 @@ const PassThrough = defineComponent({
   },
 })
 
+// Namespace access: vue-demi has no Teleport export in Vue 2 mode, and a
+// string 'Teleport' is not resolved by <component :is> (it would render a
+// literal <teleport> element instead of teleporting)
+const TeleportImpl = (vueDemiExports as Record<string, unknown>).Teleport
+
 const portalWrapper = computed(() =>
-  props.disablePortal || isVue2 ? PassThrough : 'Teleport',
+  props.disablePortal || isVue2 || !TeleportImpl ? PassThrough : TeleportImpl,
 )
 const portalProps = computed(() =>
   props.disablePortal || isVue2 ? {} : { to: 'body' },
@@ -253,16 +262,27 @@ onMounted(() => {
     portalContainer = createPortalContainer()
     portalContainer.appendChild(rootEl.value)
   }
+  if (rootEl.value)
+    attributeGuards.push(guardAttributes(rootEl.value))
+  if (portalContainer)
+    attributeGuards.push(guardAttributes(portalContainer))
 })
 
 onBeforeUnmount(() => {
   dismissUndo()
   animPause.cleanup()
   cleanupDetection()
+  attributeGuards.forEach(stop => stop())
+  attributeGuards.length = 0
   if (portalContainer) {
     destroyPortalContainer(portalContainer)
   }
 })
+
+// Registered after the portal hooks so its onMounted runs once the root is in
+// its final home (the Vue 2 portal container), which it captures as the place
+// to restore the UI to when a modal dialog closes
+useModalDialogHost(rootEl)
 
 // Apply prop overrides to settings
 watch(
@@ -993,9 +1013,12 @@ onBeforeUnmount(() => {
   <component :is="portalWrapper" v-bind="portalProps">
     <div
       ref="rootEl"
+      class="__va-root"
       data-agentation-vue
       :data-va-theme="settings.theme !== 'auto' ? settings.theme : undefined"
       :style="rootStyle"
+      @focusin.stop
+      @focusout.stop
     >
       <!-- Intercept overlay -->
       <div
