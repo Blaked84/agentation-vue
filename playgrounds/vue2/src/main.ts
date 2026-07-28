@@ -16,6 +16,7 @@ const router = new VueRouter({
     { path: '/dynamic', component: () => import('./pages/DynamicContent.vue') },
     { path: '/iframes', component: () => import('./pages/IframePage.vue') },
     { path: '/fixed', component: () => import('./pages/FixedStickyPage.vue') },
+    { path: '/modals', component: () => import('./pages/ModalsPage.vue') },
   ],
 })
 

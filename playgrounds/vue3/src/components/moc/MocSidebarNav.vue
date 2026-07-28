@@ -10,6 +10,7 @@ const links = [
   { to: '/dynamic', label: 'Dynamic Content' },
   { to: '/iframes', label: 'Iframes' },
   { to: '/fixed', label: 'Fixed/Sticky' },
+  { to: '/modals', label: 'Modals & Dialogs' },
 ]
 </script>
 
