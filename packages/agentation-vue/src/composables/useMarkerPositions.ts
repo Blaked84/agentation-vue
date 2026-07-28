@@ -13,6 +13,13 @@ interface RectEdges {
 
 const CLIPPING_OVERFLOW_VALUES = new Set(['auto', 'scroll', 'hidden', 'overlay'])
 
+// Targets that failed to resolve are cached so scroll frames don't re-run a
+// document query for them. The cache is time-bounded rather than permanent:
+// an element can appear without resizing #app (swapped inside a fixed-height
+// container, absolutely positioned, ...), which would otherwise leave its
+// marker unresolved forever.
+const RESOLUTION_RETRY_INTERVAL_MS = 500
+
 export function isTargetCenterClipped(
   targetRect: RectEdges,
   clippingRects: RectEdges[],
@@ -76,6 +83,7 @@ export function useMarkerPositions(annotations: Ref<Annotation[]>) {
   let resizeObserver: ResizeObserver | null = null
   let rafId: number | null = null
   let retryResolutionPending = false
+  let lastResolutionSweep = 0
   const scrollableAncestorCache = new WeakMap<Element, HTMLElement[]>()
   const unresolvedIds = new Set<string>()
   const targetStates = ref<Map<string, boolean>>(new Map())
@@ -112,10 +120,14 @@ export function useMarkerPositions(annotations: Ref<Annotation[]>) {
       return
     rafId = requestAnimationFrame(() => {
       rafId = null
+      const now = Date.now()
       const isRetryPass = retryResolutionPending
+        || now - lastResolutionSweep >= RESOLUTION_RETRY_INTERVAL_MS
       retryResolutionPending = false
-      if (isRetryPass)
+      if (isRetryPass) {
+        lastResolutionSweep = now
         unresolvedIds.clear()
+      }
 
       const nextStates = new Map<string, boolean>()
       for (const annotation of annotations.value) {

@@ -117,6 +117,62 @@ describe('useMarkerPositions', () => {
     wrapper.unmount()
   })
 
+  it('re-attempts resolution on a plain recalculation once the retry interval elapsed', async () => {
+    const annotations = ref<Annotation[]>([{
+      id: 'silent-mount',
+      x: 0,
+      y: 0,
+      comment: 'Target mounting without an #app resize',
+      element: 'h1',
+      elementPath: '.silent-mount',
+      timestamp: 1,
+    }])
+    let markerPositions: ReturnType<typeof useMarkerPositions> | undefined
+    const host = defineComponent({
+      setup() {
+        markerPositions = useMarkerPositions(annotations)
+        return () => h('div')
+      },
+    })
+    const wrapper = mount(host, { attachTo: document.body })
+
+    await nextTick()
+    await nextTick()
+    flushAnimationFrames()
+    expect(markerPositions?.targetStates.value.has('silent-mount')).toBe(false)
+
+    const target = document.createElement('h1')
+    target.className = 'silent-mount'
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
+      x: 20,
+      y: 120,
+      top: 120,
+      right: 120,
+      bottom: 140,
+      left: 20,
+      width: 100,
+      height: 20,
+      toJSON: () => ({}),
+    })
+    document.body.appendChild(target)
+
+    // No retry trigger fires (no #app resize, no annotations change): a plain
+    // scroll-driven pass within the interval must stay cheap and skip it.
+    markerPositions?.recalculatePositions()
+    flushAnimationFrames()
+    expect(markerPositions?.targetStates.value.has('silent-mount')).toBe(false)
+
+    // Once the interval elapsed, the same plain pass sweeps the cache again.
+    vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 1000)
+    markerPositions?.recalculatePositions()
+    flushAnimationFrames()
+
+    expect(markerPositions?.targetStates.value.has('silent-mount')).toBe(true)
+    expect(annotations.value[0].y).toBe(130)
+
+    wrapper.unmount()
+  })
+
   it('recalculates an anchored marker for non-bubbling inner-container scroll', async () => {
     const scroller = document.createElement('div')
     const target = document.createElement('button')
