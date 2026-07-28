@@ -1,4 +1,4 @@
-import type { Annotation, StorageAdapter } from '../types'
+import type { Annotation, AnnotationScope, StorageAdapter } from '../types'
 import { ref } from 'vue-demi'
 
 const STORAGE_KEY = 'agentation-vue-annotations'
@@ -46,15 +46,30 @@ function parseStore(raw: string | null, currentUrl: string): AnnotationStore {
   return {}
 }
 
-function loadAnnotations(url: string): Annotation[] {
+function loadAnnotations(key: string): Annotation[] {
   try {
     const stored = annotationStorage.getItem(STORAGE_KEY)
-    const store = parseStore(stored, url)
-    const annotations = store[url]
+    const store = parseStore(stored, key)
+    const annotations = store[key]
     return Array.isArray(annotations) ? annotations : []
   }
   catch {}
   return []
+}
+
+let scopeStrategy: AnnotationScope = 'domain-port'
+
+function getScopeKey(url: string): string {
+  try {
+    const parsed = new URL(url)
+    if (scopeStrategy === 'domain')
+      return `${parsed.protocol}//${parsed.hostname}`
+    if (scopeStrategy === 'path')
+      return parsed.origin + parsed.pathname
+    return parsed.origin // 'domain-port'
+  }
+  catch {}
+  return url
 }
 
 function getCounterSeed(annotations: Annotation[]): number {
@@ -70,19 +85,25 @@ let counter = 0
 
 function setScopeUrl(url: string) {
   scopedUrl = url || getCurrentUrl()
-  annotations.value = loadAnnotations(scopedUrl)
+  annotations.value = loadAnnotations(getScopeKey(scopedUrl))
   counter = getCounterSeed(annotations.value)
+}
+
+export function setAnnotationScope(strategy: AnnotationScope) {
+  scopeStrategy = strategy
+  setScopeUrl(scopedUrl)
 }
 
 function save() {
   try {
+    const key = getScopeKey(scopedUrl)
     const stored = annotationStorage.getItem(STORAGE_KEY)
-    const store = parseStore(stored, scopedUrl)
+    const store = parseStore(stored, key)
 
     if (annotations.value.length > 0)
-      store[scopedUrl] = annotations.value
+      store[key] = annotations.value
     else
-      delete store[scopedUrl]
+      delete store[key]
 
     const serialized = JSON.stringify(
       Object.fromEntries(
@@ -156,5 +177,5 @@ export function resetAnnotationStorage() {
 
 export function useAnnotations(initialUrl: string = getCurrentUrl()) {
   setScopeUrl(initialUrl)
-  return { annotations, addAnnotation, removeAnnotation, updateAnnotation, clearAnnotations, restoreAnnotations, setScopeUrl }
+  return { annotations, addAnnotation, removeAnnotation, updateAnnotation, clearAnnotations, restoreAnnotations, setScopeUrl, setAnnotationScope }
 }

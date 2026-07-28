@@ -52,6 +52,7 @@ export type {
   AgentationEmits,
   AgentationProps,
   Annotation,
+  AnnotationScope,
   BoundingBox,
   ElementRef,
   InteractionMode,
