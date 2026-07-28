@@ -1126,14 +1126,49 @@
   margin: 8px 0 12px;
 }
 
+/* Select: custom chevron so the text/chevron spacing is identical across
+   browsers and platforms (native select arrows are not positionable). The
+   select keeps its intrinsic width, so the collapsed field is always wide
+   enough for its longest option and the label never needs re-aligning. */
+.__va-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .__va-settings select {
-  padding: 4px 8px;
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 4px 28px 4px 8px;
   border: 1px solid var(--va-border);
   border-radius: 4px;
+  font-family: inherit;
   font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
   background: var(--va-bg);
   color: var(--va-text);
   outline: none;
+  cursor: pointer;
+  transition: border-color 150ms ease;
+}
+
+.__va-settings select:hover {
+  border-color: var(--va-text-secondary);
+}
+
+.__va-settings select:focus-visible {
+  border-color: var(--va-accent);
+}
+
+.__va-select-chevron {
+  position: absolute;
+  right: 8px;
+  width: 12px;
+  height: 12px;
+  color: var(--va-text-secondary);
+  pointer-events: none;
 }
 
 /* Color swatches */

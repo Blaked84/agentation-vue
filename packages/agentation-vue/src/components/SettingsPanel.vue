@@ -64,29 +64,35 @@ function toggleTheme() {
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Output Detail</span>
-      <select :value="settings.outputDetail" @change="onSelectChange('outputDetail', $event)">
-        <option value="standard">
-          Standard
-        </option>
-        <option value="forensic">
-          Forensic
-        </option>
-      </select>
+      <span class="__va-select">
+        <select :value="settings.outputDetail" @change="onSelectChange('outputDetail', $event)">
+          <option value="standard">
+            Standard
+          </option>
+          <option value="forensic">
+            Forensic
+          </option>
+        </select>
+        <VaIcon name="chevron-down" class="__va-select-chevron" />
+      </span>
     </div>
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Annotation scope</span>
-      <select :value="settings.scope" @change="onSelectChange('scope', $event)">
-        <option value="domain">
-          Domain
-        </option>
-        <option value="domain-port">
-          Domain and port
-        </option>
-        <option value="path">
-          Path
-        </option>
-      </select>
+      <span class="__va-select">
+        <select :value="settings.scope" @change="onSelectChange('scope', $event)">
+          <option value="domain">
+            Domain
+          </option>
+          <option value="domain-port">
+            Domain and port
+          </option>
+          <option value="path">
+            Path
+          </option>
+        </select>
+        <VaIcon name="chevron-down" class="__va-select-chevron" />
+      </span>
     </div>
 
     <div class="__va-settings-row __va-settings-row--clickable" @click="onToggleRowClick('showComponentTree', $event)">
@@ -148,41 +154,47 @@ function toggleTheme() {
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Activate with double tap</span>
-      <select :value="settings.activationKey" @change="onSelectChange('activationKey', $event)">
-        <option value="none">
-          Off
-        </option>
-        <option value="Meta">
-          {{ isMac ? '&#8984; Cmd' : 'Ctrl' }}
-        </option>
-        <option value="Alt">
-          {{ isMac ? '&#8997; Option' : 'Alt' }}
-        </option>
-        <option value="Shift">
-          ⇧ Shift
-        </option>
-      </select>
+      <span class="__va-select">
+        <select :value="settings.activationKey" @change="onSelectChange('activationKey', $event)">
+          <option value="none">
+            Off
+          </option>
+          <option value="Meta">
+            {{ isMac ? '&#8984; Cmd' : 'Ctrl' }}
+          </option>
+          <option value="Alt">
+            {{ isMac ? '&#8997; Option' : 'Alt' }}
+          </option>
+          <option value="Shift">
+            ⇧ Shift
+          </option>
+        </select>
+        <VaIcon name="chevron-down" class="__va-select-chevron" />
+      </span>
     </div>
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Peek inspect (hold key)</span>
-      <select :value="settings.peekKey" @change="onSelectChange('peekKey', $event)">
-        <option value="none">
-          Off
-        </option>
-        <option value="Meta">
-          {{ isMac ? '&#8984; Cmd' : 'Ctrl' }}
-        </option>
-        <option value="Alt">
-          {{ isMac ? '&#8997; Option' : 'Alt' }}
-        </option>
-        <option value="Shift">
-          ⇧ Shift
-        </option>
-        <option value="Control">
-          {{ isMac ? '&#8963; Control' : 'Ctrl' }}
-        </option>
-      </select>
+      <span class="__va-select">
+        <select :value="settings.peekKey" @change="onSelectChange('peekKey', $event)">
+          <option value="none">
+            Off
+          </option>
+          <option value="Meta">
+            {{ isMac ? '&#8984; Cmd' : 'Ctrl' }}
+          </option>
+          <option value="Alt">
+            {{ isMac ? '&#8997; Option' : 'Alt' }}
+          </option>
+          <option value="Shift">
+            ⇧ Shift
+          </option>
+          <option value="Control">
+            {{ isMac ? '&#8963; Control' : 'Ctrl' }}
+          </option>
+        </select>
+        <VaIcon name="chevron-down" class="__va-select-chevron" />
+      </span>
     </div>
   </div>
 </template>
