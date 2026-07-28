@@ -1127,25 +1127,40 @@
 }
 
 /* Select: custom chevron so the text/chevron spacing is identical across
-   browsers and platforms (native select arrows are not positionable). The
-   select keeps its intrinsic width, so the collapsed field is always wide
-   enough for its longest option and the label never needs re-aligning. */
+   browsers and platforms (native select arrows are not positionable).
+   A native select always sizes itself to its widest option, so the hidden
+   sizer below -- which renders the selected label -- carries the width
+   instead, and the select is overlaid on top of it. The collapsed field
+   therefore hugs the current selection. */
 .__va-select {
   position: relative;
-  display: inline-flex;
-  align-items: center;
+  display: inline-block;
   flex-shrink: 0;
 }
 
+.__va-select-sizer,
 .__va-settings select {
-  appearance: none;
-  -webkit-appearance: none;
   padding: 4px 28px 4px 8px;
-  border: 1px solid var(--va-border);
-  border-radius: 4px;
+  border: 1px solid transparent;
   font-family: inherit;
   font-size: 12px;
   line-height: 1.4;
+  white-space: pre;
+}
+
+.__va-select-sizer {
+  display: block;
+  visibility: hidden;
+}
+
+.__va-settings select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  border-color: var(--va-border);
+  border-radius: 4px;
   text-align: left;
   background: var(--va-bg);
   color: var(--va-text);
@@ -1164,9 +1179,11 @@
 
 .__va-select-chevron {
   position: absolute;
+  top: 50%;
   right: 8px;
   width: 12px;
   height: 12px;
+  transform: translateY(-50%);
   color: var(--va-text-secondary);
   pointer-events: none;
 }
