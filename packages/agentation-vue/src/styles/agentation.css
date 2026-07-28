@@ -656,11 +656,24 @@
   transition: transform 200ms cubic-bezier(0.55, 0, 1, 0.45), box-shadow 150ms ease, opacity 150ms ease;
 }
 
+.__va-marker--clipped {
+  visibility: hidden;
+}
+
 .__va-marker--fixed {
   position: fixed;
 }
 
 .__va-marker--stale {
+  opacity: 0.5;
+}
+
+.__va-marker--foreign {
+  opacity: 0.8;
+}
+
+/* Stale is a stronger signal than foreign -- keep it dominant when both apply. */
+.__va-marker--stale.__va-marker--foreign {
   opacity: 0.5;
 }
 
@@ -1113,14 +1126,82 @@
   margin: 8px 0 12px;
 }
 
+/* Select: custom chevron so the text/chevron spacing is identical across
+   browsers and platforms (native select arrows are not positionable).
+   A native select always sizes itself to its widest option, so the hidden
+   sizer below -- which renders the selected label -- carries the width
+   instead, and the select is overlaid on top of it. The collapsed field
+   therefore hugs the current selection. */
+.__va-select {
+  display: inline-grid;
+  flex-shrink: 0;
+}
+
+/* Field and reserves share one grid cell: the cell keeps the width of the
+   longest option while the field only takes the width of the selection, so
+   the leftover slack sits to its left and the panel never reflows. The field
+   stays flush with the row's right edge whatever is selected. */
+.__va-select > * {
+  grid-area: 1 / 1;
+}
+
+.__va-select-field {
+  position: relative;
+  display: block;
+  justify-self: end;
+}
+
+.__va-select-sizer,
+.__va-select-reserve,
 .__va-settings select {
-  padding: 4px 8px;
-  border: 1px solid var(--va-border);
-  border-radius: 4px;
+  padding: 4px 28px 4px 8px;
+  border: 1px solid transparent;
+  font-family: inherit;
   font-size: 12px;
+  line-height: 1.4;
+  white-space: pre;
+}
+
+.__va-select-sizer,
+.__va-select-reserve {
+  display: block;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.__va-settings select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  border-color: var(--va-border);
+  border-radius: 4px;
+  text-align: left;
   background: var(--va-bg);
   color: var(--va-text);
   outline: none;
+  cursor: pointer;
+  transition: border-color 150ms ease;
+}
+
+.__va-settings select:hover {
+  border-color: var(--va-text-secondary);
+}
+
+.__va-settings select:focus-visible {
+  border-color: var(--va-accent);
+}
+
+.__va-select-chevron {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 12px;
+  height: 12px;
+  transform: translateY(-50%);
+  color: var(--va-text-secondary);
+  pointer-events: none;
 }
 
 /* Color swatches */

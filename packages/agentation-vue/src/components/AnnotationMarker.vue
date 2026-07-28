@@ -10,6 +10,8 @@ const props = defineProps<{
   isStale?: boolean
   isPending?: boolean
   isSelection?: boolean
+  isForeign?: boolean
+  clipped?: boolean
   hidden?: boolean
 }>()
 
@@ -37,6 +39,8 @@ const markerStyle = computed(() => ({
       '__va-marker--stale': isStale,
       '__va-marker--pending': isPending,
       '__va-marker--selection': isSelection,
+      '__va-marker--foreign': isForeign,
+      '__va-marker--clipped': clipped,
       '__va-marker--hidden': hidden,
       '__va-marker--entering': entering,
     }"

@@ -35,6 +35,7 @@ describe('useSettings', () => {
     expect(settings.outputDetail).toBe('standard')
     expect(settings.markerColor).toBe('#42B883')
     expect(settings.theme).toBe('auto')
+    expect(settings.scope).toBe('domain-port')
   })
 
   it('persists changes to storage', async () => {
@@ -45,6 +46,17 @@ describe('useSettings', () => {
 
     expect(JSON.parse(storage.get(STORAGE_KEY)!)).toMatchObject({
       theme: 'dark',
+    })
+  })
+
+  it('persists scope changes to storage', async () => {
+    const { settings } = useSettings()
+    settings.scope = 'path'
+
+    await Promise.resolve()
+
+    expect(JSON.parse(storage.get(STORAGE_KEY)!)).toMatchObject({
+      scope: 'path',
     })
   })
 

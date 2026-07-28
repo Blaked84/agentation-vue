@@ -121,6 +121,11 @@ class AgentationPage {
     return this.page.locator('.__va-marker')
   }
 
+  /** Markers dimmed because their annotation belongs to a different page URL */
+  foreignMarkers() {
+    return this.page.locator('.__va-marker.__va-marker--foreign')
+  }
+
   async getMarkerCount(): Promise<number> {
     return this.markers().count()
   }
@@ -140,7 +145,9 @@ class AgentationPage {
       const parsed = JSON.parse(stored)
       if (Array.isArray(parsed))
         return parsed
-      const scoped = parsed[window.location.href]
+      // Default scope is 'domain-port', so the store key is the origin. Fall back
+      // to the legacy full-href key for pre-scoping stored data.
+      const scoped = parsed[new URL(window.location.href).origin] ?? parsed[window.location.href]
       return Array.isArray(scoped) ? scoped : []
     })
   }

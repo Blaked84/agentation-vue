@@ -1,5 +1,21 @@
 # agentation-vue
 
+## 0.3.0
+
+### Minor Changes
+
+- feat: add configurable `scope` prop for annotation persistence
+
+  Annotations were previously keyed in `sessionStorage` by the full page URL (including query string and hash), so they vanished whenever the URL varied slightly across navigations. Added a `scope` prop (`'domain' | 'domain-port' | 'path'`) that controls how annotations are grouped for storage:
+
+  - `'domain'` keys annotations by protocol + hostname, ignoring the port, so annotations persist across ports, paths, query strings, and hashes on the same hostname.
+  - `'domain-port'` (the default) keys annotations by origin (protocol + host + port), so annotations persist across paths, query strings, and hashes but stay isolated per port.
+  - `'path'` keys annotations by origin + pathname, ignoring the query string and hash, so annotations persist across query/hash changes but stay isolated per page path.
+
+  **This changes existing behavior**: annotations are now shared across all pages on the same origin instead of being isolated per exact URL. The `url` field stored on each annotation is unaffected and still records the full page URL where it was created.
+
+  `scope` is now also a persisted user setting exposed in the settings panel (Annotation scope), so users can change it without a host-provided prop; the prop still overrides the persisted setting when explicitly passed.
+
 ## 0.2.15
 
 ### Patch Changes

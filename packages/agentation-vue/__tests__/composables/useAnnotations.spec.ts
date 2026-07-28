@@ -27,6 +27,7 @@ beforeAll(() => {
 let useAnnotations: typeof import('../../src/composables/useAnnotations').useAnnotations
 let setAnnotationStorage: typeof import('../../src/composables/useAnnotations').setAnnotationStorage
 let resetAnnotationStorage: typeof import('../../src/composables/useAnnotations').resetAnnotationStorage
+let setAnnotationScope: typeof import('../../src/composables/useAnnotations').setAnnotationScope
 
 beforeEach(async () => {
   storage.clear()
@@ -35,6 +36,7 @@ beforeEach(async () => {
   useAnnotations = mod.useAnnotations
   setAnnotationStorage = mod.setAnnotationStorage
   resetAnnotationStorage = mod.resetAnnotationStorage
+  setAnnotationScope = mod.setAnnotationScope
 })
 
 afterAll(() => {
@@ -72,8 +74,9 @@ describe('useAnnotations', () => {
     const raw = storage.get(STORAGE_KEY)
     expect(raw).toBeDefined()
 
+    // Default scope is 'domain-port', so the store key is the origin, not the full href.
     const parsed = JSON.parse(raw!)
-    const scoped = parsed[window.location.href]
+    const scoped = parsed[new URL(window.location.href).origin]
     expect(Array.isArray(scoped)).toBe(true)
     expect(scoped).toHaveLength(1)
     expect(scoped[0].comment).toBe('Test')
@@ -88,8 +91,9 @@ describe('useAnnotations', () => {
     const raw = storage.get(STORAGE_KEY)
     expect(raw).toBeDefined()
 
+    // Default scope is 'domain-port', so the store key is the origin, not the full href.
     const parsed = JSON.parse(raw!)
-    const scoped = parsed[window.location.href]
+    const scoped = parsed[new URL(window.location.href).origin]
     expect(scoped[0]).not.toHaveProperty('_targetRef')
   })
 
@@ -178,8 +182,9 @@ describe('useAnnotations', () => {
       { id: '1', x: 10, y: 20, comment: 'Loaded', element: 'div', elementPath: 'body > div', timestamp: 1000 },
       { id: '2', x: 30, y: 40, comment: 'Also loaded', element: 'span', elementPath: 'body > span', timestamp: 2000 },
     ]
+    // Default scope is 'domain-port', so pre-existing annotations must be keyed by origin.
     storage.set(STORAGE_KEY, JSON.stringify({
-      [window.location.href]: preExisting,
+      [new URL(window.location.href).origin]: preExisting,
     }))
 
     vi.resetModules()
@@ -194,21 +199,150 @@ describe('useAnnotations', () => {
     expect(next.id).toBe('3')
   })
 
-  it('scopes annotations by URL', () => {
-    const { addAnnotation, annotations, setScopeUrl } = useAnnotations('https://example.com/a')
+  it('"domain" scope: different ports and different paths/query/hash on the same hostname share annotations', () => {
+    setAnnotationScope('domain')
+    const { addAnnotation, annotations, setScopeUrl } = useAnnotations('https://ex.com:3000/a?q=1')
+    addAnnotation(makeAnnotation({ comment: 'Port 3000' }))
+    expect(annotations.value).toHaveLength(1)
+
+    // Different port, different path, different query/hash -- still shares under 'domain'.
+    setScopeUrl('https://ex.com:4000/b#h')
+    expect(annotations.value).toHaveLength(1)
+    expect(annotations.value[0].comment).toBe('Port 3000')
+  })
+
+  it('"domain" scope does not share annotations across different hostnames', () => {
+    setAnnotationScope('domain')
+    const { addAnnotation, annotations, setScopeUrl } = useAnnotations('https://ex.com:3000/a')
+    addAnnotation(makeAnnotation({ comment: 'Ex' }))
+    expect(annotations.value).toHaveLength(1)
+
+    setScopeUrl('https://other.com:3000/a')
+    expect(annotations.value).toEqual([])
+  })
+
+  it('keeps annotation.url as the full page URL under "domain" scope (schema compliance)', () => {
+    setAnnotationScope('domain')
+    const { addAnnotation } = useAnnotations('https://ex.com:3000/a?q=1#h')
+    const result = addAnnotation(makeAnnotation())
+
+    expect(result.url).toBe('https://ex.com:3000/a?q=1#h')
+  })
+
+  it('defaults to "domain-port" scope: annotations persist across different paths/query/hash on the same origin', () => {
+    const { addAnnotation, annotations, setScopeUrl } = useAnnotations('https://example.com:3000/a?x=1')
     addAnnotation(makeAnnotation({ comment: 'Page A' }))
     expect(annotations.value).toHaveLength(1)
 
-    setScopeUrl('https://example.com/b')
-    expect(annotations.value).toEqual([])
-
-    addAnnotation(makeAnnotation({ comment: 'Page B' }))
-    expect(annotations.value).toHaveLength(1)
-    expect(annotations.value[0].comment).toBe('Page B')
-
-    setScopeUrl('https://example.com/a')
+    setScopeUrl('https://example.com:3000/b#frag')
     expect(annotations.value).toHaveLength(1)
     expect(annotations.value[0].comment).toBe('Page A')
+  })
+
+  it('"domain-port" scope (default) key includes the port: different ports do not share annotations', () => {
+    const { addAnnotation, annotations, setScopeUrl } = useAnnotations('https://example.com:3000/a')
+    addAnnotation(makeAnnotation({ comment: 'Port 3000' }))
+    expect(annotations.value).toHaveLength(1)
+
+    setScopeUrl('https://example.com:4000/a')
+    expect(annotations.value).toEqual([])
+  })
+
+  it('"domain-port" scope (default) never shares annotations across different origins', () => {
+    const { addAnnotation, annotations, setScopeUrl } = useAnnotations('https://example.com/a')
+    addAnnotation(makeAnnotation({ comment: 'Example' }))
+    expect(annotations.value).toHaveLength(1)
+
+    setScopeUrl('https://other-domain.com/a')
+    expect(annotations.value).toEqual([])
+  })
+
+  it('keeps annotation.url as the full page URL under "domain-port" scope (schema compliance)', () => {
+    const { addAnnotation } = useAnnotations('https://example.com:3000/a?x=1#frag')
+    const result = addAnnotation(makeAnnotation())
+
+    expect(result.url).toBe('https://example.com:3000/a?x=1#frag')
+  })
+
+  it('setAnnotationScope switches strategy at runtime and re-scopes accordingly', () => {
+    const { addAnnotation, annotations, setAnnotationScope } = useAnnotations('https://example.com/a')
+    addAnnotation(makeAnnotation({ comment: 'Domain-port scoped' }))
+    expect(annotations.value).toHaveLength(1)
+
+    // Switching to 'path' re-keys off origin+pathname ('https://example.com/a'), which has
+    // no data stored under it yet (the annotation above was saved under the origin key).
+    setAnnotationScope('path')
+    expect(annotations.value).toEqual([])
+
+    // Switching back to 'domain-port' re-keys off the origin and finds the annotation again.
+    setAnnotationScope('domain-port')
+    expect(annotations.value).toHaveLength(1)
+    expect(annotations.value[0].comment).toBe('Domain-port scoped')
+  })
+
+  it('"path" scope: annotations persist across different query/hash on the same origin+pathname', () => {
+    setAnnotationScope('path')
+    const { addAnnotation, annotations, setScopeUrl } = useAnnotations('https://ex.com:3000/dashboard?tab=1')
+    addAnnotation(makeAnnotation({ comment: 'Dashboard' }))
+    expect(annotations.value).toHaveLength(1)
+
+    setScopeUrl('https://ex.com:3000/dashboard?tab=2#section')
+    expect(annotations.value).toHaveLength(1)
+    expect(annotations.value[0].comment).toBe('Dashboard')
+  })
+
+  it('"path" scope does not carry annotations over to a different pathname on the same origin', () => {
+    setAnnotationScope('path')
+    const { addAnnotation, annotations, setScopeUrl } = useAnnotations('https://ex.com:3000/dashboard')
+    addAnnotation(makeAnnotation({ comment: 'Dashboard' }))
+    expect(annotations.value).toHaveLength(1)
+
+    setScopeUrl('https://ex.com:3000/settings')
+    expect(annotations.value).toEqual([])
+  })
+
+  it('"path" scope never shares annotations across different origins/ports', () => {
+    setAnnotationScope('path')
+    const { addAnnotation, annotations, setScopeUrl } = useAnnotations('https://ex.com:3000/dashboard')
+    addAnnotation(makeAnnotation({ comment: 'Dashboard' }))
+    expect(annotations.value).toHaveLength(1)
+
+    setScopeUrl('https://ex.com:4000/dashboard')
+    expect(annotations.value).toEqual([])
+
+    setScopeUrl('https://other.com:3000/dashboard')
+    expect(annotations.value).toEqual([])
+  })
+
+  it('keeps annotation.url as the full page URL under "path" scope (schema compliance)', () => {
+    setAnnotationScope('path')
+    const { addAnnotation } = useAnnotations('https://ex.com:3000/dashboard?tab=1#section')
+    const result = addAnnotation(makeAnnotation())
+
+    expect(result.url).toBe('https://ex.com:3000/dashboard?tab=1#section')
+  })
+
+  it('clearAnnotations only affects the current scope key, leaving other scopes intact', () => {
+    const { addAnnotation, annotations, setScopeUrl, clearAnnotations } = useAnnotations('https://origin-a.com/page')
+    addAnnotation(makeAnnotation({ comment: 'Origin A' }))
+    expect(annotations.value).toHaveLength(1)
+
+    setScopeUrl('https://origin-b.com/page')
+    addAnnotation(makeAnnotation({ comment: 'Origin B' }))
+    expect(annotations.value).toHaveLength(1)
+
+    clearAnnotations()
+    expect(annotations.value).toEqual([])
+
+    const raw = storage.get(STORAGE_KEY)
+    const parsed = JSON.parse(raw!)
+    expect(parsed[new URL('https://origin-b.com/page').origin]).toBeUndefined()
+    expect(parsed[new URL('https://origin-a.com/page').origin]).toHaveLength(1)
+    expect(parsed[new URL('https://origin-a.com/page').origin][0].comment).toBe('Origin A')
+
+    setScopeUrl('https://origin-a.com/page')
+    expect(annotations.value).toHaveLength(1)
+    expect(annotations.value[0].comment).toBe('Origin A')
   })
 
   it('supports overriding the storage adapter', () => {

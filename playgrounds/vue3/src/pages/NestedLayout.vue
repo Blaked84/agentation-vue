@@ -70,6 +70,20 @@ const modalOpen = ref(false)
           </div>
         </div>
 
+        <div class="scroll-demo">
+          <h3>Scrollable Container</h3>
+          <div class="scroll-container">
+            <p>
+              Scroll this panel to test annotations anchored inside nested scroll areas.
+            </p>
+            <div class="scroll-spacer" />
+            <MocButton class="test-scroll-target" variant="secondary">
+              Nested scroll target
+            </MocButton>
+            <div class="scroll-spacer" />
+          </div>
+        </div>
+
         <div class="transform-container">
           <MocPanel title="Transform Panel">
             <MocWidget label="Nested widget">
@@ -132,6 +146,10 @@ const modalOpen = ref(false)
 .stack-layer-1 { top: 30px; left: 0; z-index: 1; background: #dbeafe; color: #1e40af; }
 .stack-layer-2 { top: 50px; left: 60px; z-index: 10; background: #dcfce7; color: #166534; }
 .stack-layer-3 { top: 40px; left: 120px; z-index: 100; background: #fef3c7; color: #92400e; }
+.scroll-demo h3 { font-size: 15px; margin-bottom: 8px; }
+.scroll-container { height: 180px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; background: #f9fafb; }
+.scroll-container p { font-size: 13px; color: #6b7280; }
+.scroll-spacer { height: 180px; }
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
 .modal { background: white; border-radius: 12px; padding: 24px; width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
 .modal-title { font-size: 18px; margin-bottom: 12px; }

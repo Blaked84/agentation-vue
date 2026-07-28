@@ -4,6 +4,7 @@ import { computed, toRef } from 'vue-demi'
 import { VA_VERSION } from '../constants'
 import { vaTooltipDirective } from '../directives/vaTooltip'
 import VaIcon from './VaIcon.vue'
+import VaSelect from './VaSelect.vue'
 import VaToggle from './VaToggle.vue'
 
 const props = defineProps<{
@@ -28,12 +29,28 @@ function onToggleRowClick(key: keyof Settings, event: MouseEvent) {
   update(key, !settings.value[key])
 }
 
-function onSelectChange(key: keyof Settings, event: Event) {
-  const target = event.currentTarget as HTMLSelectElement | null
-  if (!target)
-    return
-  update(key, target.value)
-}
+const outputDetailOptions = [
+  { value: 'standard', label: 'Standard' },
+  { value: 'forensic', label: 'Forensic' },
+]
+
+const scopeOptions = [
+  { value: 'domain', label: 'Domain' },
+  { value: 'domain-port', label: 'Domain and port' },
+  { value: 'path', label: 'Path' },
+]
+
+const modifierOptions = computed(() => [
+  { value: 'none', label: 'Off' },
+  { value: 'Meta', label: isMac ? '⌘ Cmd' : 'Ctrl' },
+  { value: 'Alt', label: isMac ? '⌥ Option' : 'Alt' },
+  { value: 'Shift', label: '⇧ Shift' },
+])
+
+const peekOptions = computed(() => [
+  ...modifierOptions.value,
+  { value: 'Control', label: isMac ? '⌃ Control' : 'Ctrl' },
+])
 
 const isDarkTheme = computed(() => {
   if (settings.value.theme === 'dark')
@@ -64,14 +81,22 @@ function toggleTheme() {
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Output Detail</span>
-      <select :value="settings.outputDetail" @change="onSelectChange('outputDetail', $event)">
-        <option value="standard">
-          Standard
-        </option>
-        <option value="forensic">
-          Forensic
-        </option>
-      </select>
+      <VaSelect
+        :model-value="settings.outputDetail"
+        :options="outputDetailOptions"
+        aria-label="Output Detail"
+        @update:model-value="update('outputDetail', $event)"
+      />
+    </div>
+
+    <div class="__va-settings-row">
+      <span class="__va-settings-label">Annotation scope</span>
+      <VaSelect
+        :model-value="settings.scope"
+        :options="scopeOptions"
+        aria-label="Annotation scope"
+        @update:model-value="update('scope', $event)"
+      />
     </div>
 
     <div class="__va-settings-row __va-settings-row--clickable" @click="onToggleRowClick('showComponentTree', $event)">
@@ -133,41 +158,22 @@ function toggleTheme() {
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Activate with double tap</span>
-      <select :value="settings.activationKey" @change="onSelectChange('activationKey', $event)">
-        <option value="none">
-          Off
-        </option>
-        <option value="Meta">
-          {{ isMac ? '&#8984; Cmd' : 'Ctrl' }}
-        </option>
-        <option value="Alt">
-          {{ isMac ? '&#8997; Option' : 'Alt' }}
-        </option>
-        <option value="Shift">
-          ⇧ Shift
-        </option>
-      </select>
+      <VaSelect
+        :model-value="settings.activationKey"
+        :options="modifierOptions"
+        aria-label="Activate with double tap"
+        @update:model-value="update('activationKey', $event)"
+      />
     </div>
 
     <div class="__va-settings-row">
       <span class="__va-settings-label">Peek inspect (hold key)</span>
-      <select :value="settings.peekKey" @change="onSelectChange('peekKey', $event)">
-        <option value="none">
-          Off
-        </option>
-        <option value="Meta">
-          {{ isMac ? '&#8984; Cmd' : 'Ctrl' }}
-        </option>
-        <option value="Alt">
-          {{ isMac ? '&#8997; Option' : 'Alt' }}
-        </option>
-        <option value="Shift">
-          ⇧ Shift
-        </option>
-        <option value="Control">
-          {{ isMac ? '&#8963; Control' : 'Ctrl' }}
-        </option>
-      </select>
+      <VaSelect
+        :model-value="settings.peekKey"
+        :options="peekOptions"
+        aria-label="Peek inspect (hold key)"
+        @update:model-value="update('peekKey', $event)"
+      />
     </div>
   </div>
 </template>

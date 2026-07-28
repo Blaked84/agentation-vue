@@ -57,6 +57,37 @@ test.describe('Settings', () => {
     expect(stored.outputDetail).toBe(newValue)
   })
 
+  test('annotation scope setting persists via localStorage and can be changed from the settings panel', async ({ ag }) => {
+    await ag.settingsBtn.click()
+    await expect(ag.settingsPanel).toBeVisible()
+
+    // Find the annotation scope <select>
+    const scopeSelect = ag.settingsPanel.locator('select').nth(1)
+    await expect(scopeSelect).toBeVisible()
+
+    // Default persisted setting is 'domain-port'
+    expect(await scopeSelect.inputValue()).toBe('domain-port')
+
+    await scopeSelect.selectOption('path')
+    expect(await scopeSelect.inputValue()).toBe('path')
+
+    // Verify the setting was persisted to localStorage
+    const stored = await ag.page.evaluate(() => {
+      const s = localStorage.getItem('agentation-vue-settings')
+      return s ? JSON.parse(s) : null
+    })
+    expect(stored?.scope).toBe('path')
+
+    // Reload and confirm the select reflects the persisted setting
+    await ag.page.reload()
+    await ag.toolbar.waitFor({ state: 'visible' })
+    await ag.activate()
+    await ag.settingsBtn.click()
+
+    const scopeSelectAfterReload = ag.settingsPanel.locator('select').nth(1)
+    expect(await scopeSelectAfterReload.inputValue()).toBe('path')
+  })
+
   test('marker color changes when swatch is clicked', async ({ ag }) => {
     await ag.settingsBtn.click()
 

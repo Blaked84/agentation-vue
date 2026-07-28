@@ -1,5 +1,6 @@
 export type OutputDetail = 'standard' | 'forensic'
 export type ToolbarAnchor = 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
+export type AnnotationScope = 'domain' | 'domain-port' | 'path'
 
 export type InteractionMode
   = | 'idle'
@@ -63,6 +64,7 @@ export interface AgentationProps {
   theme?: 'light' | 'dark' | 'auto'
   activationKey?: 'none' | 'Meta' | 'Alt' | 'Shift'
   disablePortal?: boolean
+  scope?: AnnotationScope
 }
 
 export interface AgentationEmits {
@@ -84,6 +86,7 @@ export interface Settings {
   theme: 'light' | 'dark' | 'auto'
   activationKey: 'none' | 'Meta' | 'Alt' | 'Shift'
   peekKey: 'none' | 'Meta' | 'Alt' | 'Shift' | 'Control'
+  scope: AnnotationScope
 }
 
 export interface StorageAdapter {

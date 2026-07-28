@@ -3,9 +3,9 @@ import { expect, test } from '../fixtures/agentation-fixture'
 test.describe('Session Persistence', () => {
   // goto() auto-clears storage by default
 
-  test('annotations are scoped by page URL when navigating', async ({ ag }) => {
+  test('annotations are shared across pages on the same origin (default "domain-port" scope)', async ({ ag }) => {
     await ag.gotoAndActivate('/')
-    await ag.annotateElement('.test-submit', 'Persistent note')
+    await ag.annotateElement('.page-title', 'Persistent note')
     await expect(ag.markers()).toHaveCount(1)
 
     // Minimize toolbar first so overlay is removed, then nav link is clickable
@@ -13,13 +13,13 @@ test.describe('Session Persistence', () => {
     await ag.page.click('.nav-link[href="/nested"]')
     await ag.page.waitForURL('**/nested')
 
-    // Different URL -> different annotation scope
-    await expect(ag.markers()).toHaveCount(0)
+    // Same origin -> default "domain-port" scope shares the annotation across pages
+    await expect(ag.markers()).toHaveCount(1)
 
     await ag.page.click('.nav-link[href="/"]')
     await ag.page.waitForURL('**/')
 
-    // Returning to the original URL restores its scoped annotations
+    // Still visible back on the original page
     await expect(ag.markers()).toHaveCount(1)
   })
 
