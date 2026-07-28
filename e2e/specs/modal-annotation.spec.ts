@@ -26,13 +26,13 @@ test.describe('Modal annotation', () => {
 
     await ag.page.locator('.demo-dialog button', { hasText: 'Close' }).click()
 
-    // Vue 3 restores to body, Vue 2 to the #__va-portal container
-    const backHome = await ag.page.evaluate(() => {
+    // `close()` queues the close event rather than firing it synchronously, so
+    // poll instead of sampling once. Vue 3 restores to body, Vue 2 to #__va-portal.
+    await expect.poll(() => ag.page.evaluate(() => {
       const parent = document.querySelector('.__va-root')?.parentElement
       return !!parent && parent.tagName !== 'DIALOG'
         && (parent === document.body || parent.id === '__va-portal')
-    })
-    expect(backHome).toBe(true)
+    })).toBe(true)
   })
 
   test('can type a comment when annotating inside a focus-trap modal', async ({ ag }) => {
