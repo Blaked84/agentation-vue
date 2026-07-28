@@ -1133,12 +1133,26 @@
    instead, and the select is overlaid on top of it. The collapsed field
    therefore hugs the current selection. */
 .__va-select {
-  position: relative;
-  display: inline-block;
+  display: inline-grid;
   flex-shrink: 0;
 }
 
+/* Field and reserves share one grid cell: the cell keeps the width of the
+   longest option while the field only takes the width of the selection, so
+   the leftover slack sits to its left and the panel never reflows. The field
+   stays flush with the row's right edge whatever is selected. */
+.__va-select > * {
+  grid-area: 1 / 1;
+}
+
+.__va-select-field {
+  position: relative;
+  display: block;
+  justify-self: end;
+}
+
 .__va-select-sizer,
+.__va-select-reserve,
 .__va-settings select {
   padding: 4px 28px 4px 8px;
   border: 1px solid transparent;
@@ -1148,9 +1162,11 @@
   white-space: pre;
 }
 
-.__va-select-sizer {
+.__va-select-sizer,
+.__va-select-reserve {
   display: block;
   visibility: hidden;
+  pointer-events: none;
 }
 
 .__va-settings select {
