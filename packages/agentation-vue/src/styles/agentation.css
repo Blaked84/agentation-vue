@@ -63,6 +63,23 @@
   -webkit-user-select: text;
 }
 
+/* === Root Container === */
+/* Survive libraries that disable pointer events on body while a modal is open */
+.__va-root {
+  pointer-events: auto;
+}
+
+/* While re-hosted inside a native modal dialog: pin the root at the document
+   origin (top/left/width kept in sync with scroll by useModalDialogHost) so
+   document-relative marker coordinates stay correct */
+.__va-root--in-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 0;
+}
+
 /* === Intercept Overlay === */
 .__va-intercept {
   position: fixed;

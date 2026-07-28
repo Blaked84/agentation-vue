@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { MentionCandidate } from '../utils/mention'
 import { computed, onMounted, ref, toRef } from 'vue-demi'
+import { useFocusKeeper } from '../composables/useFocusKeeper'
 import { useMentionDropdown } from '../composables/useMentionDropdown'
 import { hydrateMentions, serializeMentions } from '../utils/mention'
 import ComponentChain from './ComponentChain.vue'
@@ -31,6 +32,7 @@ const candidates = toRef(props, 'mentionCandidates')
 const safeCandidates = computed(() => candidates.value || [])
 
 const mention = useMentionDropdown(inputEl, safeCandidates)
+useFocusKeeper(inputEl)
 
 const inputStyle = computed(() => {
   const x = Math.min(props.position.x, window.innerWidth - 380)

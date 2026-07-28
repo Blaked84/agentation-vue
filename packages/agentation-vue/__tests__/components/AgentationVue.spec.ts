@@ -35,6 +35,34 @@ describe('agentationVue', () => {
     host.remove()
   })
 
+  it('stops focus events from bubbling to document-level focus traps', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const wrapper = mount(AgentationVue, {
+      attachTo: host,
+      props: {
+        disablePortal: true,
+        copyToClipboard: false,
+      },
+    })
+
+    await nextTick()
+
+    const focusInSpy = vi.fn()
+    document.addEventListener('focusin', focusInSpy)
+
+    const toggle = wrapper.get('.__va-toolbar-toggle').element as HTMLElement
+    toggle.focus()
+
+    expect(document.activeElement).toBe(toggle)
+    expect(focusInSpy).not.toHaveBeenCalled()
+
+    document.removeEventListener('focusin', focusInSpy)
+    wrapper.unmount()
+    host.remove()
+  })
+
   it('stops open-toolbar shortcuts from reaching host keyboard listeners', async () => {
     const host = document.createElement('div')
     document.body.appendChild(host)

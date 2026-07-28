@@ -1,5 +1,16 @@
 # agentation-vue
 
+## 0.2.15
+
+### Patch Changes
+
+- Fix the annotation input being impossible to type in when annotating content inside modals:
+
+  - Re-host the library UI inside open native `<dialog>` modals — `showModal()` paints the dialog in the top layer and makes everything else inert, which made the UI invisible and non-interactive
+  - Reclaim focus stolen from the annotation input by focus-trap modal libraries (Vuetify, Element Plus, focus-trap), and stop focus events from bubbling to document-level traps
+  - Strip `inert`/`aria-hidden` applied to library containers by modal libraries (Headless UI style) and survive `body { pointer-events: none }` locks (reka-ui/Radix style)
+  - Fix Vue 3 portal: `<component :is="'Teleport'">` rendered a literal `<teleport>` element in place instead of teleporting the UI to `body`
+
 ## 0.2.14
 
 ### Patch Changes
